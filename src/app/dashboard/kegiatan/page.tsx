@@ -260,7 +260,7 @@ export default function KegiatanPage() {
                 ) : (
                   <div className="space-y-3">
                     {presensi.map((p, idx) => (
-                      <div key={p.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between animate-in slide-in-from-right-4 duration-300" style={{ animationDelay: \`\${idx * 50}ms\` }}>
+                      <div key={p.id} className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between animate-in slide-in-from-right-4 duration-300" style={{ animationDelay: `${idx * 50}ms` }}>
                         <div className="flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold shadow-inner">
                             {p.nama_guru.substring(0,2).toUpperCase()}
