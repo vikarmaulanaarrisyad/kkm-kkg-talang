@@ -99,7 +99,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
       document.body.appendChild(container);
 
       const opt = {
-        margin:       [10, 10, 10, 10], // top, left, bottom, right
+        margin:       10, // top, left, bottom, right
         filename:     `${surat.jenis} - ${surat.judul}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, logging: false },
