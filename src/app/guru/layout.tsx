@@ -18,7 +18,7 @@ export default async function GuruLayout({ children }: { children: React.ReactNo
 
 
       {/* Main content */}
-      <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 mb-20">
+      <main className="flex-1 w-full max-w-md mx-auto sm:max-w-4xl pb-24 bg-slate-50">
         {children}
       </main>
 

@@ -119,18 +119,28 @@ export default function GuruDashboard() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10">
-          <h2 className="text-2xl font-black mb-2">Selamat Datang!</h2>
-          <p className="text-emerald-100 mb-6 max-w-sm">
-            Gunakan menu <b>Scan Kehadiran</b> di bawah untuk melakukan absensi.
-          </p>
+    <div className="space-y-6 sm:space-y-8 pb-10">
+      {/* Full bleed mobile header */}
+      <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-b-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden -mt-1 pb-12">
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <p className="text-emerald-200 text-sm font-medium mb-1 tracking-wide">Portal Guru KKG</p>
+            <h2 className="text-3xl font-black mb-2">Halo, {session?.user?.name?.split(" ")[0] || "Guru"}! 👋</h2>
+            <p className="text-emerald-100/90 text-sm max-w-[250px] leading-relaxed">
+              Selamat datang. Siap untuk kegiatan hari ini?
+            </p>
+          </div>
+          {/* Avatar/Initials */}
+          <div className="w-14 h-14 rounded-full bg-emerald-800/50 border-2 border-emerald-400/50 flex items-center justify-center text-xl font-bold shadow-inner shrink-0 backdrop-blur-sm">
+            {session?.user?.name?.substring(0, 2).toUpperCase() || "GU"}
+          </div>
         </div>
-        <div className="absolute top-[-50%] right-[-10%] w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+        <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white opacity-10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-[-40%] left-[-20%] w-72 h-72 bg-emerald-900 opacity-20 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Kegiatan Aktif */}
+      <div className="px-5 sm:px-8 space-y-8 -mt-6 relative z-20">
+        {/* Kegiatan Aktif */}
       <div>
         <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
           <Calendar className="w-5 h-5 text-emerald-600" /> Kegiatan Aktif Saat Ini (Menunggu Scan)
