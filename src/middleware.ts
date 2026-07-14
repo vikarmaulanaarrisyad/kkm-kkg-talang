@@ -17,9 +17,9 @@ export async function middleware(req: NextRequest) {
     // If logged in and visiting /login, redirect to correct dashboard
     if (token && pathname === "/login") {
       const role = token.role as string;
-      return NextResponse.redirect(
-        new URL(role === "admin" ? "/dashboard" : "/madrasah", req.url)
-      );
+      if (role === "admin") return NextResponse.redirect(new URL("/dashboard", req.url));
+      if (role === "guru") return NextResponse.redirect(new URL("/guru/dashboard", req.url));
+      return NextResponse.redirect(new URL("/madrasah", req.url));
     }
     return NextResponse.next();
   }
@@ -30,7 +30,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
     if (token.role !== "admin") {
-      return NextResponse.redirect(new URL("/madrasah", req.url));
+      return NextResponse.redirect(new URL(token.role === "guru" ? "/guru/dashboard" : "/madrasah", req.url));
     }
     return NextResponse.next();
   }
@@ -41,7 +41,18 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
     if (token.role !== "madrasah") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(new URL(token.role === "guru" ? "/guru/dashboard" : "/dashboard", req.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Protected: /guru — guru role only
+  if (pathname.startsWith("/guru")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+    if (token.role !== "guru") {
+      return NextResponse.redirect(new URL(token.role === "admin" ? "/dashboard" : "/madrasah", req.url));
     }
     return NextResponse.next();
   }
@@ -50,5 +61,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/madrasah/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/madrasah/:path*", "/guru/:path*", "/login"],
 };
