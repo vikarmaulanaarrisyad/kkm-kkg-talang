@@ -37,14 +37,24 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             <Link href="/" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Beranda
             </Link>
+            <Link href="/profil" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
+              Profil
+            </Link>
             <Link href="/berita" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Berita
             </Link>
             <Link href="/agenda" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Agenda
             </Link>
-            <Link href="/profil" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
-              Profil
+            <Link href="/#unduhan" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
+              Unduhan
+            </Link>
+            <Link href="#kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors" onClick={(e) => {
+              if (window.location.pathname === "/") return;
+              e.preventDefault();
+              window.location.href = "/#kontak";
+            }}>
+              Hubungi Kami
             </Link>
             <div className="pl-4 border-l border-slate-200">
               <Link
@@ -72,19 +82,25 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden bg-white px-4 pt-4 pb-6 space-y-2 border-b border-slate-100 shadow-xl absolute w-full left-0 top-full">
-          <Link href="/" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+          <Link href="/" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Beranda
           </Link>
-          <Link href="/berita" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
-            Berita
-          </Link>
-          <Link href="/agenda" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
-            Agenda
-          </Link>
-          <Link href="/profil" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+          <Link href="/profil" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Profil
           </Link>
-          <Link href="/login" className="flex items-center justify-center gap-2 px-3 py-3 mt-4 w-full text-center rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm">
+          <Link href="/berita" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+            Berita
+          </Link>
+          <Link href="/agenda" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+            Agenda
+          </Link>
+          <Link href="/#unduhan" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+            Unduhan
+          </Link>
+          <Link href="/#kontak" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+            Hubungi Kami
+          </Link>
+          <Link href="/login" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 px-3 py-3 mt-4 w-full text-center rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm">
             <LogIn className="w-4 h-4" />
             Login Admin
           </Link>

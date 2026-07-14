@@ -5,6 +5,7 @@ import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, F
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName } from "@/lib/settings";
+import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
 
 async function getCategories() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -178,8 +179,8 @@ export default async function Home() {
           
           {/* Left Column: Text & CTA */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 w-full">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4">
-              <span className="text-sm font-bold tracking-tight">✨ Selamat Datang di Website Resmi {siteName}</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4 min-h-[40px]">
+              <TypewriterEffect text={`✨ Selamat Datang di Website Resmi ${siteName}`} className="text-sm font-bold tracking-tight" />
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
@@ -213,7 +214,7 @@ export default async function Home() {
                   <Users className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-xl sm:text-2xl font-black text-slate-800 leading-none">{totalGuru > 0 ? totalGuru : "50+"}</span>
+                  <span className="text-xl sm:text-2xl font-black text-slate-800 leading-none">{totalGuru}</span>
                   <span className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mt-1">Anggota Aktif</span>
                 </div>
               </div>
@@ -398,7 +399,7 @@ export default async function Home() {
         POJOK UNDUHAN SECTION
         ========================================================
       */}
-      <section className="w-full py-20 px-4 bg-slate-50 relative border-t border-slate-100">
+      <section id="unduhan" className="w-full py-20 px-4 bg-slate-50 relative border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div className="max-w-2xl">
