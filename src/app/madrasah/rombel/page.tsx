@@ -116,11 +116,11 @@ export default function RombelPage() {
     });
 
     try {
-      if (isEditing && !editId) {
-        throw new Error("ID Rombel tidak ditemukan. Coba refresh halaman dan edit ulang.");
-      }
-      const url = isEditing ? `/api/rombel/${editId}` : "/api/rombel";
-      const method = isEditing ? "PUT" : "POST";
+      // isEditing state sebenarnya mengontrol modal terbuka/tutup, 
+      // jadi penentu edit/tambah adalah apakah editId memiliki nilai.
+      const isEditMode = !!editId;
+      const url = isEditMode ? `/api/rombel/${editId}` : "/api/rombel";
+      const method = isEditMode ? "PUT" : "POST";
       const submittedWali = form.wali_kelas_id === "none" ? "" : form.wali_kelas_id;
       const res = await fetch(url, {
         method,

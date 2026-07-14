@@ -65,20 +65,26 @@ export default function SuratPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.judul || !form.jenis) {
+    const isTemplate = ["Undangan Rapat", "Undangan Workshop"].includes(form.jenis);
+    
+    if (!form.jenis || (!isTemplate && !form.judul)) {
       return Swal.fire("Peringatan", "Judul dan jenis surat wajib diisi", "warning");
     }
     setSubmitting(true);
     try {
       let finalIsi = form.isi;
+      let finalJudul = form.judul;
+
       if (form.jenis === "Undangan Rapat") {
+        if (!finalJudul) finalJudul = `Undangan Rapat: ${template.acara || "KKG"}`;
         finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat, \nSehubungan dengan adanya kegiatan KKG, kami mengundang Bapak/Ibu Kepala Madrasah beserta Guru Kelas untuk hadir pada pertemuan yang akan diselenggarakan pada:\n\nHari/Tanggal : ${template.tanggal}\nWaktu        : ${template.waktu} WIB\nTempat       : ${template.tempat}\nAcara        : ${template.acara}\n\nMengingat pentingnya acara tersebut, kehadiran Bapak/Ibu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
       } else if (form.jenis === "Undangan Workshop") {
+        if (!finalJudul) finalJudul = `Undangan Workshop KKG: ${workshopTemplate.tema || "Tingkat Kecamatan"}`;
         finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat,\nDalam rangka peningkatan kompetensi dan profesionalisme guru, Kelompok Kerja Guru (KKG) MI Kecamatan Talang bermaksud menyelenggarakan kegiatan Workshop. Untuk itu, kami mengundang Bapak/Ibu untuk hadir pada kegiatan yang akan dilaksanakan sebagai berikut:\n\nTema         : ${workshopTemplate.tema}\nHari/Tanggal : ${workshopTemplate.tanggal}\nWaktu        : ${workshopTemplate.waktu} WIB\nTempat       : ${workshopTemplate.tempat}\nNarasumber   : ${workshopTemplate.narasumber}\nPeserta      : ${workshopTemplate.peserta}\nDress Code   : ${workshopTemplate.dresscode}\n\nMengingat pentingnya kegiatan ini dalam rangka peningkatan mutu pembelajaran, kehadiran Bapak/Ibu tepat waktu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kehadirannya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
       }
 
       const fd = new FormData();
-      fd.append("judul", form.judul);
+      fd.append("judul", finalJudul);
       fd.append("jenis", form.jenis);
       fd.append("isi", finalIsi);
       fd.append("penerima", form.penerima);
@@ -246,10 +252,10 @@ export default function SuratPage() {
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="sm:col-span-2 space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Judul Surat <span className="text-red-500">*</span></label>
-                  <input type="text" required value={form.judul} onChange={e => setForm(f => ({ ...f, judul: e.target.value }))}
+                  <label className="text-sm font-semibold text-slate-700">Judul Surat {!["Undangan Rapat", "Undangan Workshop"].includes(form.jenis) && <span className="text-red-500">*</span>}</label>
+                  <input type="text" required={!["Undangan Rapat", "Undangan Workshop"].includes(form.jenis)} value={form.judul} onChange={e => setForm(f => ({ ...f, judul: e.target.value }))}
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm"
-                    placeholder="Contoh: Undangan Rapat Koordinasi KKG" />
+                    placeholder={["Undangan Rapat", "Undangan Workshop"].includes(form.jenis) ? "Boleh dikosongkan (Otomatis dari sistem)" : "Contoh: Edaran Libur Semester"} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-semibold text-slate-700">Jenis Surat <span className="text-red-500">*</span></label>
