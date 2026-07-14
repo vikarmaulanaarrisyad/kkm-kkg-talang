@@ -144,7 +144,8 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         }
         
         // Deteksi format list (Label : Value) untuk dirapikan secara tabular
-        const listMatch = p.match(/^([A-Za-z0-9/ -]+?)\s*:\s*(.*)$/);
+        // Use a more relaxed regex to capture anything up to the first colon
+        const listMatch = p.match(/^([^:]+?)\s*:\s*(.*)$/);
         if (listMatch && listMatch[1].length < 35) {
           const label = listMatch[1].trim();
           const value = listMatch[2].trim();
@@ -196,13 +197,14 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
       doc.setFontSize(12);
       doc.text("Mengetahui,", leftSigX + sigW / 2, y, { align: "center" });
       y += 5;
+      
       doc.text("Ketua KKG MI Talang", leftSigX + sigW / 2, y, { align: "center" });
       doc.text("Sekretaris KKG MI Talang", rightSigX + sigW / 2, y, { align: "center" });
 
       y += 22; // space for signature
 
-      const namaKetua = cfg.ketua || "M. RIZKY, S.Pd.I";
-      const namaSekretaris = cfg.sekretaris || "SITI AMINAH, S.Pd";
+      const namaKetua = cfg.signatures?.ketua_nama || cfg.ketua || "M. RIZKY, S.Pd.I";
+      const namaSekretaris = cfg.signatures?.sekretaris_nama || cfg.sekretaris || "SITI AMINAH, S.Pd";
 
       doc.setFont("times", "bold");
       doc.text(namaKetua, leftSigX + sigW / 2, y, { align: "center" });
@@ -220,11 +222,6 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         rightSigX + sigW / 2 - sekretarisTextW / 2, y + 1,
         rightSigX + sigW / 2 + sekretarisTextW / 2, y + 1
       );
-      
-      doc.setFont("times", "normal");
-      y += 4;
-      doc.text("NIP. 19800101 200501 1 001", leftSigX + sigW / 2, y, { align: "center" });
-      doc.text("NIP. 19850202 201001 2 002", rightSigX + sigW / 2, y, { align: "center" });
 
       // 3. Save
       doc.save(`${surat.jenis} - ${surat.judul}.pdf`);
