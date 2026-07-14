@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, LayoutDashboard, Users, GraduationCap } from "lucide-react";
+import { BookOpen, LayoutDashboard, Users, GraduationCap, Mail } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
 import MobileSidebar from "@/components/madrasah/MobileSidebar";
 import { getCachedSiteName } from "@/lib/settings";
@@ -14,7 +14,40 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
   if ((session.user as any).role !== "madrasah") redirect("/dashboard");
 
   const madrasahName = session.user?.name || "Madrasah";
+  const madrasahId = (session.user as any).id || session.user?.email || "";
   const siteName = await getCachedSiteName();
+
+  // Fetch unread surat count
+  let unreadCount = 0;
+  try {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (spreadsheetId) {
+      const { getOrCreateGoogleSheet } = await import("@/lib/google-sheets");
+      const [suratSheet, bacaSheet] = await Promise.all([
+        getOrCreateGoogleSheet(spreadsheetId, "Surat", ["id", "penerima"]),
+        getOrCreateGoogleSheet(spreadsheetId, "SuratBaca", ["surat_id", "madrasah_id"])
+      ]);
+      const [suratRows, bacaRows] = await Promise.all([
+        suratSheet.getRows(),
+        bacaSheet.getRows()
+      ]);
+      
+      const myBacaIds = new Set(
+        bacaRows
+          .filter(b => b.get("madrasah_id") === madrasahId)
+          .map(b => b.get("surat_id"))
+      );
+
+      const mySurats = suratRows.filter(r => {
+        const penerima = r.get("penerima") || "all";
+        return penerima === "all" || penerima === madrasahId || penerima.split(",").includes(madrasahId);
+      });
+
+      unreadCount = mySurats.filter(s => !myBacaIds.has(s.get("id"))).length;
+    }
+  } catch (e) {
+    console.error("Gagal mengambil unread surat:", e);
+  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
@@ -55,6 +88,17 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
           <Link href="/madrasah/rombel" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
             <GraduationCap className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
             Data Rombel & Siswa
+          </Link>
+          <Link href="/madrasah/surat" className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
+            <div className="flex items-center gap-3">
+              <Mail className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+              Surat Masuk
+            </div>
+            {unreadCount > 0 && (
+              <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
           </Link>
         </nav>
 

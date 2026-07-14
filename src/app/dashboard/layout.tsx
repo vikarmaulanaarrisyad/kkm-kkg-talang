@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -114,6 +114,12 @@ export default async function DashboardLayout({
                     <SidebarMenuButton tooltip="Pesan Masuk" render={<Link href="/dashboard/kontak" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
                       <MessageSquare className="w-4 h-4 mr-3 text-sidebar-primary" />
                       <span>Pesan Masuk</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Surat Menyurat" render={<Link href="/dashboard/surat" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <FileSignature className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span>Surat Menyurat</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

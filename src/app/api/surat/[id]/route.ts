@@ -5,15 +5,16 @@ import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
 const SURAT_HEADERS = ["id", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Surat", SURAT_HEADERS);
     const rows = await sheet.getRows();
-    const row = rows.find(r => r.get("id") === params.id);
+    const row = rows.find(r => r.get("id") === resolvedParams.id);
 
     if (!row) return NextResponse.json({ error: "Surat tidak ditemukan" }, { status: 404 });
 
@@ -32,8 +33,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const resolvedParams = await params;
     const session = await getServerSession(authOptions);
     if (!session || (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -42,7 +44,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Surat", SURAT_HEADERS);
     const rows = await sheet.getRows();
-    const row = rows.find(r => r.get("id") === params.id);
+    const row = rows.find(r => r.get("id") === resolvedParams.id);
 
     if (!row) return NextResponse.json({ error: "Surat tidak ditemukan" }, { status: 404 });
 
@@ -67,7 +69,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     try {
       const bacaSheet = await getOrCreateGoogleSheet(spreadsheetId, "SuratBaca", ["id", "surat_id", "madrasah_id", "dibaca_at"]);
       const bacaRows = await bacaSheet.getRows();
-      const toDelete = bacaRows.filter(r => r.get("surat_id") === params.id);
+      const toDelete = bacaRows.filter(r => r.get("surat_id") === resolvedParams.id);
       for (const r of toDelete) await r.delete();
     } catch (e) {}
 
