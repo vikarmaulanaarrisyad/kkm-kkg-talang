@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Link from "next/link";
 import { ArrowRight, BookOpen, Users, Newspaper, Calendar } from "lucide-react";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
