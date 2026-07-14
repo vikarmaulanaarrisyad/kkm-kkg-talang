@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -96,6 +96,12 @@ export default async function DashboardLayout({
                     <SidebarMenuButton tooltip="Kelola Agenda" render={<Link href="/dashboard/agenda" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
                       <Calendar className="w-4 h-4 mr-3 text-sidebar-primary" />
                       <span>Kelola Agenda</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Kelola Unduhan" render={<Link href="/dashboard/unduhan" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <Download className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span>Kelola Unduhan</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

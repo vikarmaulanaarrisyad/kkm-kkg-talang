@@ -1,7 +1,7 @@
 export const revalidate = 60;
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Users, Newspaper, Calendar } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature } from "lucide-react";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName } from "@/lib/settings";
@@ -15,6 +15,25 @@ async function getCategories() {
     return rows.map(r => ({ id: r.get('id'), name: r.get('name') }));
   } catch (error) {
     console.error("Gagal mengambil kategori", error);
+    return [];
+  }
+}
+
+async function getUnduhan() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return [];
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Unduhan", ['id', 'title', 'url', 'icon_type', 'created_at']);
+    const rows = await sheet.getRows();
+    const data = rows.map(r => ({ 
+      id: r.get('id'), 
+      title: r.get('title'), 
+      url: r.get('url'), 
+      icon_type: r.get('icon_type') || 'FileText' 
+    }));
+    return data.slice(0, 8); // Batasi maksimal 8 agar tidak terlalu penuh
+  } catch (error) {
+    console.error("Gagal mengambil unduhan", error);
     return [];
   }
 }
@@ -76,11 +95,12 @@ async function getUpcomingAgendas() {
 }
 
 export default async function Home() {
-  const [latestNews, categories, siteName, upcomingAgendas] = await Promise.all([
+  const [latestNews, categories, siteName, upcomingAgendas, unduhanData] = await Promise.all([
     getLatestNews(),
     getCategories(),
     getCachedSiteName(),
     getUpcomingAgendas(),
+    getUnduhan(),
   ]);
 
   // Strip HTML from content for snippet
@@ -89,153 +109,306 @@ export default async function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Hero Section */}
-      <section className="w-full bg-madrasah-900 text-white py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gold-400 via-transparent to-transparent"></div>
-        <div className="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
-          <div className="bg-madrasah-800 p-4 rounded-full mb-6 border border-madrasah-700 shadow-xl">
-            <BookOpen className="w-8 h-8 text-gold-400" />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-            {siteName} <br />
-            <span className="text-gold-400">Berkemajuan</span>
-          </h1>
-          <p className="text-lg md:text-xl text-madrasah-100 max-w-2xl mb-10 leading-relaxed">
-            Wadah kolaborasi dan peningkatan kompetensi tenaga pendidik untuk mewujudkan madrasah hebat, bermartabat, dan berakhlak mulia.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link 
-              href="#berita" 
-              className="bg-gold-500 hover:bg-gold-400 text-madrasah-900 px-8 py-3 rounded-full font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-            >
-              Baca Berita Terbaru <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Latest News Section */}
-      <section id="berita" className="w-full py-20 px-4 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <h2 className="text-3xl font-bold text-madrasah-900 mb-4">Berita & Pengumuman Terbaru</h2>
-              <div className="w-24 h-1 bg-gold-500 rounded-full"></div>
+    <div className="flex flex-col items-center bg-white min-h-screen font-sans selection:bg-gold-500 selection:text-madrasah-900">
+      {/* 
+        ========================================================
+        HERO SECTION (Clean & Responsive Light Theme)
+        ========================================================
+      */}
+      <section className="w-full relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-emerald-50/50 pt-24 pb-16 lg:pt-28 lg:pb-24 px-4 sm:px-6">
+        {/* Soft Decorative Elements */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-100/50 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
+        
+        <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 items-center relative z-10">
+          
+          {/* Left Column: Text & CTA */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 w-full">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4">
+              <span className="text-sm font-bold tracking-tight">✨ Selamat Datang di Website Resmi {siteName}</span>
             </div>
-            <Link href="/berita" className="hidden sm:flex items-center text-madrasah-700 font-bold hover:text-madrasah-900 transition-colors">
-              Lihat Semua <ArrowRight className="w-4 h-4 ml-1" />
-            </Link>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
+              <span className="block text-slate-900">Wadah Profesionalisme</span>
+              <span className="block text-emerald-600 mt-1">Guru Madrasah</span>
+            </h1>
+            
+            <p className="text-base sm:text-lg text-slate-600 max-w-lg leading-relaxed">
+              Membangun sinergi, meningkatkan kompetensi, dan mencetak generasi rabbani yang berprestasi melalui kolaborasi aktif Kelompok Kerja Guru.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 w-full sm:w-auto px-4 sm:px-0">
+              <Link 
+                href="/agenda" 
+                className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Lihat Kegiatan
+              </Link>
+              <Link 
+                href="/tentang" 
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-100 text-emerald-900 px-8 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-sm transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Profil Kami
+              </Link>
+            </div>
+            
+            {/* Social Proof / Stats Cards matching reference */}
+            <div className="pt-4 sm:pt-6 flex flex-col sm:flex-row items-stretch lg:items-start gap-4 sm:gap-6 w-full px-4 sm:px-0">
+              <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                  <Users className="w-6 h-6 text-emerald-600" />
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-xl sm:text-2xl font-black text-slate-800 leading-none">50+</span>
+                  <span className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mt-1">Anggota Aktif</span>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center justify-between gap-4 flex-1 cursor-pointer hover:shadow-md transition-shadow group">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                    <BookOpen className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-lg sm:text-xl font-black text-slate-800 leading-tight">Akses RDM</span>
+                    <span className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase">Rapor Digital</span>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-300 -rotate-45 group-hover:text-emerald-500 transition-colors" />
+              </div>
+            </div>
           </div>
 
-          <BeritaTabs news={latestNews} categories={categories} />
+          {/* Right Column: Clean Visual Image / Composition */}
+          <div className="flex relative w-full justify-center items-center animate-in fade-in zoom-in-95 duration-1000 delay-200 mt-8 lg:mt-0">
+            <div className="relative w-full max-w-xl lg:max-w-[600px] px-2 sm:px-0">
+              {/* Decorative Glow Behind Image */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-purple-400 rounded-3xl blur-2xl opacity-40 transform translate-y-4"></div>
+              
+              {/* Main Image Container */}
+              <div className="relative rounded-3xl transform rotate-2 overflow-hidden shadow-2xl border-4 sm:border-8 border-white group bg-emerald-50 z-0">
+                <img 
+                  src="/uplods/KKG-KKM.png" 
+                  alt="KKM-KKG MI TALANG" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-700 block"
+                />
+              </div>
 
-          <div className="mt-10 text-center sm:hidden">
-            <Link href="/berita" className="inline-flex items-center justify-center bg-madrasah-100 text-madrasah-800 font-bold px-6 py-3 rounded-full hover:bg-madrasah-200 transition-colors">
-              Lihat Semua Berita <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
+              {/* Floating Badge (Unggul & Berprestasi) */}
+              <div className="absolute -bottom-4 right-2 sm:-bottom-8 sm:-right-8 bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xl flex items-center gap-3 sm:gap-4 animate-[bounce_5s_infinite] z-10 scale-90 sm:scale-100 origin-bottom-right">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+                  <span className="text-xl sm:text-2xl">⭐</span>
+                </div>
+                <div className="shrink-0">
+                  <div className="text-xs sm:text-base font-extrabold text-slate-800">Unggul & Berprestasi</div>
+                  <div className="text-[10px] sm:text-xs text-slate-500 font-medium">Komitmen Bersama</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Rundown Agenda Section */}
-      {upcomingAgendas.length > 0 && (
-        <section className="w-full py-20 px-4 bg-slate-50">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-end mb-12">
-              <div>
-                <h2 className="text-3xl font-bold text-madrasah-900 mb-4 flex items-center gap-3">
-                  <Calendar className="w-8 h-8 text-gold-500" />
-                  Rundown Agenda
-                </h2>
-                <div className="w-24 h-1 bg-gold-500 rounded-full"></div>
-                <p className="mt-4 text-gray-600">Jadwal kegiatan terdekat KKM & KKG.</p>
+      {/* 
+        ========================================================
+        FEATURES / PILAR UTAMA SECTION
+        ========================================================
+      */}
+      <section className="w-full -mt-10 relative z-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Card 1 */}
+            <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-emerald-100">
+                <Users className="w-7 h-7 text-emerald-600" />
               </div>
-              <Link href="/agenda" className="hidden sm:flex items-center text-emerald-600 font-bold hover:text-emerald-800 transition-colors">
-                Lihat Seluruh Agenda <ArrowRight className="w-4 h-4 ml-1" />
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Kolaborasi Kuat</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                Membangun sinergi antar pendidik melalui forum diskusi dan pertukaran ide yang konstruktif untuk kemajuan bersama.
+              </p>
+            </div>
+            {/* Card 2 */}
+            <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-2 lg:-translate-y-6">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-blue-100">
+                <BookOpen className="w-7 h-7 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Peningkatan Mutu</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                Berfokus pada pengembangan kompetensi pedagogik dan profesional melalui pelatihan dan lokakarya berkelanjutan.
+              </p>
+            </div>
+            {/* Card 3 */}
+            <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-purple-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-purple-100">
+                <Newspaper className="w-7 h-7 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3">Informasi Terpadu</h3>
+              <p className="text-slate-600 leading-relaxed text-sm">
+                Akses cepat dan mudah ke berbagai informasi penting, pengumuman, dan materi pembelajaran terkini.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        ========================================================
+        AGENDA MENDATANG SECTION (Sleek Timeline)
+        ========================================================
+      */}
+      {upcomingAgendas.length > 0 && (
+        <section className="w-full pt-32 pb-16 px-4 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+              <div className="max-w-2xl">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold mb-4">
+                  <Calendar className="w-4 h-4" /> Agenda KKM/KKG
+                </div>
+                <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Kegiatan Terdekat</h2>
+                <p className="mt-4 text-slate-600 text-lg">Jangan lewatkan berbagai kegiatan menarik dan bermanfaat yang telah kami jadwalkan untuk Anda.</p>
+              </div>
+              <Link href="/agenda" className="group inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex-shrink-0">
+                Lihat Seluruh Agenda
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {upcomingAgendas.map((agenda) => (
-                <div key={agenda.id} className="bg-white rounded-2xl shadow-sm hover:shadow-lg border border-slate-100 p-6 transition-all group relative overflow-hidden flex flex-col h-full">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110 duration-500" />
-                  
-                  <div className="mb-4">
-                    <span className="inline-block bg-emerald-100 text-emerald-800 font-bold text-sm px-3 py-1 rounded-full mb-3">
-                      {new Date(agenda.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </span>
-                    <h3 className="text-xl font-bold text-slate-800 group-hover:text-emerald-700 transition-colors leading-tight">{agenda.title}</h3>
-                  </div>
-
-                  <div className="space-y-2 mt-auto pt-4 border-t border-slate-50 text-sm text-slate-600">
-                    {agenda.time && (
-                      <div className="flex items-start gap-2">
-                        <div className="w-4 h-4 mt-0.5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /></div>
-                        <span>{agenda.time}</span>
+              {upcomingAgendas.map((agenda, idx) => (
+                <div key={agenda.id} className="relative group perspective-1000">
+                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 rounded-3xl transform translate-y-4 scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                  <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 relative z-10 h-full flex flex-col">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex flex-col items-center justify-center border border-slate-100">
+                        <span className="text-xs text-slate-500 font-bold uppercase">{new Date(agenda.date).toLocaleDateString('id-ID', { month: 'short' })}</span>
+                        <span className="text-lg text-slate-800 font-black leading-none">{new Date(agenda.date).getDate()}</span>
                       </div>
-                    )}
-                    {agenda.location && (
-                      <div className="flex items-start gap-2">
-                        <div className="w-4 h-4 mt-0.5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-500" /></div>
-                        <span className="line-clamp-2">{agenda.location}</span>
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                        <ArrowRight className="w-4 h-4 -rotate-45" />
                       </div>
-                    )}
+                    </div>
+                    
+                    <h3 className="text-xl font-bold text-slate-900 mb-4 group-hover:text-emerald-600 transition-colors line-clamp-2">
+                      {agenda.title}
+                    </h3>
+                    
+                    <div className="mt-auto space-y-3 pt-4 border-t border-dashed border-slate-200">
+                      {agenda.time && (
+                        <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                          <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                          {agenda.time}
+                        </div>
+                      )}
+                      {agenda.location && (
+                        <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                          <span className="line-clamp-1">{agenda.location}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
-            </div>
-            
-            <div className="mt-8 text-center sm:hidden">
-              <Link href="/agenda" className="inline-flex items-center justify-center bg-emerald-50 text-emerald-700 font-bold px-6 py-3 rounded-full hover:bg-emerald-100 transition-colors">
-                Seluruh Agenda <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
             </div>
           </div>
         </section>
       )}
 
-      {/* Features Section */}
-      <section className="w-full py-20 px-4 bg-madrasah-50">
+      {/* 
+        ========================================================
+        LATEST NEWS SECTION
+        ========================================================
+      */}
+      <section id="berita" className="w-full pt-16 pb-32 px-4 relative">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-madrasah-900 mb-4">Program & Kegiatan Kami</h2>
-            <div className="w-24 h-1 bg-gold-500 mx-auto rounded-full"></div>
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">Informasi & Berita Terbaru</h2>
+            <p className="text-lg text-slate-600">Dapatkan *update* seputar kebijakan, kegiatan, dan prestasi dari lingkungan madrasah kita.</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-madrasah-100 group">
-              <div className="bg-madrasah-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-madrasah-200 transition-colors">
-                <Users className="w-8 h-8 text-madrasah-700" />
-              </div>
-              <h3 className="text-xl font-bold text-madrasah-900 mb-3">Kelompok Kerja Guru</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Forum diskusi dan pengembangan metode pembelajaran yang inovatif bagi para guru MI.
-              </p>
-            </div>
 
-            {/* Feature 2 */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-madrasah-100 group">
-              <div className="bg-madrasah-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-madrasah-200 transition-colors">
-                <BookOpen className="w-8 h-8 text-madrasah-700" />
-              </div>
-              <h3 className="text-xl font-bold text-madrasah-900 mb-3">Peningkatan Mutu</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Pelatihan, workshop, dan bimbingan teknis untuk standar pendidikan madrasah yang lebih baik.
-              </p>
-            </div>
+          <div className="bg-white rounded-[2.5rem] p-4 sm:p-8 shadow-xl shadow-slate-200/50 border border-slate-100">
+            <BeritaTabs news={latestNews} categories={categories} />
+          </div>
 
-            {/* Feature 3 */}
-            <div className="bg-white p-8 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-madrasah-100 group">
-              <div className="bg-madrasah-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-madrasah-200 transition-colors">
-                <Newspaper className="w-8 h-8 text-madrasah-700" />
+          <div className="mt-12 text-center">
+            <Link href="/berita" className="group inline-flex items-center justify-center gap-2 bg-white text-slate-800 border border-slate-200 shadow-sm px-8 py-4 rounded-full font-bold hover:bg-slate-50 hover:border-slate-300 hover:shadow-md transition-all">
+              Lihat Arsip Berita
+              <ArrowRight className="w-4 h-4 text-emerald-600 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        ========================================================
+        POJOK UNDUHAN SECTION
+        ========================================================
+      */}
+      <section className="w-full py-20 px-4 bg-slate-50 relative border-t border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 text-sm font-bold mb-4">
+                <Download className="w-4 h-4" /> Pojok Unduhan
               </div>
-              <h3 className="text-xl font-bold text-madrasah-900 mb-3">Informasi & Berita</h3>
-              <p className="text-gray-600 leading-relaxed">
-                Portal informasi terpadu yang menyajikan berita dan pengumuman terbaru seputar madrasah.
-              </p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Dokumen & Berkas Penting</h2>
+              <p className="mt-4 text-slate-600 text-lg">Akses cepat untuk mengunduh berbagai format, pedoman, dan surat edaran resmi.</p>
             </div>
+            <button className="group inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-all flex-shrink-0 shadow-sm">
+              Lihat Semua Dokumen
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-slate-400" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {unduhanData.length > 0 ? (
+              unduhanData.map((doc: any, idx: number) => {
+                let IconComponent = FileText;
+                let colorClass = "text-emerald-600";
+                let bgClass = "bg-emerald-50";
+                let borderClass = "border-emerald-100";
+
+                switch(doc.icon_type) {
+                  case 'Calendar':
+                    IconComponent = Calendar;
+                    colorClass = "text-blue-600"; bgClass = "bg-blue-50"; borderClass = "border-blue-100";
+                    break;
+                  case 'FileSignature':
+                    IconComponent = FileSignature;
+                    colorClass = "text-amber-600"; bgClass = "bg-amber-50"; borderClass = "border-amber-100";
+                    break;
+                  case 'BookOpen':
+                    IconComponent = BookOpen;
+                    colorClass = "text-purple-600"; bgClass = "bg-purple-50"; borderClass = "border-purple-100";
+                    break;
+                  case 'Download':
+                    IconComponent = Download;
+                    colorClass = "text-slate-600"; bgClass = "bg-slate-50"; borderClass = "border-slate-200";
+                    break;
+                }
+
+                return (
+                  <a key={doc.id || idx} href={doc.url} target="_blank" rel="noopener noreferrer" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-emerald-200 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                    <div className={`w-14 h-14 rounded-2xl ${bgClass} ${borderClass} border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                      <IconComponent className={`w-7 h-7 ${colorClass}`} />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800 mb-4 leading-snug group-hover:text-emerald-600 transition-colors">{doc.title}</h3>
+                    <div className="mt-auto flex items-center justify-between text-sm font-semibold text-slate-500 pt-4 border-t border-slate-100">
+                      <span>Akses / Unduh</span>
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <Download className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </a>
+                );
+              })
+            ) : (
+              <div className="col-span-1 sm:col-span-2 lg:col-span-4 text-center py-12 bg-white rounded-3xl border border-slate-200 border-dashed">
+                <Download className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-slate-600">Belum Ada Dokumen</h3>
+                <p className="text-slate-500 mt-2">Daftar unduhan akan segera diperbarui oleh admin.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
