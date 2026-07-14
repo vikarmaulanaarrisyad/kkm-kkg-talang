@@ -1,9 +1,10 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 import Link from "next/link";
 import { ArrowRight, BookOpen, Users, Newspaper, Calendar } from "lucide-react";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
+import { getCachedSiteName } from "@/lib/settings";
 
 async function getCategories() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -47,23 +48,10 @@ async function getLatestNews() {
   }
 }
 
-async function getSiteName() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return "CMS Madrasah Ibtidaiyah";
-  try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ['key', 'value']);
-    const rows = await sheet.getRows();
-    const nameRow = rows.find((r: any) => r.get('key') === 'site_name');
-    return nameRow ? nameRow.get('value') : "CMS Madrasah Ibtidaiyah";
-  } catch (error) {
-    return "CMS Madrasah Ibtidaiyah";
-  }
-}
-
 export default async function Home() {
   const latestNews = await getLatestNews();
   const categories = await getCategories();
-  const siteName = await getSiteName();
+  const siteName = await getCachedSiteName();
 
   // Strip HTML from content for snippet
   const stripHtml = (html: string) => {

@@ -9,21 +9,44 @@ import { Newspaper, Users, Clock, ArrowUpRight, FileText, Activity, Sparkles, Ch
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
+import { getCachedSiteName } from "@/lib/settings";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
 export default async function DashboardPage() {
-  let siteName = "CMS Madrasah";
+  const siteName = await getCachedSiteName();
+
+  // Fetch real berita stats from database
+  let totalBerita = 0;
+  let publishedBerita = 0;
+  let draftBerita = 0;
+  let thisMonthBerita = 0;
+  let totalVisitors = 0;
+
   try {
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
     if (spreadsheetId) {
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Berita", ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category']);
       const rows = await sheet.getRows();
-      const nameRow = rows.find((r: any) => r.get("key") === "site_name");
-      if (nameRow && nameRow.get("value")) {
-        siteName = nameRow.get("value");
-      }
+      totalBerita = rows.length;
+      publishedBerita = rows.filter(r => r.get('status') === 'Published').length;
+      draftBerita = rows.filter(r => r.get('status') === 'Draft').length;
+
+      // Count articles added this month
+      const now = new Date();
+      thisMonthBerita = rows.filter(r => {
+        const created = new Date(r.get('created_at'));
+        return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
+      }).length;
+
+      // Fetch visitor count from Settings
+      const settingsSheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const settingsRows = await settingsSheet.getRows();
+      const visitorRow = settingsRows.find((r: any) => r.get("key") === "visitor_count");
+      totalVisitors = visitorRow ? parseInt(visitorRow.get("value") || "0", 10) : 0;
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error("Failed to fetch berita stats:", e);
+  }
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
@@ -72,11 +95,22 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-5xl font-black text-foreground tracking-tighter mt-2">12</div>
-            <div className="flex items-center mt-4 bg-emerald-500/10 w-fit px-2.5 py-1 rounded-lg">
-              <ArrowUpRight className="w-3 h-3 text-emerald-600 mr-1" />
-              <span className="text-xs font-bold text-emerald-600">+2 bulan ini</span>
+            <div className="text-5xl font-black text-foreground tracking-tighter mt-2">{totalBerita}</div>
+            <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <div className="flex items-center bg-emerald-500/10 w-fit px-2.5 py-1 rounded-lg">
+                <ArrowUpRight className="w-3 h-3 text-emerald-600 mr-1" />
+                <span className="text-xs font-bold text-emerald-600">{publishedBerita} Published</span>
+              </div>
+              {draftBerita > 0 && (
+                <div className="flex items-center bg-yellow-500/10 w-fit px-2.5 py-1 rounded-lg">
+                  <FileText className="w-3 h-3 text-yellow-600 mr-1" />
+                  <span className="text-xs font-bold text-yellow-600">{draftBerita} Draft</span>
+                </div>
+              )}
             </div>
+            {thisMonthBerita > 0 && (
+              <p className="text-xs text-muted-foreground mt-2">+{thisMonthBerita} bulan ini</p>
+            )}
           </CardContent>
         </Card>
 
@@ -92,10 +126,10 @@ export default async function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-5xl font-black text-foreground tracking-tighter mt-2">1.4k</div>
+            <div className="text-5xl font-black text-foreground tracking-tighter mt-2">{totalVisitors.toLocaleString('id-ID')}</div>
             <div className="flex items-center mt-4 bg-yellow-500/10 w-fit px-2.5 py-1 rounded-lg">
               <ArrowUpRight className="w-3 h-3 text-yellow-600 mr-1" />
-              <span className="text-xs font-bold text-yellow-600">+15% traffic</span>
+              <span className="text-xs font-bold text-yellow-600">Total sesi unik</span>
             </div>
           </CardContent>
         </Card>

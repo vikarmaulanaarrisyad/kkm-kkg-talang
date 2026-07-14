@@ -28,7 +28,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import { getCachedSiteName } from "@/lib/settings";
 
 export default async function DashboardLayout({
   children,
@@ -39,18 +39,7 @@ export default async function DashboardLayout({
   const userName = session?.user?.name || "Admin";
   const userInitials = userName.substring(0, 2).toUpperCase();
 
-  let siteName = "CMS Madrasah";
-  try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (spreadsheetId) {
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-      const rows = await sheet.getRows();
-      const nameRow = rows.find((r: any) => r.get("key") === "site_name");
-      if (nameRow && nameRow.get("value")) {
-        siteName = nameRow.get("value");
-      }
-    }
-  } catch (e) {}
+  const siteName = await getCachedSiteName();
 
   return (
     <SidebarProvider>
