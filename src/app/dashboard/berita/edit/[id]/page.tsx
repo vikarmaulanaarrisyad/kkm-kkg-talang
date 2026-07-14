@@ -236,7 +236,7 @@ export default function EditBeritaPage({ params }: { params: Promise<{ id: strin
               
               <div className="space-y-3">
                 <Label className="text-sm font-bold block">Kategori</Label>
-                <Select value={category} onValueChange={setCategory} disabled={loading}>
+                <Select value={category} onValueChange={(val) => setCategory(val || "")} disabled={loading}>
                   <SelectTrigger className="h-12 rounded-xl bg-background border-border/50">
                     <SelectValue placeholder="Pilih Kategori" />
                   </SelectTrigger>
