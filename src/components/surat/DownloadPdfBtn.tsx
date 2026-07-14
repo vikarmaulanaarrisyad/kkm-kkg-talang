@@ -51,13 +51,13 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
       }
 
       // Org name
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(14);
-      doc.text(cfg.siteName || "KKM & KKG MI TALANG", pageW / 2, y + 8, { align: "center" });
+      doc.setFont("times", "bold");
+      doc.setFontSize(16);
+      doc.text(cfg.siteName || "KELOMPOK KERJA GURU (KKG) MI KEC. TALANG", pageW / 2, y + 8, { align: "center" });
 
       // Address
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
+      doc.setFont("times", "normal");
+      doc.setFontSize(10);
       const alamatLine = (cfg.kontak?.alamat || "").replace(/\n/g, ", ");
       doc.text(alamatLine, pageW / 2, y + 14, { align: "center" });
       doc.text(
@@ -69,11 +69,10 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
 
       y += 24;
 
-      // Thick line
-      doc.setLineWidth(0.8);
+      // Double line for formal Kop Surat
+      doc.setLineWidth(1.0);
       doc.line(margin, y, pageW - margin, y);
-      y += 1;
-      // Thin line
+      y += 1.2;
       doc.setLineWidth(0.3);
       doc.line(margin, y, pageW - margin, y);
       y += 8;
@@ -87,72 +86,100 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
             day: "numeric", month: "long", year: "numeric",
           });
 
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
+      // ── INFO SURAT (Nomor, Hal, dll) ────────────────────────────────
+      doc.setFontSize(12);
+      doc.setFont("times", "normal");
       // Left column
       const col1X = margin;
-      const col2X = margin + 30;
+      const col2X = margin + 25;
       const lineH = 6;
 
       doc.text("Nomor", col1X, y);
-      doc.text(":", col2X - 4, y);
+      doc.text(":", col2X - 3, y);
       doc.text(surat.nomor_surat || "...............................", col2X, y);
       y += lineH;
 
       doc.text("Lampiran", col1X, y);
-      doc.text(":", col2X - 4, y);
+      doc.text(":", col2X - 3, y);
       doc.text("-", col2X, y);
       y += lineH;
 
       doc.text("Hal", col1X, y);
-      doc.text(":", col2X - 4, y);
-      doc.setFont("helvetica", "bold");
+      doc.text(":", col2X - 3, y);
       doc.text(surat.jenis, col2X, y);
-      doc.setFont("helvetica", "normal");
 
       // Date on right
-      doc.text(`Tegal, ${todayStr}`, pageW - margin, y - lineH * 2, { align: "right" });
+      const initY = y - (lineH * 2);
+      doc.text(`Tegal, ${todayStr}`, pageW - margin, initY, { align: "right" });
 
-      y += 10;
+      // Recipient block
+      y += lineH;
+      doc.text("Kepada Yth.", col1X, y);
+      y += lineH;
+      let penerimaText = "Bapak/Ibu Kepala Madrasah & Guru";
+      if (surat.penerima && surat.penerima !== "all") {
+        penerimaText = "Bapak/Ibu Pimpinan Madrasah Terkait";
+      }
+      doc.setFont("times", "bold");
+      doc.text(penerimaText, col1X, y);
+      doc.setFont("times", "normal");
+      y += lineH;
+      doc.text("di", col1X, y);
+      y += lineH;
+      doc.text("    Tempat", col1X, y);
+
+      y += 12;
 
       // ── BODY SURAT ─────────────────────────────────────────────────
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
-
-      const isiLines = doc.splitTextToSize(surat.isi || "", contentW);
-      isiLines.forEach((line: string) => {
-        if (y > pageH - 60) {
-          doc.addPage();
-          y = margin;
+      doc.setFontSize(12);
+      
+      // Use doc.text with maxWidth and justify for neat formatting
+      const paragraphs = (surat.isi || "").split("\n");
+      
+      paragraphs.forEach((p: string) => {
+        if (p.trim() === "") {
+          y += 4; // Add small spacing for empty lines
+          return;
         }
-        doc.text(line, margin, y);
-        y += 6;
+        
+        // Split text to fit width
+        const lines = doc.splitTextToSize(p, contentW);
+        lines.forEach((line: string) => {
+          if (y > pageH - 40) {
+            doc.addPage();
+            y = margin;
+          }
+          doc.text(line, margin, y, { align: "justify", maxWidth: contentW });
+          y += 6;
+        });
       });
 
       // ── TANDA TANGAN ───────────────────────────────────────────────
-      y = Math.max(y + 10, pageH - 70); // push to bottom if short
+      y = Math.max(y + 15, pageH - 80); // push to bottom if short
 
       const sigW = 65;
       const leftSigX = margin;
       const rightSigX = pageW - margin - sigW;
 
-      doc.setFontSize(11);
+      doc.setFontSize(12);
       doc.text("Mengetahui,", leftSigX + sigW / 2, y, { align: "center" });
       y += 5;
-      doc.text("Ketua KKG", leftSigX + sigW / 2, y, { align: "center" });
-      doc.text("Sekretaris KKG", rightSigX + sigW / 2, y, { align: "center" });
+      doc.text("Ketua KKG MI Talang", leftSigX + sigW / 2, y, { align: "center" });
+      doc.text("Sekretaris KKG MI Talang", rightSigX + sigW / 2, y, { align: "center" });
 
-      y += 25; // space for signature
+      y += 22; // space for signature
 
-      doc.setFont("helvetica", "bold");
-      doc.text(cfg.ketua || "KETUA KKG", leftSigX + sigW / 2, y, { align: "center" });
-      doc.text(cfg.sekretaris || "SEKRETARIS KKG", rightSigX + sigW / 2, y, { align: "center" });
+      const namaKetua = cfg.ketua || "M. RIZKY, S.Pd.I";
+      const namaSekretaris = cfg.sekretaris || "SITI AMINAH, S.Pd";
 
-      // Underline below names
-      doc.setFont("helvetica", "normal");
+      doc.setFont("times", "bold");
+      doc.text(namaKetua, leftSigX + sigW / 2, y, { align: "center" });
+      doc.text(namaSekretaris, rightSigX + sigW / 2, y, { align: "center" });
+      
+      // Underlines
       doc.setLineWidth(0.3);
-      const ketuaTextW = doc.getTextWidth(cfg.ketua || "KETUA KKG");
-      const sekretarisTextW = doc.getTextWidth(cfg.sekretaris || "SEKRETARIS KKG");
+      const ketuaTextW = doc.getTextWidth(namaKetua);
+      const sekretarisTextW = doc.getTextWidth(namaSekretaris);
       doc.line(
         leftSigX + sigW / 2 - ketuaTextW / 2, y + 1,
         leftSigX + sigW / 2 + ketuaTextW / 2, y + 1
@@ -161,6 +188,11 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         rightSigX + sigW / 2 - sekretarisTextW / 2, y + 1,
         rightSigX + sigW / 2 + sekretarisTextW / 2, y + 1
       );
+      
+      doc.setFont("times", "normal");
+      y += 4;
+      doc.text("NIP. 19800101 200501 1 001", leftSigX + sigW / 2, y, { align: "center" });
+      doc.text("NIP. 19850202 201001 2 002", rightSigX + sigW / 2, y, { align: "center" });
 
       // 3. Save
       doc.save(`${surat.jenis} - ${surat.judul}.pdf`);
