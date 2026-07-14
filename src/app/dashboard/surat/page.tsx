@@ -40,6 +40,9 @@ export default function SuratPage() {
   const [form, setForm] = useState({
     judul: "", jenis: JENIS_OPTIONS[0], isi: "", penerima: "all"
   });
+  const [template, setTemplate] = useState({
+    tanggal: "", waktu: "", tempat: "", acara: ""
+  });
   const [fileInput, setFileInput] = useState<File | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -63,10 +66,15 @@ export default function SuratPage() {
     }
     setSubmitting(true);
     try {
+      let finalIsi = form.isi;
+      if (form.jenis === "Undangan Rapat") {
+        finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat, \nSehubungan dengan adanya kegiatan KKG, kami mengundang Bapak/Ibu Kepala Madrasah beserta Guru Kelas untuk hadir pada pertemuan yang akan diselenggarakan pada:\n\nHari/Tanggal : ${template.tanggal}\nWaktu        : ${template.waktu} WIB\nTempat       : ${template.tempat}\nAcara        : ${template.acara}\n\nMengingat pentingnya acara tersebut, kehadiran Bapak/Ibu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
+      }
+
       const fd = new FormData();
       fd.append("judul", form.judul);
       fd.append("jenis", form.jenis);
-      fd.append("isi", form.isi);
+      fd.append("isi", finalIsi);
       fd.append("penerima", form.penerima);
       if (fileInput) fd.append("file", fileInput);
 
@@ -77,6 +85,7 @@ export default function SuratPage() {
       Swal.fire("Berhasil! ✉️", "Surat berhasil dibuat dan didistribusikan", "success");
       setShowModal(false);
       setForm({ judul: "", jenis: JENIS_OPTIONS[0], isi: "", penerima: "all" });
+      setTemplate({ tanggal: "", waktu: "", tempat: "", acara: "" });
       setFileInput(null);
       fetchData();
     } catch (err: any) {
@@ -249,12 +258,45 @@ export default function SuratPage() {
                     <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                   </div>
                 </div>
-                <div className="sm:col-span-2 space-y-2">
-                  <label className="text-sm font-semibold text-slate-700">Isi Surat</label>
-                  <textarea rows={5} value={form.isi} onChange={e => setForm(f => ({ ...f, isi: e.target.value }))}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm resize-none"
-                    placeholder="Tuliskan isi surat di sini..." />
-                </div>
+                {form.jenis === "Undangan Rapat" ? (
+                  <div className="sm:col-span-2 grid gap-5 sm:grid-cols-2 bg-emerald-50/30 p-5 rounded-xl border border-emerald-100">
+                    <div className="sm:col-span-2">
+                      <p className="text-sm font-bold text-emerald-800">Detail Undangan Rapat</p>
+                      <p className="text-xs text-emerald-600 mt-1">Isi form di bawah ini, sistem akan menyusun kata-kata surat undangan secara otomatis.</p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Hari/Tanggal <span className="text-red-500">*</span></label>
+                      <input type="text" required value={template.tanggal} onChange={e => setTemplate(t => ({ ...t, tanggal: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm"
+                        placeholder="Contoh: Senin, 12 Agustus 2026" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Waktu (WIB) <span className="text-red-500">*</span></label>
+                      <input type="text" required value={template.waktu} onChange={e => setTemplate(t => ({ ...t, waktu: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm"
+                        placeholder="Contoh: 08.00 - Selesai" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Tempat <span className="text-red-500">*</span></label>
+                      <input type="text" required value={template.tempat} onChange={e => setTemplate(t => ({ ...t, tempat: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm"
+                        placeholder="Contoh: MI Talang 1" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Acara <span className="text-red-500">*</span></label>
+                      <input type="text" required value={template.acara} onChange={e => setTemplate(t => ({ ...t, acara: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm"
+                        placeholder="Contoh: Rapat Koordinasi Kurikulum" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="sm:col-span-2 space-y-2">
+                    <label className="text-sm font-semibold text-slate-700">Isi Surat</label>
+                    <textarea rows={5} value={form.isi} onChange={e => setForm(f => ({ ...f, isi: e.target.value }))}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm resize-none"
+                      placeholder="Tuliskan isi surat di sini..." />
+                  </div>
+                )}
                 <div className="sm:col-span-2 space-y-2">
                   <label className="text-sm font-semibold text-slate-700">Lampiran File (PDF/Dokumen)</label>
                   <input type="file" accept=".pdf,.doc,.docx,.xlsx,.xls"
