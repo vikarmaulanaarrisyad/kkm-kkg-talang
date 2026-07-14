@@ -6,7 +6,7 @@ const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
 ];
 
-export async function getGoogleSheet(sheetId: string, sheetTitle: string) {
+export async function getOrCreateGoogleSheet(sheetId: string, sheetTitle: string, headers: string[] = []) {
   try {
     const jwt = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -17,12 +17,23 @@ export async function getGoogleSheet(sheetId: string, sheetTitle: string) {
     const doc = new GoogleSpreadsheet(sheetId, jwt);
     await doc.loadInfo();
     
-    // Cari sheet berdasarkan judul (misal: "Users", "Berita")
-    const sheet = doc.sheetsByTitle[sheetTitle];
+    let sheet = doc.sheetsByTitle[sheetTitle];
     
-    // Jika sheet belum ada, kita bisa lempar error
     if (!sheet) {
-      throw new Error(`Sheet dengan judul "${sheetTitle}" tidak ditemukan di spreadsheet ini.`);
+      if (headers.length > 0) {
+        sheet = await doc.addSheet({ title: sheetTitle, headerValues: headers });
+      } else {
+        throw new Error(`Sheet dengan judul "${sheetTitle}" tidak ditemukan di spreadsheet ini.`);
+      }
+    } else {
+      // Ensure headers exist
+      if (headers.length > 0) {
+        try {
+          await sheet.loadHeaderRow();
+        } catch (e) {
+          await sheet.setHeaderRow(headers);
+        }
+      }
     }
 
     return sheet;

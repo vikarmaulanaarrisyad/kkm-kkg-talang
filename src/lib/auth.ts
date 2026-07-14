@@ -1,29 +1,29 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { getGoogleSheet } from "./google-sheets";
+import { getOrCreateGoogleSheet } from "./google-sheets";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: "Admin KKM",
       credentials: {
         username: { label: "Username", type: "text", placeholder: "admin" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          throw new Error("Mohon isi username dan password");
+          throw new Error("Username dan Password harus diisi");
         }
 
         try {
           const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
           if (!spreadsheetId) {
-            throw new Error("Konfigurasi Google Spreadsheet ID belum diatur");
+            throw new Error("Konfigurasi Google Spreadsheet tidak valid");
           }
 
-          // Akses sheet "Users"
-          const sheet = await getGoogleSheet(spreadsheetId, "Users");
+          // Hubungkan ke sheet "Users"
+          const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Users");
           const rows = await sheet.getRows();
 
           // Cari user berdasarkan username
