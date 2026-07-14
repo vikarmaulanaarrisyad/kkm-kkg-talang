@@ -74,11 +74,9 @@ export default function BeritaPage() {
           <h1 className="text-3xl font-bold tracking-tight">Kelola Berita</h1>
           <p className="text-muted-foreground mt-1">Daftar semua berita dan informasi KKM.</p>
         </div>
-        <Button asChild className="bg-primary hover:bg-primary/90 text-white">
-          <Link href="/dashboard/berita/tambah">
-            <Plus className="w-4 h-4 mr-2" />
-            Berita Baru
-          </Link>
+        <Button className="bg-primary hover:bg-primary/90 text-white" render={<Link href="/dashboard/berita/tambah" />}>
+          <Plus className="w-4 h-4 mr-2" />
+          Berita Baru
         </Button>
       </div>
 

@@ -12,13 +12,11 @@ export const metadata: Metadata = {
   description: "Sistem Informasi Manajemen KKM & KKG Madrasah Ibtidaiyah Kecamatan Talang",
 };
 
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
+import LayoutWrapper from "@/components/LayoutWrapper";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
 
 export default function RootLayout({
   children,
@@ -32,11 +30,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <Providers>
-          <Navbar />
-          <main className="flex-grow flex flex-col">
+          <LayoutWrapper>
             {children}
-          </main>
-          <Footer />
+          </LayoutWrapper>
         </Providers>
       </body>
     </html>
