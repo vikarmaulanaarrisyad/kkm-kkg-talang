@@ -90,8 +90,15 @@ export async function POST(req: NextRequest) {
     if (!kegiatanInfo) {
       return NextResponse.json({ error: "Kegiatan tidak ditemukan" }, { status: 404 });
     }
-    if (kegiatanInfo.get("status") !== "active") {
+    const status = kegiatanInfo.get("status");
+    if (status === "waiting") {
+      return NextResponse.json({ error: "Sesi presensi belum dibuka oleh Admin KKG" }, { status: 400 });
+    }
+    if (status === "completed") {
       return NextResponse.json({ error: "Sesi presensi untuk kegiatan ini sudah ditutup" }, { status: 400 });
+    }
+    if (status !== "active") {
+      return NextResponse.json({ error: "Sesi presensi tidak aktif" }, { status: 400 });
     }
 
     // 2. Cek apakah sudah presensi sebelumnya

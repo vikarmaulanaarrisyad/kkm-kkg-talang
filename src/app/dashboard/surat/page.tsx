@@ -79,13 +79,31 @@ export default function SuratPage() {
     fetchMadrasah();
   }, [fetchData]);
 
+  const formatDateIndo = (dateStr: string) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isTemplate = ["Undangan Rapat", "Undangan Workshop"].includes(form.jenis);
-    
-    if (!form.jenis || (!isTemplate && !form.judul)) {
-      return Swal.fire("Peringatan", "Judul dan jenis surat wajib diisi", "warning");
+    if (form.jenis !== "Lainnya" && form.jenis !== "Pemberitahuan") {
+       if (form.jenis === "Undangan Rapat" && (!template.tanggal || !template.waktu || !template.tempat || !template.acara)) {
+          Swal.fire("Error", "Mohon lengkapi semua form template rapat", "error");
+          return;
+       }
+       if (form.jenis === "Undangan Workshop" && (!workshopTemplate.tema || !workshopTemplate.tanggal || !workshopTemplate.waktu || !workshopTemplate.tempat || !workshopTemplate.narasumber)) {
+          Swal.fire("Error", "Mohon lengkapi semua form template workshop", "error");
+          return;
+       }
     }
+    
     setSubmitting(true);
     try {
       let finalIsi = form.isi;
@@ -93,10 +111,12 @@ export default function SuratPage() {
 
       if (form.jenis === "Undangan Rapat") {
         if (!finalJudul) finalJudul = `Undangan Rapat: ${template.acara || "KKG"}`;
-        finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat, \nSehubungan dengan adanya kegiatan KKG, kami mengundang Bapak/Ibu Kepala Madrasah beserta Guru Kelas untuk hadir pada pertemuan yang akan diselenggarakan pada:\n\nHari/Tanggal : ${template.tanggal}\nWaktu        : ${template.waktu}\nTempat       : ${template.tempat}\nAcara        : ${template.acara}\n\nMengingat pentingnya acara tersebut, kehadiran Bapak/Ibu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
+        const formattedDate = formatDateIndo(template.tanggal);
+        finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat, \nSehubungan dengan adanya kegiatan KKG, kami mengundang Bapak/Ibu Kepala Madrasah beserta Guru Kelas untuk hadir pada pertemuan yang akan diselenggarakan pada:\n\nHari/Tanggal : ${formattedDate}\nWaktu        : ${template.waktu}\nTempat       : ${template.tempat}\nAcara        : ${template.acara}\n\nMengingat pentingnya acara tersebut, kehadiran Bapak/Ibu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
       } else if (form.jenis === "Undangan Workshop") {
         if (!finalJudul) finalJudul = `Undangan Workshop KKG: ${workshopTemplate.tema || "Tingkat Kecamatan"}`;
-        finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat,\nDalam rangka peningkatan kompetensi dan profesionalisme guru, Kelompok Kerja Guru (KKG) MI Kecamatan Talang bermaksud menyelenggarakan kegiatan Workshop. Untuk itu, kami mengundang Bapak/Ibu untuk hadir pada kegiatan yang akan dilaksanakan sebagai berikut:\n\nTema         : ${workshopTemplate.tema}\nHari/Tanggal : ${workshopTemplate.tanggal}\nWaktu        : ${workshopTemplate.waktu}\nTempat       : ${workshopTemplate.tempat}\nNarasumber   : ${workshopTemplate.narasumber}\nPeserta      : ${workshopTemplate.peserta}\nDress Code   : ${workshopTemplate.dresscode}\n\nMengingat pentingnya kegiatan ini dalam rangka peningkatan mutu pembelajaran, kehadiran Bapak/Ibu tepat waktu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kehadirannya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
+        const formattedDate = formatDateIndo(workshopTemplate.tanggal);
+        finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat,\nDalam rangka peningkatan kompetensi dan profesionalisme guru, Kelompok Kerja Guru (KKG) MI Kecamatan Talang bermaksud menyelenggarakan kegiatan Workshop. Untuk itu, kami mengundang Bapak/Ibu untuk hadir pada kegiatan yang akan dilaksanakan sebagai berikut:\n\nTema         : ${workshopTemplate.tema}\nHari/Tanggal : ${formattedDate}\nWaktu        : ${workshopTemplate.waktu}\nTempat       : ${workshopTemplate.tempat}\nNarasumber   : ${workshopTemplate.narasumber}\nPeserta      : ${workshopTemplate.peserta}\nDress Code   : ${workshopTemplate.dresscode}\n\nMengingat pentingnya kegiatan ini dalam rangka peningkatan mutu pembelajaran, kehadiran Bapak/Ibu tepat waktu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kehadirannya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
       }
 
       const fd = new FormData();
@@ -114,11 +134,12 @@ export default function SuratPage() {
       if (form.jenis === "Undangan Rapat" || form.jenis === "Undangan Workshop") {
         try {
            const isRapat = form.jenis === "Undangan Rapat";
+           const formattedDate = formatDateIndo(isRapat ? template.tanggal : workshopTemplate.tanggal);
            const kData = {
               nama: finalJudul,
               jenis: isRapat ? "KKG" : "KKM",
               tempat: isRapat ? template.tempat : workshopTemplate.tempat,
-              tanggal: isRapat ? template.tanggal : workshopTemplate.tanggal,
+              tanggal: formattedDate,
               waktu: isRapat ? template.waktu : workshopTemplate.waktu
            };
            await fetch("/api/kegiatan", {
@@ -322,9 +343,8 @@ export default function SuratPage() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-slate-700">Hari/Tanggal <span className="text-red-500">*</span></label>
-                      <input type="text" required value={template.tanggal} onChange={e => setTemplate(t => ({ ...t, tanggal: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm"
-                        placeholder="Contoh: Senin, 12 Agustus 2026" />
+                      <input type="date" required value={template.tanggal} onChange={e => setTemplate(t => ({ ...t, tanggal: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-slate-700">Waktu (WIB) <span className="text-red-500">*</span></label>
@@ -378,9 +398,8 @@ export default function SuratPage() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-slate-700">Hari/Tanggal <span className="text-red-500">*</span></label>
-                      <input type="text" required value={workshopTemplate.tanggal} onChange={e => setWorkshopTemplate(t => ({ ...t, tanggal: e.target.value }))}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
-                        placeholder="Contoh: Sabtu, 16 Agustus 2026" />
+                      <input type="date" required value={workshopTemplate.tanggal} onChange={e => setWorkshopTemplate(t => ({ ...t, tanggal: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-slate-700">Waktu (WIB) <span className="text-red-500">*</span></label>

@@ -215,5 +215,6 @@ export default function GuruDashboard() {
         )}
       </div>
     </div>
+  </div>
   );
 }

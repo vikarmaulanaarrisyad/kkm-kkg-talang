@@ -79,13 +79,26 @@ export default function KegiatanPage() {
     }
   }, [isAdminView]);
 
+  const formatDateIndo = (dateStr: string) => {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+      return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    } catch {
+      return dateStr;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const formattedDate = formatDateIndo(form.tanggal);
       const res = await fetch("/api/kegiatan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ ...form, tanggal: formattedDate })
       });
       if (res.ok) {
         Swal.fire("Berhasil", "Kegiatan berhasil dibuat", "success");
