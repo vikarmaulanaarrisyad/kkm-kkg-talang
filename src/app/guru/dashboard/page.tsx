@@ -91,57 +91,106 @@ export default function GuruDashboard() {
     const k = item.kegiatan;
 
     const doc = new jsPDF({ orientation: "landscape", format: "a4" });
-    
-    // Border
-    doc.setDrawColor(16, 185, 129); // emerald-500
-    doc.setLineWidth(5);
-    doc.rect(10, 10, 277, 190);
-    
-    // Inner border
-    doc.setLineWidth(1);
-    doc.rect(15, 15, 267, 180);
+    const width = doc.internal.pageSize.getWidth();
+    const height = doc.internal.pageSize.getHeight();
 
-    // Title
-    doc.setTextColor(16, 185, 129);
-    doc.setFont("times", "bold");
-    doc.setFontSize(32);
-    doc.text("SERTIFIKAT KEIKUTSERTAAN", 148.5, 50, { align: "center" });
+    // Background Base
+    doc.setFillColor(250, 252, 251);
+    doc.rect(0, 0, width, height, "F");
 
-    doc.setTextColor(50, 50, 50);
+    // Modern Geometric Header (Emerald Green)
+    doc.setFillColor(16, 185, 129); // emerald-500
+    doc.polygon([
+      [0, 0],
+      [width, 0],
+      [width, 40],
+      [0, 60]
+    ], 'F');
+
+    // Accent Ribbon (Gold/Amber)
+    doc.setFillColor(245, 158, 11); // amber-500
+    doc.polygon([
+      [0, 60],
+      [width, 40],
+      [width, 45],
+      [0, 65]
+    ], 'F');
+
+    // Decorative Bottom Right Corner
+    doc.setFillColor(209, 250, 229); // emerald-100
+    doc.triangle(width, height - 80, width, height, width - 80, height, "F");
+    doc.setFillColor(16, 185, 129); // emerald-500
+    doc.triangle(width, height - 40, width, height, width - 40, height, "F");
+
+    // Decorative Top Left Corner (over the header)
+    doc.setFillColor(255, 255, 255);
+    (doc as any).setGState(new (doc as any).GState({ opacity: 0.15 }));
+    doc.circle(0, 0, 40, "F");
+    doc.circle(20, -10, 60, "F");
+    (doc as any).setGState(new (doc as any).GState({ opacity: 1 }));
+
+    // --- TEXT CONTENT ---
+    
+    // Header Text
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(38);
+    doc.text("SERTIFIKAT", width / 2, 28, { align: "center" });
+    
     doc.setFontSize(14);
-    doc.setFont("times", "normal");
-    doc.text("Diberikan Kepada:", 148.5, 75, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text("KEIKUTSERTAAN", width / 2, 38, { align: "center" });
 
-    // Name
-    doc.setFont("times", "bold");
-    doc.setFontSize(26);
-    doc.text(guruName.toUpperCase(), 148.5, 95, { align: "center" });
+    // Main Content
+    doc.setTextColor(100, 116, 139); // slate-500
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "italic");
+    doc.text("Diberikan dengan bangga kepada:", width / 2, 95, { align: "center" });
+
+    // Participant Name
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(32);
+    doc.text(guruName.toUpperCase(), width / 2, 115, { align: "center" });
     
     // Line under name
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.5);
-    doc.line(70, 100, 227, 100);
+    doc.setDrawColor(245, 158, 11); // amber-500
+    doc.setLineWidth(1.5);
+    doc.line(width / 2 - 60, 122, width / 2 + 60, 122);
 
-    // Description
-    doc.setFont("times", "normal");
-    doc.setFontSize(14);
-    doc.text(`Atas partisipasinya sebagai peserta aktif dalam kegiatan:`, 148.5, 115, { align: "center" });
+    // Event Description
+    doc.setTextColor(71, 85, 105); // slate-600
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text("Atas partisipasinya sebagai peserta aktif dalam kegiatan:", width / 2, 138, { align: "center" });
 
-    doc.setFont("times", "bold");
-    doc.setFontSize(18);
-    doc.text(k.nama, 148.5, 130, { align: "center" });
+    doc.setTextColor(16, 185, 129); // emerald-500
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    const splitTitle = doc.splitTextToSize(k.nama, 200);
+    doc.text(splitTitle, width / 2, 150, { align: "center" });
     
-    doc.setFontSize(12);
-    doc.setFont("times", "normal");
-    doc.text(`Yang diselenggarakan pada tanggal ${k.tanggal} bertempat di ${k.tempat}`, 148.5, 145, { align: "center" });
+    // Event Details
+    doc.setTextColor(100, 116, 139); // slate-500
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    const detailsY = 150 + (splitTitle.length * 8) + 5;
+    doc.text(`Diselenggarakan pada ${k.tanggal} bertempat di ${k.tempat}`, width / 2, detailsY, { align: "center" });
 
-    // Footer/Signatures
-    doc.setFontSize(12);
-    doc.text("Mengetahui,", 220, 165, { align: "center" });
-    doc.setFont("times", "bold");
-    doc.text("Ketua KKG MI Talang", 220, 185, { align: "center" });
+    // Signatures
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(11);
+    doc.text("Mengetahui,", 230, height - 45, { align: "center" });
+    doc.setFont("helvetica", "bold");
+    doc.text("Ketua KKM / KKG", 230, height - 20, { align: "center" });
+    
+    // Signature Line
+    doc.setDrawColor(100, 116, 139);
+    doc.setLineWidth(0.5);
+    doc.line(195, height - 25, 265, height - 25);
 
-    doc.save(`Sertifikat_${k.nama.replace(/\s+/g, "_")}.pdf`);
+    // Download
+    doc.save(`Sertifikat_${guruName.replace(/\s+/g, "_")}.pdf`);
   };
 
   return (
