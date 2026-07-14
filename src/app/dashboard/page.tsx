@@ -9,7 +9,22 @@ import { Newspaper, Users, Clock, ArrowUpRight, FileText, Activity, Sparkles, Ch
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
-export default function DashboardPage() {
+import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+
+export default async function DashboardPage() {
+  let siteName = "CMS Madrasah";
+  try {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (spreadsheetId) {
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const rows = await sheet.getRows();
+      const nameRow = rows.find((r: any) => r.get("key") === "site_name");
+      if (nameRow && nameRow.get("value")) {
+        siteName = nameRow.get("value");
+      }
+    }
+  } catch (e) {}
+
   return (
     <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out">
       
@@ -22,13 +37,13 @@ export default function DashboardPage() {
             <div>
               <Badge className="bg-white/20 text-white hover:bg-white/30 border-none mb-6 backdrop-blur-md shadow-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest">
                 <Sparkles className="w-3.5 h-3.5 mr-2 inline-block" />
-                CMS Premium v1.0
+                Portal Admin
               </Badge>
               <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
-                Portal Manajemen <br/> <span className="text-yellow-200">Madrasah</span>
+                Selamat Datang di <br/> <span className="text-yellow-200">{siteName}</span>
               </h1>
               <p className="text-white/80 text-lg max-w-md font-medium leading-relaxed">
-                Platform terpadu untuk KKM & KKG Kecamatan Talang. Kelola publikasi, artikel, dan pantau aktivitas dengan antarmuka Enterprise.
+                Platform terpadu untuk {siteName}. Kelola publikasi, artikel, dan pantau aktivitas dengan antarmuka Enterprise.
               </p>
             </div>
             

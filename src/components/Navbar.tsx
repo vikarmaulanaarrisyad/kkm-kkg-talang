@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BookOpen, LogIn, Menu } from "lucide-react";
 import { useState } from "react";
 
-export default function Navbar() {
+export default function Navbar({ siteName = "KKM & KKG" }: { siteName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -17,7 +17,7 @@ export default function Navbar() {
                 <BookOpen className="w-6 h-6 text-madrasah-800" />
               </div>
               <span className="font-bold text-xl tracking-tight text-madrasah-50 group-hover:text-gold-400 transition-colors">
-                KKM & KKG
+                {siteName}
               </span>
             </Link>
           </div>

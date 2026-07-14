@@ -28,6 +28,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
+import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -36,6 +38,19 @@ export default async function DashboardLayout({
   const session = await getServerSession(authOptions);
   const userName = session?.user?.name || "Admin";
   const userInitials = userName.substring(0, 2).toUpperCase();
+
+  let siteName = "CMS Madrasah";
+  try {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (spreadsheetId) {
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const rows = await sheet.getRows();
+      const nameRow = rows.find((r: any) => r.get("key") === "site_name");
+      if (nameRow && nameRow.get("value")) {
+        siteName = nameRow.get("value");
+      }
+    }
+  } catch (e) {}
 
   return (
     <SidebarProvider>
@@ -46,8 +61,8 @@ export default async function DashboardLayout({
               <div className="bg-sidebar-primary p-2 rounded-xl shadow-lg shadow-black/20">
                 <BookOpen className="w-5 h-5 text-sidebar-primary-foreground" />
               </div>
-              <span className="font-bold text-lg tracking-tight text-sidebar-foreground">
-                CMS Madrasah
+              <span className="font-bold text-lg tracking-tight text-sidebar-foreground line-clamp-1">
+                {siteName}
               </span>
             </Link>
           </SidebarHeader>

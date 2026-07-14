@@ -47,9 +47,23 @@ async function getLatestNews() {
   }
 }
 
+async function getSiteName() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return "CMS Madrasah Ibtidaiyah";
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ['key', 'value']);
+    const rows = await sheet.getRows();
+    const nameRow = rows.find((r: any) => r.get('key') === 'site_name');
+    return nameRow ? nameRow.get('value') : "CMS Madrasah Ibtidaiyah";
+  } catch (error) {
+    return "CMS Madrasah Ibtidaiyah";
+  }
+}
+
 export default async function Home() {
   const latestNews = await getLatestNews();
   const categories = await getCategories();
+  const siteName = await getSiteName();
 
   // Strip HTML from content for snippet
   const stripHtml = (html: string) => {
@@ -63,11 +77,11 @@ export default async function Home() {
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gold-400 via-transparent to-transparent"></div>
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
           <div className="bg-madrasah-800 p-4 rounded-full mb-6 border border-madrasah-700 shadow-xl">
-            <BookOpen className="w-12 h-12 text-gold-400" />
+            <BookOpen className="w-8 h-8 text-gold-400" />
           </div>
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
-            KKM & KKG Madrasah Ibtidaiyah <br />
-            <span className="text-gold-400">Kecamatan Talang</span>
+            {siteName} <br />
+            <span className="text-gold-400">Berkemajuan</span>
           </h1>
           <p className="text-lg md:text-xl text-madrasah-100 max-w-2xl mb-10 leading-relaxed">
             Wadah kolaborasi dan peningkatan kompetensi tenaga pendidik untuk mewujudkan madrasah hebat, bermartabat, dan berakhlak mulia.

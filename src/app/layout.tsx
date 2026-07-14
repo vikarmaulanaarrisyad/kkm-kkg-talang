@@ -57,11 +57,28 @@ import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let siteName = "CMS Madrasah Ibtidaiyah";
+  
+  try {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (spreadsheetId) {
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const rows = await sheet.getRows();
+      
+      const nameRow = rows.find((row: any) => row.get("key") === "site_name");
+      if (nameRow && nameRow.get("value")) {
+        siteName = nameRow.get("value");
+      }
+    }
+  } catch (e) {
+    console.error("Failed to fetch site_name for layout:", e);
+  }
+
   return (
     <html
       lang="id"
@@ -69,7 +86,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <Providers>
-          <LayoutWrapper>
+          <LayoutWrapper siteName={siteName}>
             {children}
           </LayoutWrapper>
         </Providers>
