@@ -18,14 +18,9 @@ export async function GET(req: NextRequest) {
     const rows = await sheet.getRows();
 
     const role = (session.user as any).role;
-    const madrasahId = (session.user as any).madrasahId;
-
-    // Admin can see all, Madrasah can see all (since KKG events are for all), 
-    // or maybe Madrasah only sees their own + KKG?
-    // User requested: "jika di luar madrasah akan tampil di Admin KKG"
-    // Let's return all active events, filtering can be done on the frontend or here.
+    const madrasahName = (session.user as any).name;
     
-    const data = rows.map(r => ({
+    let data = rows.map(r => ({
       id: r.get("id"),
       nama: r.get("nama"),
       jenis: r.get("jenis"),
@@ -38,8 +33,13 @@ export async function GET(req: NextRequest) {
       madrasah_id: r.get("madrasah_id") || "",
     }));
 
-    // Sort by tanggal descending
-    data.sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+    if (role === "madrasah") {
+      data = data.filter(d => d.tempat === madrasahName);
+    }
+
+    // Sort by created_at descending (latest first)
+    data.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+    
     return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

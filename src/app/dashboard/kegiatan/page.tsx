@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Plus, QrCode, X, Calendar as CalendarIcon, MapPin, Users, CheckCircle, Clock } from "lucide-react";
 import Swal from "sweetalert2";
 import { QRCodeCanvas } from "qrcode.react";
@@ -25,6 +26,7 @@ type Presensi = {
 };
 
 export default function KegiatanPage() {
+  const pathname = usePathname();
   const [data, setData] = useState<Kegiatan[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +44,8 @@ export default function KegiatanPage() {
   });
   const [madrasahs, setMadrasahs] = useState<any[]>([]);
   const [isTempatLainnya, setIsTempatLainnya] = useState(false);
-  const isAdminView = typeof window !== "undefined" && window.location.pathname.includes("/dashboard");
+  
+  const isAdminView = pathname?.includes("/dashboard") ?? false;
 
   const fetchData = async () => {
     try {
