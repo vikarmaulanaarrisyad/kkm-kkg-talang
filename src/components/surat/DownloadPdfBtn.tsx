@@ -143,7 +143,32 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
           return;
         }
         
-        // Split text to fit width
+        // Deteksi format list (Label : Value) untuk dirapikan secara tabular
+        const listMatch = p.match(/^([A-Za-z0-9/ -]+?)\s*:\s*(.*)$/);
+        if (listMatch && listMatch[1].length < 35) {
+          const label = listMatch[1].trim();
+          const value = listMatch[2].trim();
+          
+          if (y > pageH - 40) { doc.addPage(); y = margin; }
+          
+          doc.text(label, margin, y);
+          doc.text(":", margin + 35, y);
+          
+          const valueLines = doc.splitTextToSize(value, contentW - 40);
+          valueLines.forEach((vLine: string, vIndex: number) => {
+            if (y > pageH - 40) { doc.addPage(); y = margin; }
+            if (vIndex === valueLines.length - 1) {
+              doc.text(vLine, margin + 40, y);
+            } else {
+              doc.text(vLine, margin + 40, y, { align: "justify", maxWidth: contentW - 40 });
+            }
+            if (vIndex < valueLines.length - 1) y += 6;
+          });
+          y += 6;
+          return;
+        }
+        
+        // Default paragraph rendering
         const lines = doc.splitTextToSize(p, contentW);
         lines.forEach((line: string, i: number) => {
           if (y > pageH - 40) {
@@ -151,7 +176,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
             y = margin;
           }
           
-          // Mencegah justify pada baris terakhir paragraf atau paragraf 1 baris (seperti list bertitik dua)
+          // Mencegah justify pada baris terakhir paragraf atau paragraf 1 baris
           if (i === lines.length - 1) {
             doc.text(line, margin, y);
           } else {
