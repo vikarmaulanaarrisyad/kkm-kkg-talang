@@ -75,3 +75,23 @@ export async function getOrCreateGoogleSheet(sheetId: string, sheetTitle: string
     throw error;
   }
 }
+
+const rowsCache = new Map<string, { time: number, promise: Promise<any[]> }>();
+const ROWS_CACHE_TTL = 10000; // 10 seconds
+
+export async function getCachedRows(sheet: any, sheetTitle: string) {
+  const now = Date.now();
+  const cached = rowsCache.get(sheetTitle);
+  
+  if (cached && now - cached.time < ROWS_CACHE_TTL) {
+    return cached.promise;
+  }
+  
+  const promise = sheet.getRows().catch((err: any) => {
+    rowsCache.delete(sheetTitle);
+    throw err;
+  });
+  
+  rowsCache.set(sheetTitle, { time: now, promise });
+  return promise;
+}
