@@ -93,10 +93,36 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         </div>
       `;
 
-      // Create a temporary container
-      const container = document.createElement('div');
-      container.innerHTML = htmlContent;
-      document.body.appendChild(container);
+      // Create a hidden iframe to prevent html2canvas from parsing Tailwind v4's global oklch/lab colors
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.top = '-9999px';
+      iframe.style.width = '1000px';
+      iframe.style.height = '1000px';
+      document.body.appendChild(iframe);
+
+      const iframeDoc = iframe.contentWindow?.document;
+      if (!iframeDoc) throw new Error("Gagal membuat konteks cetak");
+
+      iframeDoc.open();
+      iframeDoc.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              body { margin: 0; padding: 0; background: white; }
+              * { border-color: black; }
+            </style>
+          </head>
+          <body>
+            ${htmlContent}
+          </body>
+        </html>
+      `);
+      iframeDoc.close();
+
+      // Ensure images are loaded in the iframe before printing
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const opt = {
         margin:       10, // top, left, bottom, right
@@ -106,9 +132,9 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
       };
 
-      await html2pdf().set(opt).from(container).save();
+      await html2pdf().set(opt).from(iframeDoc.body.firstElementChild || iframeDoc.body).save();
       
-      document.body.removeChild(container);
+      document.body.removeChild(iframe);
     } catch (error: any) {
       console.error("Gagal men-generate PDF", error);
       Swal.fire("Error", "Gagal mengunduh PDF: " + error.message, "error");
