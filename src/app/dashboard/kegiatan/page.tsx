@@ -40,6 +40,9 @@ export default function KegiatanPage() {
     tanggal: "",
     waktu: "",
   });
+  const [madrasahs, setMadrasahs] = useState<any[]>([]);
+  const [isTempatLainnya, setIsTempatLainnya] = useState(false);
+  const isAdminView = typeof window !== "undefined" && window.location.pathname.includes("/dashboard");
 
   const fetchData = async () => {
     try {
@@ -68,7 +71,10 @@ export default function KegiatanPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    if (isAdminView) {
+      fetch("/api/madrasah").then(r => r.json()).then(setMadrasahs).catch(console.error);
+    }
+  }, [isAdminView]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,6 +89,7 @@ export default function KegiatanPage() {
         setShowModal(false);
         fetchData();
         setForm({ nama: "", jenis: "KKG", tempat: "", tanggal: "", waktu: "" });
+        setIsTempatLainnya(false);
       } else {
         const err = await res.json();
         Swal.fire("Error", err.error || "Gagal membuat kegiatan", "error");
@@ -104,11 +111,15 @@ export default function KegiatanPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Manajemen Kegiatan & E-Presensi</h1>
-          <p className="text-slate-500 text-sm mt-1">Buat kegiatan dan tampilkan QR Code untuk absensi otomatis.</p>
+          <p className="text-slate-500 text-sm mt-1">
+            {isAdminView ? "Buat kegiatan dan tampilkan QR Code untuk absensi otomatis." : "Tampilkan QR Code untuk presensi kegiatan di Madrasah."}
+          </p>
         </div>
-        <button onClick={() => setShowModal(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center gap-2">
-          <Plus className="w-5 h-5" /> Buat Kegiatan
-        </button>
+        {isAdminView && (
+          <button onClick={() => setShowModal(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center gap-2">
+            <Plus className="w-5 h-5" /> Buat Kegiatan
+          </button>
+        )}
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -189,15 +200,36 @@ export default function KegiatanPage() {
                   <label className="text-sm font-semibold text-slate-700 mb-1 block">Tanggal</label>
                   <input type="date" required value={form.tanggal} onChange={e => setForm({ ...form, tanggal: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm" />
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-semibold text-slate-700 mb-1 block">Waktu</label>
                   <input type="text" value={form.waktu} onChange={e => setForm({ ...form, waktu: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm" placeholder="08:00 - Selesai" />
                 </div>
-                <div>
-                  <label className="text-sm font-semibold text-slate-700 mb-1 block">Tempat</label>
-                  <input type="text" value={form.tempat} onChange={e => setForm({ ...form, tempat: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm" placeholder="MIS Bustanul Huda 01" />
+                <div className="col-span-2">
+                  <label className="text-sm font-semibold text-slate-700 mb-1 block">Tempat Kegiatan</label>
+                  <div className="space-y-2">
+                    <select 
+                      value={isTempatLainnya ? "lainnya" : (madrasahs.some(m => m.nama === form.tempat) ? form.tempat : (form.tempat ? "lainnya" : ""))} 
+                      onChange={e => {
+                        if (e.target.value === "lainnya") {
+                          setIsTempatLainnya(true);
+                          setForm({ ...form, tempat: "" });
+                        } else {
+                          setIsTempatLainnya(false);
+                          setForm({ ...form, tempat: e.target.value });
+                        }
+                      }}
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 text-sm"
+                    >
+                      <option value="" disabled>-- Pilih Lokasi --</option>
+                      {madrasahs.map(m => (
+                        <option key={m.id} value={m.nama}>{m.nama}</option>
+                      ))}
+                      <option value="lainnya">Lainnya (Ketik Manual)</option>
+                    </select>
+                    {isTempatLainnya && (
+                      <input type="text" required placeholder="Ketik lokasi kegiatan..." value={form.tempat} onChange={e => setForm({ ...form, tempat: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm" />
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="pt-2">
