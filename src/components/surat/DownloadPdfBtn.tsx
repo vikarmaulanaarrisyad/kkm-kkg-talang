@@ -145,12 +145,18 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         
         // Split text to fit width
         const lines = doc.splitTextToSize(p, contentW);
-        lines.forEach((line: string) => {
+        lines.forEach((line: string, i: number) => {
           if (y > pageH - 40) {
             doc.addPage();
             y = margin;
           }
-          doc.text(line, margin, y, { align: "justify", maxWidth: contentW });
+          
+          // Mencegah justify pada baris terakhir paragraf atau paragraf 1 baris (seperti list bertitik dua)
+          if (i === lines.length - 1) {
+            doc.text(line, margin, y);
+          } else {
+            doc.text(line, margin, y, { align: "justify", maxWidth: contentW });
+          }
           y += 6;
         });
       });
