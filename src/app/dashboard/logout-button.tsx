@@ -3,7 +3,16 @@
 import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 
-export default function LogoutButton() {
+export default function LogoutButton({ iconOnly }: { iconOnly?: boolean }) {
+  if (iconOnly) {
+    return (
+      <button onClick={() => signOut({ callbackUrl: "/" })} className="flex flex-col items-center">
+        <LogOut className="w-5 h-5 mb-1" />
+        <span className="text-[10px] font-bold">Keluar</span>
+      </button>
+    );
+  }
+
   return (
     <button
       onClick={() => signOut({ callbackUrl: "/" })}

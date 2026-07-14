@@ -69,6 +69,42 @@ export const authOptions: NextAuthOptions = {
               madrasahId: madrasahRow.get("id"),
             };
           }
+          // 3. Cek tabel Guru (Login untuk E-Presensi)
+          const guruSheet = await getOrCreateGoogleSheet(spreadsheetId, "Guru", [
+            "id", "madrasah_id", "nama", "nip", "peg_id", "nuptk", "password_hash"
+          ]);
+          const guruRows = await guruSheet.getRows();
+          
+          const normalizeID = (val: any) => (val || "").toString().replace(/^'/, "").trim();
+          
+          const guruRow = guruRows.find(row => {
+            const valNip = normalizeID(row.get("nip"));
+            const valPegId = normalizeID(row.get("peg_id"));
+            const valNuptk = normalizeID(row.get("nuptk"));
+            return valNip === credentials.username || valPegId === credentials.username || valNuptk === credentials.username;
+          });
+
+          if (guruRow) {
+            let isValid = false;
+            const storedHash = guruRow.get("password_hash");
+            
+            if (storedHash) {
+              isValid = await bcrypt.compare(credentials.password, storedHash);
+            } else {
+              // Jika belum ada password_hash, gunakan default '123456'
+              isValid = credentials.password === "123456";
+            }
+
+            if (!isValid) throw new Error("Username atau password salah");
+
+            return {
+              id: guruRow.get("id"),
+              name: guruRow.get("nama"),
+              email: credentials.username, // Using identifier as email for session
+              role: "guru",
+              madrasahId: guruRow.get("madrasah_id"),
+            };
+          }
 
           throw new Error("Username atau password salah");
         } catch (error: any) {
