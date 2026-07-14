@@ -77,6 +77,10 @@ export async function PUT(req: NextRequest) {
     const profil_misi = formData.get("profil_misi") as string;
     const profil_misi_utama = formData.get("profil_misi_utama") as string;
 
+    const kontak_alamat = formData.get("kontak_alamat") as string;
+    const kontak_email = formData.get("kontak_email") as string;
+    const kontak_telepon = formData.get("kontak_telepon") as string;
+
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
     const rows = await sheet.getRows();
 
@@ -99,6 +103,10 @@ export async function PUT(req: NextRequest) {
     if (profil_visi !== null) await updateOrCreateRow("profil_visi", profil_visi);
     if (profil_misi !== null) await updateOrCreateRow("profil_misi", profil_misi);
     if (profil_misi_utama !== null) await updateOrCreateRow("profil_misi_utama", profil_misi_utama);
+
+    if (kontak_alamat !== null) await updateOrCreateRow("kontak_alamat", kontak_alamat);
+    if (kontak_email !== null) await updateOrCreateRow("kontak_email", kontak_email);
+    if (kontak_telepon !== null) await updateOrCreateRow("kontak_telepon", kontak_telepon);
 
     // Get current target provider for logo logic
     const currentProviderRow = rows.find(r => r.get("key") === "storage_provider");
