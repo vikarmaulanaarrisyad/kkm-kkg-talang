@@ -9,6 +9,7 @@ export default function LayoutWrapper({ children, siteName }: { children: React.
   const pathname = usePathname();
   const isPublicRoute = !pathname?.startsWith("/dashboard") && 
                         !pathname?.startsWith("/madrasah") && 
+                        !pathname?.startsWith("/guru") && 
                         !pathname?.startsWith("/login") && 
                         !pathname?.startsWith("/daftar");
 
