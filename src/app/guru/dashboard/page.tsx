@@ -100,21 +100,14 @@ export default function GuruDashboard() {
 
     // Modern Geometric Header (Emerald Green)
     doc.setFillColor(16, 185, 129); // emerald-500
-    doc.polygon([
-      [0, 0],
-      [width, 0],
-      [width, 40],
-      [0, 60]
-    ], 'F');
+    doc.rect(0, 0, width, 40, "F");
+    doc.triangle(0, 40, width, 40, 0, 60, "F");
 
     // Accent Ribbon (Gold/Amber)
     doc.setFillColor(245, 158, 11); // amber-500
-    doc.polygon([
-      [0, 60],
-      [width, 40],
-      [width, 45],
-      [0, 65]
-    ], 'F');
+    // A quadrilateral made of 2 triangles
+    doc.triangle(0, 60, width, 40, width, 45, "F");
+    doc.triangle(0, 60, width, 45, 0, 65, "F");
 
     // Decorative Bottom Right Corner
     doc.setFillColor(209, 250, 229); // emerald-100
