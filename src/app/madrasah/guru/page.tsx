@@ -34,15 +34,20 @@ const EMPTY_FORM: Omit<Guru, "id"> = {
   bidang_studi: "", no_hp: "", email: "",
 };
 
-function GuruForm({ initial, onSave, onCancel, loading }: {
+function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   initial?: Partial<Guru>;
   onSave: (data: any) => Promise<void>;
   onCancel: () => void;
   loading: boolean;
+  masterData: any[];
 }) {
   const [form, setForm] = useState({ ...EMPTY_FORM, ...(initial || {}) });
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [key]: e.target.value }));
   const setSelect = (key: string) => (v: string | null) => setForm(f => ({ ...f, [key]: v || "" }));
+
+  const statusOptions = masterData.filter(d => d.kategori === "status_kepegawaian");
+  const jabatanOptions = masterData.filter(d => d.kategori === "jabatan");
+  const pendidikanOptions = masterData.filter(d => d.kategori === "pendidikan_terakhir");
 
   return (
     <form onSubmit={async e => { e.preventDefault(); await onSave(form); }} className="space-y-6">
@@ -95,26 +100,34 @@ function GuruForm({ initial, onSave, onCancel, loading }: {
           <Select value={form.status_kepegawaian} onValueChange={setSelect("status_kepegawaian")}>
             <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="PNS">PNS</SelectItem>
-              <SelectItem value="Non-PNS">Non-PNS</SelectItem>
-              <SelectItem value="GTT">GTT (Guru Tidak Tetap)</SelectItem>
-              <SelectItem value="Kontrak">Kontrak</SelectItem>
+              {statusOptions.length === 0 && <SelectItem value="PNS" disabled>Belum ada data master</SelectItem>}
+              {statusOptions.map(opt => (
+                <SelectItem key={opt.id} value={opt.nama_nilai}>{opt.nama_nilai}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-1.5">
           <Label>Jabatan / Tugas</Label>
-          <Input value={form.jabatan} onChange={set("jabatan")} placeholder="Guru Kelas / Guru Mapel / Kepala Sekolah" />
+          <Select value={form.jabatan} onValueChange={setSelect("jabatan")}>
+            <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+            <SelectContent>
+              {jabatanOptions.length === 0 && <SelectItem value="Guru" disabled>Belum ada data master</SelectItem>}
+              {jabatanOptions.map(opt => (
+                <SelectItem key={opt.id} value={opt.nama_nilai}>{opt.nama_nilai}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1.5">
           <Label>Pendidikan Terakhir</Label>
           <Select value={form.pendidikan_terakhir} onValueChange={setSelect("pendidikan_terakhir")}>
             <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="D3">D3</SelectItem>
-              <SelectItem value="S1">S1</SelectItem>
-              <SelectItem value="S2">S2</SelectItem>
-              <SelectItem value="S3">S3</SelectItem>
+              {pendidikanOptions.length === 0 && <SelectItem value="S1" disabled>Belum ada data master</SelectItem>}
+              {pendidikanOptions.map(opt => (
+                <SelectItem key={opt.id} value={opt.nama_nilai}>{opt.nama_nilai}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -147,6 +160,7 @@ function GuruForm({ initial, onSave, onCancel, loading }: {
 
 export default function MadrasahGuruPage() {
   const [guru, setGuru] = useState<Guru[]>([]);
+  const [masterData, setMasterData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<"list" | "form">("list");
@@ -156,9 +170,15 @@ export default function MadrasahGuruPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/guru");
-      const data = await res.json();
-      setGuru(Array.isArray(data) ? data : []);
+      const [resGuru, resMaster] = await Promise.all([
+        fetch("/api/guru"),
+        fetch("/api/master")
+      ]);
+      const dataGuru = await resGuru.json();
+      const dataMaster = await resMaster.json();
+      
+      setGuru(Array.isArray(dataGuru) ? dataGuru : []);
+      setMasterData(Array.isArray(dataMaster) ? dataMaster : []);
     } finally {
       setLoading(false);
     }
@@ -231,6 +251,7 @@ export default function MadrasahGuruPage() {
               onSave={handleSave}
               onCancel={() => { setMode("list"); setSelected(null); }}
               loading={saving}
+              masterData={masterData}
             />
           </CardContent>
         </Card>
