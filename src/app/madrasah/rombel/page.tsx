@@ -102,6 +102,15 @@ export default function RombelPage() {
     }
 
     setIsSubmitting(true);
+    Swal.fire({
+      title: 'Menyimpan...',
+      text: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const url = isEditing ? `/api/rombel/${editId}` : "/api/rombel";
       const method = isEditing ? "PUT" : "POST";
@@ -115,10 +124,11 @@ export default function RombelPage() {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
 
-      Swal.fire("Berhasil", "Data rombel berhasil disimpan", "success");
+      await fetchData(); // Await fetch data to ensure table updates before success message
       setIsEditing(false);
       setForm(EMPTY_FORM);
-      fetchData();
+      
+      Swal.fire("Berhasil", "Data rombel berhasil disimpan", "success");
     } catch (error: any) {
       Swal.fire("Gagal", error.message, "error");
     } finally {
@@ -199,7 +209,7 @@ export default function RombelPage() {
 
         <div className="space-y-2">
           <Label>Wali Kelas (Opsional)</Label>
-          <Select value={form.wali_kelas_id} onValueChange={v => setForm(p => ({ ...p, wali_kelas_id: v }))}>
+          <Select value={form.wali_kelas_id} onValueChange={v => setForm(p => ({ ...p, wali_kelas_id: v || "" }))}>
             <SelectTrigger>
               <SelectValue placeholder="Pilih Guru..." />
             </SelectTrigger>

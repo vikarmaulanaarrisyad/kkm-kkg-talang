@@ -145,7 +145,7 @@ export default function AdminAgendaPage() {
                 </div>
                 <div className="space-y-1.5">
                   <Label>Status Kegiatan</Label>
-                  <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v }))}>
+                  <Select value={form.status} onValueChange={v => setForm(f => ({ ...f, status: v || "" }))}>
                     <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Upcoming">Akan Datang (Upcoming)</SelectItem>

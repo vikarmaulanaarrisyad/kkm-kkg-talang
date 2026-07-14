@@ -258,6 +258,15 @@ export default function MadrasahGuruPage() {
 
   const handleSave = async (form: any) => {
     setSaving(true);
+    Swal.fire({
+      title: 'Menyimpan...',
+      text: 'Mohon tunggu sebentar',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
     try {
       const isEdit = !!selected;
       const url = isEdit ? `/api/guru/${selected!.id}` : "/api/guru";
@@ -269,10 +278,12 @@ export default function MadrasahGuruPage() {
       });
       const data = await res.json();
       if (!res.ok) { Swal.fire("Gagal", data.error, "error"); return; }
+      
+      await fetchData(); // Await fetch data so table updates before showing success
+      
       Swal.fire("Berhasil", `Data guru berhasil ${isEdit ? "diperbarui" : "ditambahkan"}`, "success");
       setMode("list");
       setSelected(null);
-      fetchData();
     } finally {
       setSaving(false);
     }
