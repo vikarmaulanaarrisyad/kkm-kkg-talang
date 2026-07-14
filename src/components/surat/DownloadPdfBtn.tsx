@@ -132,7 +132,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         jsPDF:        { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
       };
 
-      await html2pdf().set(opt).from((iframeDoc.body.firstElementChild as HTMLElement) || iframeDoc.body).save();
+      await html2pdf().set(opt).from(iframeDoc.body as HTMLElement).save();
       
       document.body.removeChild(iframe);
     } catch (error: any) {
