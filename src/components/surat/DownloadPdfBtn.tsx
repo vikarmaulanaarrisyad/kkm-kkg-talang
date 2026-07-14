@@ -144,11 +144,11 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         }
         
         // Deteksi format list (Label : Value) untuk dirapikan secara tabular
-        // Use a more relaxed regex to capture anything up to the first colon
-        const listMatch = p.match(/^([^:]+?)\s*:\s*(.*)$/);
-        if (listMatch && listMatch[1].length < 35) {
-          const label = listMatch[1].trim();
-          const value = listMatch[2].trim();
+        // Menggunakan indexOf agar 100% akurat menangkap baris yang memiliki titik dua
+        const colonIndex = p.indexOf(":");
+        if (colonIndex !== -1 && colonIndex < 35) {
+          const label = p.substring(0, colonIndex).trim();
+          const value = p.substring(colonIndex + 1).trim();
           
           if (y > pageH - 40) { doc.addPage(); y = margin; }
           
