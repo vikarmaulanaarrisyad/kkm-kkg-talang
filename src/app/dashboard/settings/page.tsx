@@ -26,6 +26,11 @@ export default function SettingsPage() {
   const [profilMisi, setProfilMisi] = useState("");
   const [profilMisiUtama, setProfilMisiUtama] = useState("");
 
+  // State Informasi Kontak
+  const [kontakAlamat, setKontakAlamat] = useState("");
+  const [kontakEmail, setKontakEmail] = useState("");
+  const [kontakTelepon, setKontakTelepon] = useState("");
+
   // State Keamanan
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -60,6 +65,9 @@ export default function SettingsPage() {
           if (data.profil_visi) setProfilVisi(data.profil_visi);
           if (data.profil_misi) setProfilMisi(data.profil_misi);
           if (data.profil_misi_utama) setProfilMisiUtama(data.profil_misi_utama);
+          if (data.kontak_alamat) setKontakAlamat(data.kontak_alamat);
+          if (data.kontak_email) setKontakEmail(data.kontak_email);
+          if (data.kontak_telepon) setKontakTelepon(data.kontak_telepon);
         }
       }
 
@@ -179,6 +187,23 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveKontak = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      Swal.fire({ title: "Menyimpan...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      const formData = new FormData();
+      formData.append("kontak_alamat", kontakAlamat);
+      formData.append("kontak_email", kontakEmail);
+      formData.append("kontak_telepon", kontakTelepon);
+      const res = await fetch("/api/settings", { method: "PUT", body: formData });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json?.error || "Gagal menyimpan");
+      Swal.fire("Berhasil", "Informasi kontak berhasil disimpan", "success");
+    } catch (err: any) {
+      Swal.fire("Gagal", err.message, "error");
+    }
+  };
+
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -241,12 +266,15 @@ export default function SettingsPage() {
         </Card>
       ) : (
         <Tabs defaultValue="umum" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-muted/50 p-1">
+          <TabsList className="grid w-full max-w-3xl grid-cols-5 bg-muted/50 p-1">
             <TabsTrigger value="umum" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
               Umum
             </TabsTrigger>
             <TabsTrigger value="profil" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
               Profil Lembaga
+            </TabsTrigger>
+            <TabsTrigger value="kontak" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
+              Info Kontak
             </TabsTrigger>
             <TabsTrigger value="keamanan" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
               Keamanan
@@ -425,6 +453,60 @@ export default function SettingsPage() {
                   <Button type="submit" className="gap-2">
                     <Save className="w-4 h-4" />
                     Simpan Profil
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="kontak" className="mt-0">
+            <Card className="border-border/50 shadow-sm overflow-hidden">
+              <form onSubmit={handleSaveKontak}>
+                <CardHeader className="bg-muted/10 border-b border-border/50">
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-primary" />
+                    Informasi Kontak
+                  </CardTitle>
+                  <CardDescription>Ubah alamat, email, dan nomor telepon yang tampil di halaman Hubungi Kami.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-foreground/90">Alamat Sekretariat</Label>
+                    <textarea
+                      value={kontakAlamat}
+                      onChange={(e) => setKontakAlamat(e.target.value)}
+                      placeholder="Masukkan alamat sekretariat..."
+                      rows={3}
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:bg-background transition-colors"
+                    />
+                  </div>
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-foreground/90">Email</Label>
+                      <Input
+                        type="email"
+                        value={kontakEmail}
+                        onChange={(e) => setKontakEmail(e.target.value)}
+                        placeholder="contoh@kkmtalang.id"
+                        className="bg-muted/30 focus-visible:bg-background transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-foreground/90">Telepon / WhatsApp</Label>
+                      <Input
+                        type="text"
+                        value={kontakTelepon}
+                        onChange={(e) => setKontakTelepon(e.target.value)}
+                        placeholder="+62 812-xxxx-xxxx"
+                        className="bg-muted/30 focus-visible:bg-background transition-colors"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter className="px-6 py-4 bg-muted/10 border-t border-border/50 flex justify-end">
+                  <Button type="submit" className="gap-2">
+                    <Save className="w-4 h-4" />
+                    Simpan Info Kontak
                   </Button>
                 </CardFooter>
               </form>

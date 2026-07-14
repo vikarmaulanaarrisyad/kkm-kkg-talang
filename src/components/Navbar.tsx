@@ -49,11 +49,7 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             <Link href="/#unduhan" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Unduhan
             </Link>
-            <Link href="#kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors" onClick={(e) => {
-              if (window.location.pathname === "/") return;
-              e.preventDefault();
-              window.location.href = "/#kontak";
-            }}>
+            <Link href="/kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Hubungi Kami
             </Link>
             <div className="pl-4 border-l border-slate-200">
@@ -97,7 +93,7 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
           <Link href="/#unduhan" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Unduhan
           </Link>
-          <Link href="/#kontak" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+          <Link href="/kontak" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Hubungi Kami
           </Link>
           <Link href="/login" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 px-3 py-3 mt-4 w-full text-center rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm">
