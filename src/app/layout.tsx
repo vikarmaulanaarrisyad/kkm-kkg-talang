@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -15,6 +15,10 @@ export const metadata: Metadata = {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Providers from "@/components/Providers";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
 
 export default function RootLayout({
   children,
@@ -24,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${inter.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", inter.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <Providers>
