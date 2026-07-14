@@ -3,9 +3,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
+import { uploadToDrive } from "@/lib/google-drive";
 
 const SHEET_TITLE = "Berita";
-const HEADERS = ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at'];
+const HEADERS = ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category'];
 
 export async function GET() {
   try {
@@ -26,6 +27,7 @@ export async function GET() {
       author: row.get('author'),
       status: row.get('status'),
       created_at: row.get('created_at'),
+      category: row.get('category'),
     }));
 
     // Sort by created_at descending
@@ -49,40 +51,63 @@ export async function POST(req: NextRequest) {
     const title = formData.get('title') as string;
     const content = formData.get('content') as string;
     const status = formData.get('status') as string || 'Draft';
+    const category = formData.get('category') as string || 'Umum';
     const imageFile = formData.get('image') as File;
 
     if (!title || !content) {
       return NextResponse.json({ error: "Judul dan konten wajib diisi" }, { status: 400 });
     }
 
-    let imageUrl = "";
-
-    // Upload image to Cloudinary if exists
-    if (imageFile && imageFile.size > 0) {
-      const arrayBuffer = await imageFile.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Wrap upload stream in a Promise
-      const uploadResult = await new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream(
-          { folder: "kkm-talang/berita" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        ).end(buffer);
-      }) as any;
-
-      imageUrl = uploadResult.secure_url;
-    }
-
-    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    const id = Date.now().toString();
-
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
     if (!spreadsheetId) {
       return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
     }
+
+    // Get Storage Provider setting
+    let storageProvider = "cloudinary";
+    try {
+      const settingsSheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const settingsRows = await settingsSheet.getRows();
+      const providerRow = settingsRows.find(r => r.get("key") === "storage_provider");
+      if (providerRow && providerRow.get("value")) {
+        storageProvider = providerRow.get("value");
+      }
+    } catch (e) {
+      console.error("Gagal membaca pengaturan penyimpanan, menggunakan cloudinary", e);
+    }
+
+    let imageUrl = "";
+
+    // Upload image if exists
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      if (storageProvider === "google_drive") {
+        const result = await uploadToDrive(buffer, imageFile.name, imageFile.type);
+        imageUrl = result.url;
+      } else {
+        const uploadResult = await new Promise((resolve, reject) => {
+          cloudinary.uploader.upload_stream(
+            { 
+              folder: "kkm-talang/berita",
+              transformation: [
+                { width: 800, crop: "scale" },
+                { quality: "auto", fetch_format: "auto" }
+              ]
+            },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          ).end(buffer);
+        }) as any;
+        imageUrl = uploadResult.secure_url;
+      }
+    }
+
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const id = Date.now().toString();
 
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
     
@@ -94,7 +119,8 @@ export async function POST(req: NextRequest) {
       image_url: imageUrl,
       author: session.user?.name || "Admin",
       status,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      category
     });
 
     return NextResponse.json({ success: true, message: "Berita berhasil ditambahkan" });

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -66,6 +66,12 @@ export default async function DashboardLayout({
                     <SidebarMenuButton tooltip="Kelola Berita" render={<Link href="/dashboard/berita" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
                       <FileText className="w-4 h-4 mr-3 text-sidebar-primary" />
                       <span>Kelola Berita</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Kelola Kategori" render={<Link href="/dashboard/kategori" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <Tag className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span>Kelola Kategori</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

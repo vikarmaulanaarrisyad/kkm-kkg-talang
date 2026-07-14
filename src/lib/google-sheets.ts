@@ -30,6 +30,11 @@ export async function getOrCreateGoogleSheet(sheetId: string, sheetTitle: string
       if (headers.length > 0) {
         try {
           await sheet.loadHeaderRow();
+          const existingHeaders = sheet.headerValues;
+          const missingHeaders = headers.filter(h => !existingHeaders.includes(h));
+          if (missingHeaders.length > 0) {
+            await sheet.setHeaderRow([...existingHeaders, ...missingHeaders]);
+          }
         } catch (e) {
           await sheet.setHeaderRow(headers);
         }

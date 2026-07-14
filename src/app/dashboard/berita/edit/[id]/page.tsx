@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { ArrowLeft, Save, Image as ImageIcon, Send, X, FileText, CheckCircle2, Upload } from "lucide-react";
+import { ArrowLeft, Image as ImageIcon, Send, X, FileText, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -16,18 +23,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
 
-export default function TambahBeritaPage() {
+export default function EditBeritaPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const unwrappedParams = use(params);
+  const beritaId = unwrappedParams.id;
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
   
   const [title, setTitle] = useState("");
@@ -39,16 +41,43 @@ export default function TambahBeritaPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    fetchBerita();
     fetch("/api/kategori")
       .then(res => res.json())
       .then(json => {
         if (json.data && json.data.length > 0) {
           setCategories(json.data);
-          setCategory(json.data[0].name);
         }
       })
       .catch(console.error);
   }, []);
+
+  const fetchBerita = async () => {
+    try {
+      setFetching(true);
+      const res = await fetch(`/api/berita/${beritaId}`);
+      if (res.ok) {
+        const json = await res.json();
+        const data = json.data;
+        if (data) {
+          setTitle(data.title);
+          setContent(data.content);
+          setStatus(data.status);
+          if (data.category) setCategory(data.category);
+          if (data.image_url) {
+            setPreviewUrl(data.image_url);
+          }
+        }
+      } else {
+        const json = await res.json();
+        setError(json.error || "Gagal memuat data berita");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -76,8 +105,8 @@ export default function TambahBeritaPage() {
       setError("");
 
       Swal.fire({
-        title: 'Menyimpan...',
-        text: 'Sedang mengunggah data',
+        title: 'Menyimpan Perubahan...',
+        text: 'Sedang memproses data',
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -94,20 +123,22 @@ export default function TambahBeritaPage() {
       formData.append("category", category);
       if (image) {
         formData.append("image", image);
+      } else if (!previewUrl) {
+        formData.append("remove_image", "true");
       }
 
-      const res = await fetch("/api/berita", {
-        method: "POST",
+      const res = await fetch(`/api/berita/${beritaId}`, {
+        method: "PUT",
         body: formData,
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Gagal menyimpan berita.");
+        throw new Error(data.error || "Gagal memperbarui berita.");
       }
 
-      await Swal.fire('Berhasil!', 'Berita berhasil disimpan.', 'success');
+      await Swal.fire('Berhasil!', 'Berita berhasil diperbarui.', 'success');
       router.push("/dashboard/berita");
       router.refresh();
     } catch (err: any) {
@@ -118,9 +149,16 @@ export default function TambahBeritaPage() {
     }
   };
 
+  if (fetching) {
+    return (
+      <div className="flex items-center justify-center min-h-[500px]">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full space-y-6 pb-12 animate-in fade-in duration-500">
-      
       {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -128,14 +166,13 @@ export default function TambahBeritaPage() {
             <ArrowLeft className="w-4 h-4 text-foreground" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Tulis Berita</h1>
-            <p className="text-sm text-muted-foreground font-medium">Buat pengumuman atau artikel baru untuk madrasah.</p>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Edit Berita</h1>
+            <p className="text-sm text-muted-foreground font-medium">Perbarui pengumuman atau artikel.</p>
           </div>
         </div>
       </div>
 
       <form className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        
         {/* Main Content Form */}
         <div className="xl:col-span-2 space-y-6">
           <Card className="rounded-[1.5rem] border-border/40 shadow-sm bg-white overflow-hidden">
@@ -285,7 +322,7 @@ export default function TambahBeritaPage() {
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Publikasikan Berita
+                    Perbarui Berita
                   </>
                 )}
               </Button>

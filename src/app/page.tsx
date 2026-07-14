@@ -1,7 +1,59 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Users, Newspaper } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Newspaper, Calendar } from "lucide-react";
+import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import BeritaTabs from "@/components/landing/BeritaTabs";
 
-export default function Home() {
+async function getCategories() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return [];
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Kategori", ['id', 'name', 'slug']);
+    const rows = await sheet.getRows();
+    return rows.map(r => ({ id: r.get('id'), name: r.get('name') }));
+  } catch (error) {
+    console.error("Gagal mengambil kategori", error);
+    return [];
+  }
+}
+
+async function getLatestNews() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return [];
+  
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Berita", ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category']);
+    const rows = await sheet.getRows();
+    const data = rows
+      .map(r => ({
+        id: r.get('id'),
+        title: r.get('title'),
+        slug: r.get('slug'),
+        content: r.get('content') || '',
+        image_url: r.get('image_url'),
+        status: r.get('status'),
+        created_at: r.get('created_at'),
+        category: r.get('category')
+      }))
+      .filter(b => b.status === 'Published')
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 9); // Ambil 9 terbaru untuk ditampilkan di tab
+
+    return data;
+  } catch (error) {
+    console.error("Gagal mengambil berita untuk landing page", error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const latestNews = await getLatestNews();
+  const categories = await getCategories();
+
+  // Strip HTML from content for snippet
+  const stripHtml = (html: string) => {
+    return html.replace(/<[^>]*>?/gm, '');
+  };
+
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section */}
@@ -20,10 +72,33 @@ export default function Home() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link 
-              href="/berita" 
+              href="#berita" 
               className="bg-gold-500 hover:bg-gold-400 text-madrasah-900 px-8 py-3 rounded-full font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1"
             >
               Baca Berita Terbaru <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Latest News Section */}
+      <section id="berita" className="w-full py-20 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl font-bold text-madrasah-900 mb-4">Berita & Pengumuman Terbaru</h2>
+              <div className="w-24 h-1 bg-gold-500 rounded-full"></div>
+            </div>
+            <Link href="/berita" className="hidden sm:flex items-center text-madrasah-700 font-bold hover:text-madrasah-900 transition-colors">
+              Lihat Semua <ArrowRight className="w-4 h-4 ml-1" />
+            </Link>
+          </div>
+
+          <BeritaTabs news={latestNews} categories={categories} />
+
+          <div className="mt-10 text-center sm:hidden">
+            <Link href="/berita" className="inline-flex items-center justify-center bg-madrasah-100 text-madrasah-800 font-bold px-6 py-3 rounded-full hover:bg-madrasah-200 transition-colors">
+              Lihat Semua Berita <ArrowRight className="w-4 h-4 ml-2" />
             </Link>
           </div>
         </div>
