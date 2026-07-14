@@ -7,10 +7,41 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "CMS Madrasah Ibtidaiyah",
-  description: "Sistem Informasi Manajemen KKM & KKG Madrasah Ibtidaiyah Kecamatan Talang",
-};
+import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+
+export async function generateMetadata(): Promise<Metadata> {
+  let siteName = "CMS Madrasah Ibtidaiyah";
+  let siteLogo = "/icon.png";
+  let siteDescription = "Sistem Informasi Manajemen KKM & KKG Madrasah Ibtidaiyah Kecamatan Talang";
+  
+  try {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (spreadsheetId) {
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const rows = await sheet.getRows();
+      
+      const logoRow = rows.find((row: any) => row.get("key") === "site_logo");
+      if (logoRow && logoRow.get("value")) {
+        siteLogo = logoRow.get("value");
+      }
+      
+      const nameRow = rows.find((row: any) => row.get("key") === "site_name");
+      if (nameRow && nameRow.get("value")) {
+        siteName = nameRow.get("value");
+      }
+    }
+  } catch (e) {
+    console.error("Failed to fetch metadata from Google Sheets:", e);
+  }
+
+  return {
+    title: siteName,
+    description: siteDescription,
+    icons: {
+      icon: siteLogo,
+    }
+  };
+}
 
 import Providers from "@/components/Providers";
 import LayoutWrapper from "@/components/LayoutWrapper";
