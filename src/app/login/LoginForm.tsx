@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { LogIn, User, Lock, AlertCircle, Loader2 } from "lucide-react";
 
@@ -29,9 +29,8 @@ export default function LoginForm() {
         setLoading(false);
       } else {
         // Fetch session to determine role
-        const sessionRes = await fetch("/api/auth/session");
-        const session = await sessionRes.json();
-        const role = session?.user?.role;
+        const session = await getSession();
+        const role = (session?.user as any)?.role;
         router.push(role === "madrasah" ? "/madrasah" : "/dashboard");
         router.refresh();
       }
