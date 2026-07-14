@@ -1,81 +1,68 @@
 import { unstable_cache } from 'next/cache';
 import { getOrCreateGoogleSheet } from './google-sheets';
 
-export const getCachedSiteName = unstable_cache(
-  async () => {
+// ─── MASTER CACHE: Ambil SEMUA data Settings dalam SATU request ───────────────
+// Semua fungsi turunan di bawah menggunakan cache ini agar tidak membebani
+// Google Sheets API quota (error 429).
+const getAllSettings = unstable_cache(
+  async (): Promise<Record<string, string>> => {
     try {
       const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return "KKM & KKG MI TALANG";
+      if (!spreadsheetId) return {};
       const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
       const rows = await sheet.getRows();
-      const nameRow = rows.find((row: any) => row.get("key") === "site_name");
-      return nameRow && nameRow.get("value") ? nameRow.get("value") : "KKM & KKG MI TALANG";
+      const result: Record<string, string> = {};
+      rows.forEach((row: any) => {
+        const key = row.get("key");
+        if (key) result[key] = row.get("value") || "";
+      });
+      return result;
     } catch (e) {
-      console.error("Failed to fetch site_name for cache:", e);
-      return "KKM & KKG MI TALANG";
+      console.error("Failed to fetch all settings:", e);
+      return {};
     }
   },
-  ['site-settings-name'],
+  ['all-site-settings'],
   { revalidate: 60, tags: ['settings'] }
 );
 
-export const getCachedStorageProvider = unstable_cache(
-  async () => {
-    try {
-      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return "google_drive";
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-      const rows = await sheet.getRows();
-      const providerRow = rows.find((row: any) => row.get("key") === "storage_provider");
-      return providerRow && providerRow.get("value") ? providerRow.get("value") : "google_drive";
-    } catch (e) {
-      console.error("Failed to fetch storage_provider for cache:", e);
-      return "google_drive";
-    }
-  },
-  ['site-settings-storage-provider'],
-  { revalidate: 60, tags: ['settings'] }
-);
+// ─── Derived helpers (tidak buat request baru, pakai master cache) ────────────
 
-export const getCachedTahunAjaran = unstable_cache(
-  async () => {
-    try {
-      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return "";
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-      const rows = await sheet.getRows();
-      const row = rows.find((r: any) => r.get("key") === "tahun_ajaran_aktif");
-      return row && row.get("value") ? row.get("value") : "";
-    } catch (e) {
-      console.error("Failed to fetch tahun_ajaran_aktif for cache:", e);
-      return "";
-    }
-  },
-  ['site-settings-tahun-ajaran'],
-  { revalidate: 60, tags: ['settings'] }
-);
+export const getCachedSiteName = async (): Promise<string> => {
+  const settings = await getAllSettings();
+  return settings.site_name || "KKM & KKG MI TALANG";
+};
 
-export const getCachedSiteLogo = unstable_cache(
-  async () => {
-    try {
-      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return "/icon.png";
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-      const rows = await sheet.getRows();
-      const logoRow = rows.find((row: any) => row.get("key") === "site_logo");
-      if (logoRow && logoRow.get("value")) {
-        const url = logoRow.get("value");
-        if (url.includes("cloudinary.com") && url.includes("/upload/")) {
-          return url.replace("/upload/", "/upload/w_64,h_64,c_fill,f_auto,q_auto/");
-        } else {
-          return url;
-        }
-      }
-      return "/icon.png";
-    } catch (e) {
-      return "/icon.png";
+export const getCachedStorageProvider = async (): Promise<string> => {
+  const settings = await getAllSettings();
+  return settings.storage_provider || "google_drive";
+};
+
+export const getCachedTahunAjaran = async (): Promise<string> => {
+  const settings = await getAllSettings();
+  return settings.tahun_ajaran_aktif || "";
+};
+
+export const getCachedSiteLogo = async (): Promise<string> => {
+  const settings = await getAllSettings();
+  const url = settings.site_logo;
+  if (url) {
+    if (url.includes("cloudinary.com") && url.includes("/upload/")) {
+      return url.replace("/upload/", "/upload/w_64,h_64,c_fill,f_auto,q_auto/");
     }
-  },
-  ['site-settings-logo'],
-  { revalidate: 60, tags: ['settings'] }
-);
+    return url;
+  }
+  return "/icon.png";
+};
+
+export const getCachedKontakInfo = async () => {
+  const settings = await getAllSettings();
+  return {
+    alamat: settings.kontak_alamat || "Kecamatan Talang, Kabupaten Tegal\nJawa Tengah, Indonesia",
+    email:  settings.kontak_email  || "info@kkmtalang.id",
+    telepon: settings.kontak_telepon || "+62 812-3456-7890",
+  };
+};
+
+// Export master cache jika dibutuhkan langsung
+export { getAllSettings };
