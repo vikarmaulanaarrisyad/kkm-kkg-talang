@@ -42,6 +42,8 @@ export default function RombelPage() {
   const [data, setData] = useState<Rombel[]>([]);
   const [guruList, setGuruList] = useState<Guru[]>([]);
   const [tahunAjaranAktif, setTahunAjaranAktif] = useState("");
+  const [filterTahun, setFilterTahun] = useState("");
+  
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -71,12 +73,14 @@ export default function RombelPage() {
         setGuruList(await guruRes.json());
       }
 
-      // Fetch Rombel for active tahun
-      if (activeTahun) {
-        const rombelRes = await fetch(`/api/rombel?tahun_ajaran=${encodeURIComponent(activeTahun)}`);
-        if (rombelRes.ok) {
-          setData(await rombelRes.json());
-        }
+      // Fetch Rombel all years
+      const rombelRes = await fetch("/api/rombel");
+      if (rombelRes.ok) {
+        setData(await rombelRes.json());
+      }
+      
+      if (!filterTahun && activeTahun) {
+        setFilterTahun(activeTahun);
       }
     } catch (error) {
       console.error(error);
@@ -179,10 +183,12 @@ export default function RombelPage() {
     return g ? formatName(g) : "—";
   };
 
-  const filtered = data.filter(r => r.nama_rombel.toLowerCase().includes(search.toLowerCase()));
+  const uniqueTahun = Array.from(new Set([tahunAjaranAktif, ...data.map(d => d.tahun_ajaran)])).filter(Boolean).sort().reverse();
+  const dataByTahun = data.filter(d => d.tahun_ajaran === filterTahun);
+  const filtered = dataByTahun.filter(r => r.nama_rombel.toLowerCase().includes(search.toLowerCase()));
 
-  const totalLaki = filtered.reduce((acc, curr) => acc + curr.siswa_laki, 0);
-  const totalPerempuan = filtered.reduce((acc, curr) => acc + curr.siswa_perempuan, 0);
+  const totalLaki = dataByTahun.reduce((acc, curr) => acc + curr.siswa_laki, 0);
+  const totalPerempuan = dataByTahun.reduce((acc, curr) => acc + curr.siswa_perempuan, 0);
   const totalSiswa = totalLaki + totalPerempuan;
 
   const formContent = (
@@ -240,12 +246,27 @@ export default function RombelPage() {
           </h1>
           <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
             <Calendar className="w-4 h-4 text-emerald-500" /> 
-            Tahun Ajaran Aktif: <strong className="text-emerald-700">{tahunAjaranAktif || "Belum diatur"}</strong>
+            Tahun Ajaran Aktif di Sistem: <strong className="text-emerald-700">{tahunAjaranAktif || "Belum diatur"}</strong>
           </p>
         </div>
-        <Button onClick={() => { setForm(EMPTY_FORM); setEditId(""); setIsEditing(true); }} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 shadow-md">
-          <Plus className="w-4 h-4 mr-2" /> Tambah Rombel
-        </Button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          <div className="flex items-center gap-2 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+            <span className="text-sm font-semibold text-emerald-800 whitespace-nowrap">Lihat Tahun:</span>
+            <Select value={filterTahun} onValueChange={(v) => setFilterTahun(v || "")}>
+              <SelectTrigger className="h-8 border-0 bg-transparent text-emerald-900 font-bold shadow-none focus:ring-0">
+                <SelectValue placeholder="Pilih..." />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueTahun.map(t => (
+                  <SelectItem key={t} value={t}>{t} {t === tahunAjaranAktif ? "(Aktif)" : ""}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={() => { setForm(EMPTY_FORM); setEditId(""); setIsEditing(true); }} className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 shadow-md">
+            <Plus className="w-4 h-4 mr-2" /> Tambah Rombel
+          </Button>
+        </div>
       </div>
 
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
@@ -253,7 +274,7 @@ export default function RombelPage() {
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-emerald-900">{editId ? "Edit Rombel" : "Tambah Rombel"}</DialogTitle>
             <DialogDescription>
-              Tahun Ajaran: {tahunAjaranAktif}
+              Menyimpan data untuk Tahun Ajaran Aktif: <strong className="text-emerald-700">{tahunAjaranAktif}</strong>
             </DialogDescription>
           </DialogHeader>
           {formContent}

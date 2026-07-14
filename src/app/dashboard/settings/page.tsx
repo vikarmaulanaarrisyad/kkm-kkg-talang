@@ -15,7 +15,6 @@ export default function SettingsPage() {
   // State Umum
   const [siteName, setSiteName] = useState("");
   const [siteUrl, setSiteUrl] = useState("");
-  const [tahunAjaranAktif, setTahunAjaranAktif] = useState("");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [isLogoRemoved, setIsLogoRemoved] = useState(false);
@@ -47,7 +46,6 @@ export default function SettingsPage() {
         if (data) {
           setSiteName(data.site_name || "");
           setSiteUrl(data.site_url || "");
-          setTahunAjaranAktif(data.tahun_ajaran_aktif || "");
           if (data.storage_provider) setStorageProvider(data.storage_provider);
           if (data.site_logo) {
             setLogoPreview(data.site_logo);
@@ -101,7 +99,6 @@ export default function SettingsPage() {
       const formData = new FormData();
       formData.append("site_name", siteName);
       formData.append("site_url", siteUrl);
-      formData.append("tahun_ajaran_aktif", tahunAjaranAktif);
       formData.append("storage_provider", storageProvider);
       
       if (logoFile) {
@@ -248,17 +245,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-3 pt-4 border-t border-border/50">
-                    <Label htmlFor="tahunAjaranAktif" className="text-sm font-semibold text-foreground/90">Tahun Ajaran Aktif</Label>
-                    <Input 
-                      id="tahunAjaranAktif" 
-                      value={tahunAjaranAktif} 
-                      onChange={(e) => setTahunAjaranAktif(e.target.value)} 
-                      placeholder="Misal: 2024/2025"
-                      className="bg-muted/30 focus-visible:bg-background transition-colors max-w-sm"
-                    />
-                    <p className="text-xs text-muted-foreground">Tahun ajaran ini akan menjadi *default* untuk data rombel dan siswa madrasah.</p>
-                  </div>
+
 
                   {/* Storage Provider Dropdown */}
                   <div className="space-y-3 pt-4 border-t border-border/50">

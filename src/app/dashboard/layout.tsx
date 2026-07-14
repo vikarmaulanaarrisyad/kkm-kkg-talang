@@ -130,6 +130,12 @@ export default async function DashboardLayout({
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Tahun Ajaran" render={<Link href="/dashboard/tahun-ajaran" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <Calendar className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span>Tahun Ajaran</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
                     <SidebarMenuButton tooltip="Master Data" render={<Link href="/dashboard/master" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
                       <Settings className="w-4 h-4 mr-3 text-sidebar-primary" />
                       <span>Master Data</span>
