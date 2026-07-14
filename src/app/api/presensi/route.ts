@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     
     if (guruIdParam) {
       // If "me", resolve to session user id, else use param
-      const targetGuruId = guruIdParam === "me" ? session.user?.id : guruIdParam;
+      const targetGuruId = guruIdParam === "me" ? (session.user as any)?.id : guruIdParam;
       filtered = filtered.filter(r => r.get("guru_id") === targetGuruId);
     }
     
