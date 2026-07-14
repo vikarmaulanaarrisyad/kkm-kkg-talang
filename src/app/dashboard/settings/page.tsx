@@ -112,8 +112,18 @@ export default function SettingsPage() {
         body: formData,
       });
 
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Gagal menyimpan");
+      if (res.status === 413) {
+        throw new Error("Ukuran gambar terlalu besar! Maksimal 4MB.");
+      }
+
+      let json;
+      try {
+        json = await res.json();
+      } catch (e) {
+        throw new Error("Terjadi kesalahan pada server (Respon tidak valid).");
+      }
+
+      if (!res.ok) throw new Error(json?.error || "Gagal menyimpan");
 
       setIsLogoRemoved(false);
       setLogoFile(null);

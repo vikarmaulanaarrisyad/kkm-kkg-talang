@@ -101,10 +101,19 @@ export default function TambahBeritaPage() {
         body: formData,
       });
 
-      const data = await res.json();
+      if (res.status === 413) {
+        throw new Error("Ukuran gambar terlalu besar! Maksimal 4MB.");
+      }
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error("Terjadi kesalahan pada server (Respon tidak valid).");
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || "Gagal menyimpan berita.");
+        throw new Error(data?.error || "Gagal menyimpan berita.");
       }
 
       await Swal.fire('Berhasil!', 'Berita berhasil disimpan.', 'success');

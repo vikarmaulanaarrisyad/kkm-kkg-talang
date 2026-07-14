@@ -132,10 +132,19 @@ export default function EditBeritaPage({ params }: { params: Promise<{ id: strin
         body: formData,
       });
 
-      const data = await res.json();
+      if (res.status === 413) {
+        throw new Error("Ukuran gambar terlalu besar! Maksimal 4MB.");
+      }
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        throw new Error("Terjadi kesalahan pada server (Respon tidak valid).");
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || "Gagal memperbarui berita.");
+        throw new Error(data?.error || "Gagal memperbarui berita.");
       }
 
       await Swal.fire('Berhasil!', 'Berita berhasil diperbarui.', 'success');
