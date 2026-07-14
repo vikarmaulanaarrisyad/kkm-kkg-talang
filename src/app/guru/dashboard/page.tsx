@@ -17,6 +17,7 @@ type Kegiatan = {
   waktu: string;
   tempat: string;
   jenis: string;
+  status: string;
 };
 
 export default function GuruDashboard() {
