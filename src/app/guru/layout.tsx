@@ -15,27 +15,7 @@ export default async function GuruLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      {/* Header */}
-      <header className="bg-emerald-700 text-white shadow-md sticky top-0 z-30">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-6 h-6 text-emerald-200" />
-            <div>
-              <h1 className="font-bold text-sm">Portal Guru</h1>
-              <p className="text-[10px] text-emerald-100 opacity-80 uppercase tracking-widest">KKM & KKG MI TALANG</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:block text-right">
-              <p className="text-sm font-bold">{guruName}</p>
-              <p className="text-xs text-emerald-200">Peserta KKG</p>
-            </div>
-            <div className="w-8 h-8 rounded-full bg-emerald-800 border-2 border-emerald-400 flex items-center justify-center text-xs font-bold shadow-inner shrink-0">
-              {guruName.substring(0, 2).toUpperCase()}
-            </div>
-          </div>
-        </div>
-      </header>
+
 
       {/* Main content */}
       <main className="flex-1 w-full max-w-4xl mx-auto p-4 sm:p-6 mb-20">
