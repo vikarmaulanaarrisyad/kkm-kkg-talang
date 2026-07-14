@@ -18,7 +18,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
   const [loading, setLoading] = useState(false);
   const [config, setConfig] = useState<any>(null);
 
-  const handleDownload = async () => {
+  const handleDownload = async (isTTE: boolean) => {
     setLoading(true);
     try {
       // 1. Fetch config (logo, site name, contacts, signatures)
@@ -201,12 +201,37 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
       doc.text("Ketua KKG MI Talang", leftSigX + sigW / 2, y, { align: "center" });
       doc.text("Sekretaris KKG MI Talang", rightSigX + sigW / 2, y, { align: "center" });
 
-      y += 22; // space for signature
+      if (isTTE) {
+        y += 8;
+        
+        // TTE Badge
+        doc.setFillColor(236, 253, 245); // emerald-50
+        doc.setDrawColor(16, 185, 129); // emerald-500
+        doc.setLineWidth(0.3);
+        doc.roundedRect(leftSigX + sigW / 2 - 25, y, 50, 10, 2, 2, "FD");
+        doc.roundedRect(rightSigX + sigW / 2 - 25, y, 50, 10, 2, 2, "FD");
+
+        doc.setFont("helvetica", "italic");
+        doc.setFontSize(8);
+        doc.setTextColor(5, 150, 105); // emerald-600
+        
+        doc.text("Telah Ditandatangani", leftSigX + sigW / 2, y + 4.5, { align: "center" });
+        doc.text("Secara Elektronik", leftSigX + sigW / 2, y + 8, { align: "center" });
+        
+        doc.text("Telah Ditandatangani", rightSigX + sigW / 2, y + 4.5, { align: "center" });
+        doc.text("Secara Elektronik", rightSigX + sigW / 2, y + 8, { align: "center" });
+        
+        doc.setTextColor(0, 0, 0);
+        y += 14;
+      } else {
+        y += 22; // space for manual signature
+      }
 
       const namaKetua = cfg.signatures?.ketua_nama || cfg.ketua || "M. RIZKY, S.Pd.I";
       const namaSekretaris = cfg.signatures?.sekretaris_nama || cfg.sekretaris || "SITI AMINAH, S.Pd";
 
       doc.setFont("times", "bold");
+      doc.setFontSize(12);
       doc.text(namaKetua, leftSigX + sigW / 2, y, { align: "center" });
       doc.text(namaSekretaris, rightSigX + sigW / 2, y, { align: "center" });
       
@@ -233,16 +258,46 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
     }
   };
 
+  if (loading) {
+    return (
+      <button disabled className="inline-flex items-center gap-2 bg-amber-500/70 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Menyiapkan PDF...
+      </button>
+    );
+  }
+
   return (
-    <button
-      onClick={handleDownload}
-      disabled={loading}
-      className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all disabled:opacity-70"
-      title="Unduh format resmi dengan Kop KKG"
-    >
-      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-      Unduh PDF (Kop KKG)
-    </button>
+    <div className="relative group/btn">
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          const menu = e.currentTarget.nextElementSibling;
+          if (menu) menu.classList.toggle('hidden');
+        }}
+        className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all"
+        title="Pilih Opsi Unduh PDF"
+      >
+        <Download className="w-4 h-4" />
+        Unduh PDF
+      </button>
+      
+      <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 shadow-xl rounded-xl hidden z-50 overflow-hidden text-sm">
+        <button
+          onClick={(e) => { e.preventDefault(); e.currentTarget.parentElement?.classList.add('hidden'); handleDownload(false); }}
+          className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 flex items-center justify-between"
+        >
+          <span>Tanda Tangan Manual</span>
+        </button>
+        <button
+          onClick={(e) => { e.preventDefault(); e.currentTarget.parentElement?.classList.add('hidden'); handleDownload(true); }}
+          className="w-full text-left px-4 py-3 hover:bg-emerald-50 text-emerald-700 font-medium flex items-center justify-between"
+        >
+          <span>Tanda Tangan Elektronik</span>
+          <span className="text-[10px] bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800">TTE</span>
+        </button>
+      </div>
+    </div>
   );
 }
 
