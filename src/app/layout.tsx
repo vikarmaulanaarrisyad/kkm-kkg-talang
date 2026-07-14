@@ -22,7 +22,13 @@ export async function generateMetadata(): Promise<Metadata> {
       
       const logoRow = rows.find((row: any) => row.get("key") === "site_logo");
       if (logoRow && logoRow.get("value")) {
-        siteLogo = logoRow.get("value");
+        const url = logoRow.get("value");
+        if (url.includes("cloudinary.com") && url.includes("/upload/")) {
+          // Otomatis ubah ukuran menjadi 64x64 agar sangat ringan dan berbentuk persegi sempurna untuk Favicon
+          siteLogo = url.replace("/upload/", "/upload/w_64,h_64,c_fill,f_auto,q_auto/");
+        } else {
+          siteLogo = url;
+        }
       }
       
       const nameRow = rows.find((row: any) => row.get("key") === "site_name");
