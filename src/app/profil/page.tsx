@@ -2,10 +2,14 @@ import { Metadata } from "next";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import { BookOpen, Users } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Profil | KKM - KKG MI TALANG",
-  description: "Mengenal lebih dekat visi, misi, dan struktur organisasi Kelompok Kerja Guru Madrasah Ibtidaiyah Kecamatan Talang.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { getCachedSiteName } = await import("@/lib/settings");
+  const siteName = await getCachedSiteName();
+  return {
+    title: `Profil | ${siteName}`,
+    description: `Mengenal lebih dekat visi, misi, dan struktur organisasi ${siteName}.`,
+  };
+}
 
 async function getProfilSettings() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -50,21 +54,22 @@ export default async function ProfilPage() {
     getPengurus(),
   ]);
 
-  const siteName = profilSettings.site_name || "KKM - KKG MI TALANG";
+  const siteName = await (await import("@/lib/settings")).getCachedSiteName();
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
-      <main className="flex-grow pt-20">
+      <main className="flex-grow flex flex-col">
         {/* HEADER SECTION */}
-        <section className="w-full bg-emerald-700 py-24 px-4 sm:px-6 relative overflow-hidden">
+        <section className="w-full bg-gradient-to-br from-emerald-50 via-white to-emerald-100/50 pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden">
           {/* Subtle Background Pattern/Glow */}
-          <div className="absolute inset-0 bg-emerald-800/30"></div>
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-200/40 blur-3xl" />
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
           
-          <div className="max-w-5xl mx-auto relative z-10 text-center text-white">
+          <div className="max-w-5xl mx-auto relative z-10 text-center text-slate-800">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-              Profil {siteName}
+              Profil <span className="text-emerald-600">{siteName}</span>
             </h1>
-            <p className="text-lg md:text-xl text-emerald-50 max-w-3xl mx-auto font-medium leading-relaxed">
+            <p className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
               Mengenal lebih dekat visi, misi, dan struktur organisasi Kelompok Kerja Guru Madrasah Ibtidaiyah Kec. Talang.
             </p>
           </div>

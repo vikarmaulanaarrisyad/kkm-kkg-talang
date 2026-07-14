@@ -47,17 +47,25 @@ export default async function AgendaPage() {
 
   return (
     <main className="flex-grow flex flex-col w-full bg-slate-50 min-h-screen pb-20">
-      <div className="bg-gradient-to-b from-madrasah-900 to-madrasah-800 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <Calendar className="w-16 h-16 mx-auto mb-6 text-gold-400" />
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4">Agenda Kegiatan</h1>
-          <p className="text-madrasah-100 text-lg max-w-2xl mx-auto leading-relaxed">
+      <section className="w-full bg-gradient-to-br from-emerald-50 via-white to-emerald-100/50 pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden">
+        {/* Subtle Background Pattern/Glow */}
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
+        
+        <div className="max-w-4xl mx-auto relative z-10 text-center text-slate-800">
+          <div className="w-16 h-16 bg-white/50 backdrop-blur-md rounded-2xl border border-white/40 flex items-center justify-center mx-auto mb-8 shadow-xl">
+            <Calendar className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
+            <span className="text-emerald-600">Agenda</span> Kegiatan
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
             Jadwal kegiatan terbaru, rapat kerja, dan acara penting dari Kelompok Kerja Madrasah (KKM) & Kelompok Kerja Guru (KKG).
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-5xl mx-auto px-4 -mt-8 relative z-10 w-full space-y-12">
+      <div className="max-w-5xl mx-auto px-4 -mt-10 relative z-20 w-full space-y-12">
         {/* Agenda Akan Datang */}
         <section>
           <div className="flex items-center gap-3 mb-6">

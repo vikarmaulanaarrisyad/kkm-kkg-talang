@@ -4,20 +4,7 @@ import { redirect } from "next/navigation";
 import LoginForm from "./LoginForm";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, GraduationCap, Users } from "lucide-react";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
-
-async function getSiteName() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return "KKM & KKG";
-  try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ['key', 'value']);
-    const rows = await sheet.getRows();
-    const siteRow = rows.find(r => r.get('key') === 'site_name');
-    return siteRow ? siteRow.get('value') || "KKM & KKG" : "KKM & KKG";
-  } catch (e) {
-    return "KKM & KKG";
-  }
-}
+import { getCachedSiteName } from "@/lib/settings";
 
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
@@ -26,7 +13,7 @@ export default async function LoginPage() {
     redirect("/dashboard");
   }
 
-  const siteName = await getSiteName();
+  const siteName = await getCachedSiteName();
 
   return (
     <div className="min-h-screen w-full flex flex-col md:flex-row bg-slate-50 font-sans selection:bg-emerald-500 selection:text-white">

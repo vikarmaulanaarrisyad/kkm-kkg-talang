@@ -75,6 +75,20 @@ async function getPengurus() {
   }
 }
 
+
+async function getTotalGuru() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return 0;
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Guru", ['id', 'nama', 'nuptk']);
+    const rows = await sheet.getRows();
+    return rows.length;
+  } catch (error) {
+    console.error("Gagal mengambil total guru", error);
+    return 0;
+  }
+}
+
 async function getLatestNews() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
   if (!spreadsheetId) return [];
@@ -132,7 +146,7 @@ async function getUpcomingAgendas() {
 }
 
 export default async function Home() {
-  const [latestNews, categories, siteName, upcomingAgendas, unduhanData, profilSettings, pengurusData] = await Promise.all([
+  const [latestNews, categories, siteName, upcomingAgendas, unduhanData, profilSettings, pengurusData, totalGuru] = await Promise.all([
     getLatestNews(),
     getCategories(),
     getCachedSiteName(),
@@ -140,6 +154,7 @@ export default async function Home() {
     getUnduhan(),
     getProfilSettings(),
     getPengurus(),
+    getTotalGuru(),
   ]);
 
   // Strip HTML from content for snippet
@@ -198,7 +213,7 @@ export default async function Home() {
                   <Users className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-xl sm:text-2xl font-black text-slate-800 leading-none">50+</span>
+                  <span className="text-xl sm:text-2xl font-black text-slate-800 leading-none">{totalGuru > 0 ? totalGuru : "50+"}</span>
                   <span className="text-[10px] sm:text-xs text-slate-500 font-bold uppercase mt-1">Anggota Aktif</span>
                 </div>
               </div>
