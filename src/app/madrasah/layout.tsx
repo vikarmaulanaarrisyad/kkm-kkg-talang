@@ -71,7 +71,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
               </span>
             )}
           </Link>
-          <Link href="/madrasah/kegiatan" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold transition-all group bg-emerald-800 text-white">
+          <Link href="/madrasah/kegiatan" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
             <Calendar className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
             Kegiatan & Presensi
           </Link>

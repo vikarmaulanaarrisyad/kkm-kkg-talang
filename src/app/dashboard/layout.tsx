@@ -112,8 +112,8 @@ export default async function DashboardLayout({
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kegiatan & Presensi" render={<Link href="/dashboard/kegiatan" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300 bg-emerald-50 text-emerald-700" />}>
-                      <Calendar className="w-4 h-4 mr-3 text-emerald-600" />
+                    <SidebarMenuButton tooltip="Kegiatan & Presensi" render={<Link href="/dashboard/kegiatan" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <Calendar className="w-4 h-4 mr-3 text-sidebar-primary" />
                       <span>Kegiatan & Presensi</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
