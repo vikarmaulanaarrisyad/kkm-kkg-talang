@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { LogIn } from "lucide-react";
+import { LogIn, User, Lock, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -42,55 +42,84 @@ export default function LoginForm() {
   };
 
   return (
-    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+    <form className="space-y-6" onSubmit={handleSubmit}>
+      {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 text-red-700 p-3 rounded-md text-sm text-center font-medium">
-          {error}
+        <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium flex items-center gap-3 border border-red-100 animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5 shrink-0" />
+          <span>{error}</span>
         </div>
       )}
-      <div className="rounded-md shadow-sm space-y-4">
-        <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+
+      <div className="space-y-5">
+        {/* Username Input */}
+        <div className="space-y-2">
+          <label htmlFor="username" className="block text-sm font-bold text-slate-700">
             Username
           </label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            required
-            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-madrasah-500 focus:border-madrasah-500 focus:z-10 sm:text-sm mt-1"
-            placeholder="Masukkan username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+              <User className="h-5 w-5" />
+            </div>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              className="block w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300"
+              placeholder="Masukkan username Anda"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-madrasah-500 focus:border-madrasah-500 focus:z-10 sm:text-sm mt-1"
-            placeholder="Masukkan password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+
+        {/* Password Input */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="block text-sm font-bold text-slate-700">
+              Password
+            </label>
+            <a href="#" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+              Lupa Password?
+            </a>
+          </div>
+          <div className="relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">
+              <Lock className="h-5 w-5" />
+            </div>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              className="block w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:bg-white transition-all duration-300"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 
-      <div>
+      {/* Submit Button */}
+      <div className="pt-2">
         <button
           type="submit"
           disabled={loading}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-madrasah-700 hover:bg-madrasah-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-madrasah-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          className="group relative w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
         >
-          <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-            <LogIn className="h-5 w-5 text-madrasah-500 group-hover:text-madrasah-400" aria-hidden="true" />
-          </span>
-          {loading ? "Memproses..." : "Masuk"}
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Memproses...
+            </>
+          ) : (
+            <>
+              <LogIn className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Masuk Sekarang
+            </>
+          )}
         </button>
       </div>
     </form>
