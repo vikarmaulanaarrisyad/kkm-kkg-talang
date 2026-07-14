@@ -11,6 +11,7 @@ import Link from "next/link";
 
 import { getCachedSiteName } from "@/lib/settings";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import { getActivityLogs } from "@/lib/activity-log";
 
 export default async function DashboardPage() {
   const siteName = await getCachedSiteName();
@@ -46,6 +47,22 @@ export default async function DashboardPage() {
     }
   } catch (e) {
     console.error("Failed to fetch berita stats:", e);
+  }
+
+  // Fetch real activity logs
+  const activityLogs = await getActivityLogs(5);
+
+  // Helper to format relative time
+  function formatRelativeTime(isoString: string): string {
+    const diff = Date.now() - new Date(isoString).getTime();
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    if (mins < 1) return "Baru saja";
+    if (mins < 60) return `${mins} menit yang lalu`;
+    if (hours < 24) return `${hours} jam yang lalu`;
+    if (days === 1) return "Kemarin";
+    return `${days} hari yang lalu`;
   }
 
   return (
@@ -168,24 +185,35 @@ export default async function DashboardPage() {
           <Badge variant="outline" className="ml-3 bg-white/50 border-white/40">Log Sistem</Badge>
         </h3>
         <div className="space-y-4">
-          {[
-            { title: "Berita baru dipublikasikan", desc: "Admin mengunggah berita 'Kunjungan Kemenag'", time: "2 jam yang lalu", icon: FileText, color: "text-blue-500", bg: "bg-blue-500/10" },
-            { title: "Perubahan Pengaturan", desc: "Tema UI premium berhasil diaplikasikan", time: "Kemarin, 14:30", icon: Settings, color: "text-purple-500", bg: "bg-purple-500/10" },
-            { title: "Sistem Backup", desc: "Backup database sukses dilakukan", time: "2 hari yang lalu", icon: Activity, color: "text-emerald-500", bg: "bg-emerald-500/10" }
-          ].map((item, i) => (
-            <div key={i} className="glass-panel p-5 rounded-2xl flex items-center gap-5 hover-float cursor-default">
-              <div className={`p-3 rounded-xl ${item.bg}`}>
-                <item.icon className={`w-5 h-5 ${item.color}`} />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-foreground">{item.title}</p>
-                <p className="text-xs font-medium text-muted-foreground mt-0.5">{item.desc}</p>
-              </div>
-              <div className="ml-auto text-xs font-bold text-muted-foreground/50 whitespace-nowrap bg-muted/30 px-3 py-1.5 rounded-lg">
-                {item.time}
-              </div>
+          {activityLogs.length === 0 ? (
+            <div className="glass-panel p-8 rounded-2xl text-center text-muted-foreground">
+              <Activity className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p className="font-medium">Belum ada aktivitas tercatat.</p>
+              <p className="text-xs mt-1">Aktivitas akan muncul setelah Anda mulai mengelola berita.</p>
             </div>
-          ))}
+          ) : (
+            activityLogs.map((item) => {
+              const isDelete = item.action.includes("Dihapus");
+              const isEdit = item.action.includes("Diperbarui");
+              const Icon = isDelete ? Activity : isEdit ? Settings : FileText;
+              const color = isDelete ? "text-red-500" : isEdit ? "text-purple-500" : "text-blue-500";
+              const bg = isDelete ? "bg-red-500/10" : isEdit ? "bg-purple-500/10" : "bg-blue-500/10";
+              return (
+                <div key={item.id} className="glass-panel p-5 rounded-2xl flex items-center gap-5 hover-float cursor-default">
+                  <div className={`p-3 rounded-xl flex-shrink-0 ${bg}`}>
+                    <Icon className={`w-5 h-5 ${color}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold text-foreground">{item.action}</p>
+                    <p className="text-xs font-medium text-muted-foreground mt-0.5 truncate">{item.description}</p>
+                  </div>
+                  <div className="ml-auto text-xs font-bold text-muted-foreground/50 whitespace-nowrap bg-muted/30 px-3 py-1.5 rounded-lg flex-shrink-0">
+                    {formatRelativeTime(item.created_at)}
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

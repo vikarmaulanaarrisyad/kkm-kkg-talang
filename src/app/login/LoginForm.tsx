@@ -28,7 +28,11 @@ export default function LoginForm() {
         setError(res.error);
         setLoading(false);
       } else {
-        router.push("/dashboard");
+        // Fetch session to determine role
+        const sessionRes = await fetch("/api/auth/session");
+        const session = await sessionRes.json();
+        const role = session?.user?.role;
+        router.push(role === "madrasah" ? "/madrasah" : "/dashboard");
         router.refresh();
       }
     } catch (err) {

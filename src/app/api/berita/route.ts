@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive } from "@/lib/google-drive";
+import { addActivityLog } from "@/lib/activity-log";
 
 const SHEET_TITLE = "Berita";
 const HEADERS = ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category'];
@@ -122,6 +123,14 @@ export async function POST(req: NextRequest) {
       created_at: new Date().toISOString(),
       category
     });
+
+    // Log activity
+    const user = session.user?.name || "Admin";
+    await addActivityLog(
+      status === "Published" ? "Berita Dipublikasikan" : "Berita Draft Disimpan",
+      `"${title}" berhasil ${status === "Published" ? "dipublikasikan" : "disimpan sebagai draft"} oleh ${user}`,
+      user
+    );
 
     return NextResponse.json({ success: true, message: "Berita berhasil ditambahkan" });
   } catch (error: any) {

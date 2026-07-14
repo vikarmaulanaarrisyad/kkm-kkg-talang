@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -29,6 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
 import { getCachedSiteName } from "@/lib/settings";
+import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
 export default async function DashboardLayout({
   children,
@@ -40,6 +41,19 @@ export default async function DashboardLayout({
   const userInitials = userName.substring(0, 2).toUpperCase();
 
   const siteName = await getCachedSiteName();
+
+  // Fetch pending madrasah count for badge
+  let pendingCount = 0;
+  try {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (spreadsheetId) {
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Madrasah", [
+        "id", "nama", "nsm", "npsn", "alamat", "kecamatan", "username", "password_hash", "status", "created_at"
+      ]);
+      const rows = await sheet.getRows();
+      pendingCount = rows.filter((r: any) => r.get("status") === "pending").length;
+    }
+  } catch {}
 
   return (
     <SidebarProvider>
@@ -76,6 +90,29 @@ export default async function DashboardLayout({
                     <SidebarMenuButton tooltip="Kelola Kategori" render={<Link href="/dashboard/kategori" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
                       <Tag className="w-4 h-4 mr-3 text-sidebar-primary" />
                       <span>Kelola Kategori</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <SidebarGroup className="mt-6">
+              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Madrasah</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Kelola Madrasah" render={<Link href="/dashboard/madrasah" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <School className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span className="flex-1">Kelola Madrasah</span>
+                      {pendingCount > 0 && (
+                        <span className="ml-auto bg-amber-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">{pendingCount}</span>
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Data Guru" render={<Link href="/dashboard/guru" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <Users className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span>Data Guru</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

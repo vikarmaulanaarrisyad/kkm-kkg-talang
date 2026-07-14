@@ -15,13 +15,17 @@ export default async function LoginPage() {
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-lg border border-madrasah-100">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-madrasah-900">
-            Login Admin CMS
+            Login KKM & KKG
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Silakan masukkan kredensial Anda untuk mengakses dashboard
+            Silakan masukkan kredensial Anda untuk mengakses sistem
           </p>
         </div>
         <LoginForm />
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Belum terdaftar?{" "}
+          <a href="/daftar" className="font-bold text-madrasah-700 hover:underline">Daftarkan Madrasah Anda</a>
+        </p>
       </div>
     </div>
   );

@@ -7,16 +7,19 @@ import VisitorTracker from "./VisitorTracker";
 
 export default function LayoutWrapper({ children, siteName }: { children: React.ReactNode, siteName?: string }) {
   const pathname = usePathname();
-  const isDashboard = pathname?.startsWith("/dashboard");
+  const isPublicRoute = !pathname?.startsWith("/dashboard") && 
+                        !pathname?.startsWith("/madrasah") && 
+                        !pathname?.startsWith("/login") && 
+                        !pathname?.startsWith("/daftar");
 
   return (
     <>
-      {!isDashboard && <Navbar siteName={siteName} />}
-      {!isDashboard && <VisitorTracker />}
-      <main className={isDashboard ? "flex-grow flex flex-col w-full" : "flex-grow flex flex-col"}>
+      {isPublicRoute && <Navbar siteName={siteName} />}
+      {isPublicRoute && <VisitorTracker />}
+      <main className={!isPublicRoute ? "flex-grow flex flex-col w-full" : "flex-grow flex flex-col"}>
         {children}
       </main>
-      {!isDashboard && <Footer siteName={siteName} />}
+      {isPublicRoute && <Footer siteName={siteName} />}
     </>
   );
 }

@@ -45,8 +45,9 @@ export default async function RootLayout({
     <html
       lang="id"
       className={cn("h-full", "antialiased", inter.variable, "font-sans", geist.variable)}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
+      <body suppressHydrationWarning className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <Providers>
           <LayoutWrapper siteName={siteName}>
             {children}

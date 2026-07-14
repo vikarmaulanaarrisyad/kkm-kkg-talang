@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive, deleteFromDrive, extractDriveFileId } from "@/lib/google-drive";
+import { addActivityLog } from "@/lib/activity-log";
 
 const SHEET_TITLE = "Berita";
 const HEADERS = ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category'];
@@ -157,6 +158,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     
     await row.save();
 
+    // Log activity
+    const user = session.user?.name || "Admin";
+    await addActivityLog(
+      "Berita Diperbarui",
+      `"${title}" berhasil diperbarui oleh ${user}`,
+      user
+    );
+
     return NextResponse.json({ success: true, message: "Berita berhasil diperbarui" });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -195,7 +204,16 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       }
     }
 
+    const deletedTitle = row.get('title');
     await row.delete();
+
+    // Log activity
+    const user = session.user?.name || "Admin";
+    await addActivityLog(
+      "Berita Dihapus",
+      `"${deletedTitle}" berhasil dihapus oleh ${user}`,
+      user
+    );
 
     return NextResponse.json({ success: true, message: "Berita berhasil dihapus" });
   } catch (error: any) {
