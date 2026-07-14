@@ -2,8 +2,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, LayoutDashboard, Users, LogOut } from "lucide-react";
+import { BookOpen, LayoutDashboard, Users } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
+import MobileSidebar from "@/components/madrasah/MobileSidebar";
 
 export default async function MadrasahLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -14,9 +15,19 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
   const madrasahName = session.user?.name || "Madrasah";
 
   return (
-    <div className="min-h-screen flex bg-background">
-      {/* Sidebar - Kemenag Theme */}
-      <aside className="w-64 flex-shrink-0 bg-emerald-950 text-emerald-50 flex flex-col shadow-xl z-20">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+      
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between bg-emerald-950 p-4 text-white shadow-md z-30 sticky top-0">
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-amber-400" />
+          <span className="font-bold text-lg tracking-tight">Portal Madrasah</span>
+        </div>
+        <MobileSidebar madrasahName={madrasahName} />
+      </div>
+
+      {/* Desktop Sidebar - Kemenag Theme */}
+      <aside className="hidden md:flex w-64 flex-shrink-0 bg-emerald-950 text-emerald-50 flex-col shadow-xl z-20 sticky top-0 h-screen overflow-y-auto">
         <div className="p-6 border-b border-emerald-900">
           <Link href="/madrasah" className="flex items-center gap-3 group">
             <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-2.5 rounded-xl shadow-lg">
@@ -58,7 +69,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-6 lg:p-8">
+      <main className="flex-1 w-full overflow-x-hidden overflow-y-auto p-4 md:p-6 lg:p-8">
         {children}
       </main>
     </div>

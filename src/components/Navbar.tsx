@@ -30,6 +30,9 @@ export default function Navbar({ siteName = "KKM & KKG" }: { siteName?: string }
             <Link href="/berita" className="text-madrasah-100 hover:text-white hover:underline decoration-gold-400 underline-offset-4 font-medium transition-all">
               Berita
             </Link>
+            <Link href="/agenda" className="text-madrasah-100 hover:text-white hover:underline decoration-gold-400 underline-offset-4 font-medium transition-all">
+              Agenda
+            </Link>
             <Link href="/tentang" className="text-madrasah-100 hover:text-white hover:underline decoration-gold-400 underline-offset-4 font-medium transition-all">
               Tentang Kami
             </Link>
@@ -60,10 +63,13 @@ export default function Navbar({ siteName = "KKM & KKG" }: { siteName?: string }
           <Link href="/" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-madrasah-700">
             Beranda
           </Link>
-          <Link href="/berita" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-madrasah-700">
+          <Link href="/berita" className="block px-3 py-2 rounded-md text-base font-medium text-madrasah-100 hover:text-white hover:bg-madrasah-700">
             Berita
           </Link>
-          <Link href="/tentang" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-madrasah-700">
+          <Link href="/agenda" className="block px-3 py-2 rounded-md text-base font-medium text-madrasah-100 hover:text-white hover:bg-madrasah-700">
+            Agenda
+          </Link>
+          <Link href="/tentang" className="block px-3 py-2 rounded-md text-base font-medium text-madrasah-100 hover:text-white hover:bg-madrasah-700">
             Tentang Kami
           </Link>
           <Link href="/login" className="block px-3 py-2 mt-4 text-center rounded-md text-base font-bold bg-gold-500 text-madrasah-900 hover:bg-gold-400">
