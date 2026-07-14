@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Users, Pencil, Trash2, Search, X } from "lucide-react";
+import {
+  Plus, Users, Pencil, Trash2, Search,
+  UserCircle, Fingerprint, CalendarDays, Phone, Mail,
+  Briefcase, GraduationCap, BookOpen, BadgeCheck, ArrowLeft, Save, ChevronRight
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +38,66 @@ const EMPTY_FORM: Omit<Guru, "id"> = {
   bidang_studi: "", no_hp: "", email: "",
 };
 
+function FormSection({ icon: Icon, title, subtitle, color, children }: {
+  icon: React.ElementType;
+  title: string;
+  subtitle?: string;
+  color: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className={`flex items-center gap-4 px-6 py-4 border-b ${color}`}>
+        <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+          <Icon className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h3 className="font-bold text-white text-sm tracking-wide">{title}</h3>
+          {subtitle && <p className="text-white/70 text-xs mt-0.5">{subtitle}</p>}
+        </div>
+      </div>
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FormField({ label, required, hint, fullWidth, children }: {
+  label: string;
+  required?: boolean;
+  hint?: string;
+  fullWidth?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`space-y-2 ${fullWidth ? "md:col-span-2" : ""}`}>
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      {children}
+      {hint && <p className="text-xs text-gray-400 mt-1">{hint}</p>}
+    </div>
+  );
+}
+
+function StyledInput({ icon: Icon, ...props }: { icon?: React.ElementType } & React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <div className="relative">
+      {Icon && <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />}
+      <input
+        {...props}
+        className={`w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 bg-gray-50 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all placeholder:text-gray-300 ${
+          Icon ? "pl-10" : ""
+        } ${props.className || ""}`}
+      />
+    </div>
+  );
+}
+
 function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   initial?: Partial<Guru>;
   onSave: (data: any) => Promise<void>;
@@ -49,110 +113,108 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   const jabatanOptions = masterData.filter(d => d.kategori === "jabatan");
   const pendidikanOptions = masterData.filter(d => d.kategori === "pendidikan_terakhir");
 
+  const selectClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 bg-gray-50 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all";
+
   return (
     <form onSubmit={async e => { e.preventDefault(); await onSave(form); }} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Identitas */}
-        <div className="md:col-span-2">
-          <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-2 border-b">Identitas Guru</h3>
-        </div>
-        <div className="md:col-span-2 space-y-1.5">
-          <Label>Nama Lengkap <span className="text-red-500">*</span></Label>
-          <Input value={form.nama} onChange={set("nama")} placeholder="Nama lengkap guru" required />
-        </div>
-        <div className="space-y-1.5">
-          <Label>NUPTK</Label>
-          <Input value={form.nuptk} onChange={set("nuptk")} placeholder="16 digit NUPTK" maxLength={16} />
-        </div>
-        <div className="space-y-1.5">
-          <Label>PegID</Label>
-          <Input value={form.peg_id} onChange={set("peg_id")} placeholder="PegID Kemenag" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>NIP</Label>
-          <Input value={form.nip} onChange={set("nip")} placeholder="NIP (jika PNS)" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Jenis Kelamin</Label>
+
+      {/* Identitas */}
+      <FormSection icon={UserCircle} title="Identitas Guru" subtitle="Data pribadi dan nomor identitas" color="bg-gradient-to-r from-emerald-600 to-emerald-500">
+        <FormField label="Nama Lengkap" required fullWidth>
+          <StyledInput icon={UserCircle} value={form.nama} onChange={set("nama")} placeholder="Nama lengkap guru sesuai KTP" required />
+        </FormField>
+        <FormField label="NUPTK" hint="16 digit Nomor Unik Pendidik dan Tenaga Kependidikan">
+          <StyledInput icon={Fingerprint} value={form.nuptk} onChange={set("nuptk")} placeholder="Contoh: 1234567890123456" maxLength={16} />
+        </FormField>
+        <FormField label="PegID Kemenag" hint="Nomor ID Pegawai Kemenag">
+          <StyledInput icon={BadgeCheck} value={form.peg_id} onChange={set("peg_id")} placeholder="PegID dari sistem Kemenag" />
+        </FormField>
+        <FormField label="NIP" hint="Wajib diisi untuk PNS">
+          <StyledInput icon={Fingerprint} value={form.nip} onChange={set("nip")} placeholder="NIP 18 digit (khusus PNS)" />
+        </FormField>
+        <FormField label="Jenis Kelamin">
           <Select value={form.jenis_kelamin} onValueChange={setSelect("jenis_kelamin")}>
-            <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+            <SelectTrigger className={selectClass}><SelectValue placeholder="Pilih jenis kelamin..." /></SelectTrigger>
             <SelectContent>
               <SelectItem value="L">Laki-laki</SelectItem>
               <SelectItem value="P">Perempuan</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Tempat Lahir</Label>
-          <Input value={form.tempat_lahir} onChange={set("tempat_lahir")} placeholder="Kota/Kab." />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Tanggal Lahir</Label>
-          <Input type="date" value={form.tanggal_lahir} onChange={set("tanggal_lahir")} />
-        </div>
+        </FormField>
+        <FormField label="Tempat Lahir">
+          <StyledInput icon={CalendarDays} value={form.tempat_lahir} onChange={set("tempat_lahir")} placeholder="Kota / Kabupaten" />
+        </FormField>
+        <FormField label="Tanggal Lahir">
+          <StyledInput icon={CalendarDays} type="date" value={form.tanggal_lahir} onChange={set("tanggal_lahir")} />
+        </FormField>
+      </FormSection>
 
-        {/* Kepegawaian */}
-        <div className="md:col-span-2 pt-2">
-          <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-2 border-b">Data Kepegawaian</h3>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Status Kepegawaian</Label>
+      {/* Kepegawaian */}
+      <FormSection icon={Briefcase} title="Data Kepegawaian" subtitle="Status jabatan dan riwayat pendidikan" color="bg-gradient-to-r from-amber-500 to-amber-400">
+        <FormField label="Status Kepegawaian">
           <Select value={form.status_kepegawaian} onValueChange={setSelect("status_kepegawaian")}>
-            <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+            <SelectTrigger className={selectClass}><SelectValue placeholder="Pilih status..." /></SelectTrigger>
             <SelectContent>
-              {statusOptions.length === 0 && <SelectItem value="PNS" disabled>Belum ada data master</SelectItem>}
+              {statusOptions.length === 0 && <SelectItem value="_" disabled>Belum ada data master — hubungi Admin</SelectItem>}
               {statusOptions.map(opt => (
                 <SelectItem key={opt.id} value={opt.nama_nilai}>{opt.nama_nilai}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Jabatan / Tugas</Label>
+        </FormField>
+        <FormField label="Jabatan / Tugas">
           <Select value={form.jabatan} onValueChange={setSelect("jabatan")}>
-            <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+            <SelectTrigger className={selectClass}><SelectValue placeholder="Pilih jabatan..." /></SelectTrigger>
             <SelectContent>
-              {jabatanOptions.length === 0 && <SelectItem value="Guru" disabled>Belum ada data master</SelectItem>}
+              {jabatanOptions.length === 0 && <SelectItem value="_" disabled>Belum ada data master — hubungi Admin</SelectItem>}
               {jabatanOptions.map(opt => (
                 <SelectItem key={opt.id} value={opt.nama_nilai}>{opt.nama_nilai}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Pendidikan Terakhir</Label>
+        </FormField>
+        <FormField label="Pendidikan Terakhir">
           <Select value={form.pendidikan_terakhir} onValueChange={setSelect("pendidikan_terakhir")}>
-            <SelectTrigger><SelectValue placeholder="Pilih..." /></SelectTrigger>
+            <SelectTrigger className={selectClass}><SelectValue placeholder="Pilih pendidikan..." /></SelectTrigger>
             <SelectContent>
-              {pendidikanOptions.length === 0 && <SelectItem value="S1" disabled>Belum ada data master</SelectItem>}
+              {pendidikanOptions.length === 0 && <SelectItem value="_" disabled>Belum ada data master — hubungi Admin</SelectItem>}
               {pendidikanOptions.map(opt => (
                 <SelectItem key={opt.id} value={opt.nama_nilai}>{opt.nama_nilai}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-        <div className="space-y-1.5">
-          <Label>Bidang Studi / Mapel</Label>
-          <Input value={form.bidang_studi} onChange={set("bidang_studi")} placeholder="Matematika, PAI, dll." />
-        </div>
+        </FormField>
+        <FormField label="Bidang Studi / Mapel">
+          <StyledInput icon={BookOpen} value={form.bidang_studi} onChange={set("bidang_studi")} placeholder="Matematika, PAI, Bahasa Inggris..." />
+        </FormField>
+      </FormSection>
 
-        {/* Kontak */}
-        <div className="md:col-span-2 pt-2">
-          <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-2 border-b">Kontak</h3>
-        </div>
-        <div className="space-y-1.5">
-          <Label>No. HP / WhatsApp</Label>
-          <Input value={form.no_hp} onChange={set("no_hp")} placeholder="08xxxxxxxxxx" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Email</Label>
-          <Input type="email" value={form.email} onChange={set("email")} placeholder="guru@email.com" />
-        </div>
-      </div>
+      {/* Kontak */}
+      <FormSection icon={Phone} title="Informasi Kontak" subtitle="Nomor HP dan alamat email aktif" color="bg-gradient-to-r from-blue-600 to-blue-500">
+        <FormField label="No. HP / WhatsApp" hint="Gunakan nomor yang aktif di WhatsApp">
+          <StyledInput icon={Phone} value={form.no_hp} onChange={set("no_hp")} placeholder="08xxxxxxxxxx" />
+        </FormField>
+        <FormField label="Email" hint="Alamat email yang aktif digunakan">
+          <StyledInput icon={Mail} type="email" value={form.email} onChange={set("email")} placeholder="nama@email.com" />
+        </FormField>
+      </FormSection>
 
-      <div className="flex gap-3 justify-end pt-2 border-t">
-        <Button type="button" variant="outline" onClick={onCancel}>Batal</Button>
-        <Button type="submit" disabled={loading}>{loading ? "Menyimpan..." : "Simpan Data"}</Button>
+      {/* Action buttons */}
+      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+        <Button type="button" variant="outline" onClick={onCancel} className="gap-2 rounded-xl">
+          <ArrowLeft className="w-4 h-4" /> Batal
+        </Button>
+        <Button
+          type="submit"
+          disabled={loading}
+          className="gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-8 shadow-md hover:shadow-lg transition-all"
+        >
+          {loading ? (
+            <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Menyimpan...</>
+          ) : (
+            <><Save className="w-4 h-4" /> Simpan Data Guru</>
+          )}
+        </Button>
       </div>
     </form>
   );
@@ -235,26 +297,47 @@ export default function MadrasahGuruPage() {
   };
 
   if (mode === "form") {
+    const isEdit = !!selected;
     return (
-      <div className="space-y-6 animate-in fade-in duration-500">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" onClick={() => { setMode("list"); setSelected(null); }}>← Kembali</Button>
-          <div>
-            <h1 className="text-2xl font-bold">{selected ? `Edit: ${selected.nama}` : "Tambah Data Guru"}</h1>
-            <p className="text-sm text-muted-foreground">Isi data guru dengan lengkap dan akurat</p>
+      <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {/* Page Header */}
+        <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+                {isEdit ? <Pencil className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+              </div>
+              <div>
+                <div className="flex items-center gap-2 text-emerald-200 text-xs font-semibold mb-1">
+                  <span>Portal Madrasah</span>
+                  <ChevronRight className="w-3 h-3" />
+                  <span>Data Guru</span>
+                  <ChevronRight className="w-3 h-3" />
+                  <span>{isEdit ? "Edit" : "Tambah"}</span>
+                </div>
+                <h1 className="text-xl font-extrabold tracking-tight">
+                  {isEdit ? `Edit Data: ${selected!.nama}` : "Tambah Data Guru Baru"}
+                </h1>
+                <p className="text-emerald-100 text-sm mt-0.5">Isi formulir berikut dengan data yang lengkap dan akurat</p>
+              </div>
+            </div>
+            <button
+              onClick={() => { setMode("list"); setSelected(null); }}
+              className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all"
+            >
+              <ArrowLeft className="w-4 h-4" /> Kembali
+            </button>
           </div>
         </div>
-        <Card>
-          <CardContent className="pt-6">
-            <GuruForm
-              initial={selected || undefined}
-              onSave={handleSave}
-              onCancel={() => { setMode("list"); setSelected(null); }}
-              loading={saving}
-              masterData={masterData}
-            />
-          </CardContent>
-        </Card>
+
+        {/* Form */}
+        <GuruForm
+          initial={selected || undefined}
+          onSave={handleSave}
+          onCancel={() => { setMode("list"); setSelected(null); }}
+          loading={saving}
+          masterData={masterData}
+        />
       </div>
     );
   }
