@@ -66,7 +66,13 @@ export async function POST(req: NextRequest) {
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
     if (!spreadsheetId) return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
 
-    const body = await req.json();
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: "Request body tidak valid" }, { status: 400 });
+    }
+
     const {
       tahun_ajaran, nama_rombel, siswa_laki, siswa_perempuan, wali_kelas_id
     } = body;
@@ -77,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     const role = (session.user as any).role;
     const madrasahId = role === "admin" ? body.madrasah_id : (session.user as any).madrasahId;
-    if (!madrasahId) return NextResponse.json({ error: "Madrasah ID tidak valid" }, { status: 400 });
+    if (!madrasahId) return NextResponse.json({ error: "Madrasah ID tidak valid. Pastikan Anda sudah login sebagai madrasah." }, { status: 400 });
 
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
     const id = Date.now().toString();
@@ -95,6 +101,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, id });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("POST /api/rombel error:", error);
+    return NextResponse.json({ error: error.message || "Terjadi kesalahan server" }, { status: 500 });
   }
 }

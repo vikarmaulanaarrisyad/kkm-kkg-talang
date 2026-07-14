@@ -125,8 +125,10 @@ export default function RombelPage() {
         body: JSON.stringify({ ...form, wali_kelas_id: submittedWali, tahun_ajaran: tahunAjaranAktif }),
       });
 
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error);
+      // Safe JSON parse - handle empty or non-JSON responses
+      const text = await res.text();
+      const result = text ? JSON.parse(text) : {};
+      if (!res.ok) throw new Error(result.error || `Server error: ${res.status}`);
 
       await fetchData(); // Await fetch data to ensure table updates before success message
       setIsEditing(false);
