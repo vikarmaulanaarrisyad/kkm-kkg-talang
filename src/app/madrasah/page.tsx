@@ -21,57 +21,76 @@ export default async function MadrasahDashboard() {
         "jenis_kelamin", "jabatan", "status_kepegawaian", "pendidikan_terakhir", "bidang_studi", "no_hp", "email", "created_at"
       ]);
       const rows = await sheet.getRows();
-      const myGuru = rows.filter(r => r.get("madrasah_id") === madrasahId);
+      const myGuru = rows.filter((r: any) => r.get("madrasah_id") === madrasahId);
       totalGuru = myGuru.length;
-      pnsCount = myGuru.filter(r => r.get("status_kepegawaian") === "PNS").length;
-      nonPnsCount = myGuru.filter(r => r.get("status_kepegawaian") !== "PNS" && r.get("status_kepegawaian")).length;
+      pnsCount = myGuru.filter((r: any) => r.get("status_kepegawaian") === "PNS").length;
+      nonPnsCount = myGuru.filter((r: any) => r.get("status_kepegawaian") !== "PNS" && r.get("status_kepegawaian")).length;
     }
   } catch (e) {}
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Selamat Datang!</h1>
-        <p className="text-muted-foreground mt-1">Portal Manajemen Guru — <strong>{madrasahName}</strong></p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-card border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Total Guru</p>
-            <div className="p-2 bg-primary/10 rounded-xl"><Users className="w-5 h-5 text-primary" /></div>
-          </div>
-          <p className="text-5xl font-black text-foreground">{totalGuru}</p>
-          <p className="text-xs text-muted-foreground mt-2">Guru terdaftar di {madrasahName}</p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden bg-emerald-800 bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-3xl p-8 sm:p-10 text-white shadow-xl border border-emerald-700/50">
+        <div className="absolute top-0 right-0 opacity-10 pointer-events-none transform translate-x-1/4 -translate-y-1/4">
+          <BookOpen className="w-64 h-64" />
         </div>
-
-        <div className="bg-card border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">PNS</p>
-            <div className="p-2 bg-emerald-500/10 rounded-xl"><TrendingUp className="w-5 h-5 text-emerald-600" /></div>
+        <div className="relative z-10">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 text-amber-400">
+            Selamat Datang!
+          </h1>
+          <p className="text-emerald-50 text-lg max-w-2xl font-medium">
+            Portal Manajemen Guru — <strong className="text-white font-black drop-shadow-md">{madrasahName}</strong>
+          </p>
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Link href="/madrasah/guru" className="inline-flex items-center justify-center rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-emerald-950 shadow-md hover:bg-amber-400 hover:shadow-lg transition-all group">
+              <Users className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+              Kelola Data Guru
+            </Link>
           </div>
-          <p className="text-5xl font-black text-foreground">{pnsCount}</p>
-          <p className="text-xs text-muted-foreground mt-2">Guru berstatus PNS</p>
-        </div>
-
-        <div className="bg-card border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">Non-PNS / GTT</p>
-            <div className="p-2 bg-blue-500/10 rounded-xl"><BookOpen className="w-5 h-5 text-blue-600" /></div>
-          </div>
-          <p className="text-5xl font-black text-foreground">{nonPnsCount}</p>
-          <p className="text-xs text-muted-foreground mt-2">Guru Non-PNS / GTT</p>
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl p-8 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold mb-2">Mulai Kelola Data Guru</h2>
-          <p className="text-primary-foreground/80 text-sm">Tambahkan data guru lengkap dengan NUPTK, PegID, dan informasi lainnya.</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Total Guru Card */}
+        <div className="bg-white border border-madrasah-100 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-madrasah-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110 duration-500" />
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-extrabold text-madrasah-700 uppercase tracking-widest">Total Guru</p>
+            <div className="p-3 bg-madrasah-100 rounded-2xl group-hover:bg-madrasah-600 transition-colors duration-500">
+              <Users className="w-6 h-6 text-madrasah-600 group-hover:text-white transition-colors duration-500" />
+            </div>
+          </div>
+          <p className="text-5xl font-black text-gray-900 tracking-tighter">{totalGuru}</p>
+          <p className="text-sm text-gray-500 mt-2 font-medium">Keseluruhan guru terdaftar</p>
         </div>
-        <Link href="/madrasah/guru" className="flex-shrink-0 bg-white text-primary px-6 py-3 rounded-xl font-bold hover:bg-white/90 transition-all">
-          Kelola Guru →
-        </Link>
+
+        {/* PNS Card */}
+        <div className="bg-white border border-emerald-100 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110 duration-500" />
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-extrabold text-emerald-700 uppercase tracking-widest">Guru PNS</p>
+            <div className="p-3 bg-emerald-100 rounded-2xl group-hover:bg-emerald-600 transition-colors duration-500">
+              <TrendingUp className="w-6 h-6 text-emerald-600 group-hover:text-white transition-colors duration-500" />
+            </div>
+          </div>
+          <p className="text-5xl font-black text-gray-900 tracking-tighter">{pnsCount}</p>
+          <p className="text-sm text-gray-500 mt-2 font-medium">Berstatus Pegawai Negeri Sipil</p>
+        </div>
+
+        {/* Non-PNS Card */}
+        <div className="bg-white border border-gold-100 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gold-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110 duration-500" />
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm font-extrabold text-gold-700 uppercase tracking-widest">Non-PNS / GTT</p>
+            <div className="p-3 bg-gold-100 rounded-2xl group-hover:bg-gold-500 transition-colors duration-500">
+              <BookOpen className="w-6 h-6 text-gold-600 group-hover:text-white transition-colors duration-500" />
+            </div>
+          </div>
+          <p className="text-5xl font-black text-gray-900 tracking-tighter">{nonPnsCount}</p>
+          <p className="text-sm text-gray-500 mt-2 font-medium">Honorer atau Guru Tetap Yayasan</p>
+        </div>
       </div>
     </div>
   );

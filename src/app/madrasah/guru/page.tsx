@@ -267,43 +267,61 @@ export default function MadrasahGuruPage() {
           <p className="text-sm text-muted-foreground mt-1">Klik "Tambah Guru" untuk mulai mengisi data.</p>
         </CardContent></Card>
       ) : (
-        <div className="space-y-3">
-          {filtered.map(g => (
-            <Card key={g.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-sm font-bold text-primary">
-                      {g.nama?.charAt(0) || "?"}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-bold text-foreground">{g.nama}</p>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        {g.status_kepegawaian && (
-                          <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${statusColor(g.status_kepegawaian)}`}>{g.status_kepegawaian}</span>
-                        )}
-                        {g.jabatan && <span className="text-xs text-muted-foreground">{g.jabatan}</span>}
-                        {g.bidang_studi && <span className="text-xs text-muted-foreground">• {g.bidang_studi}</span>}
+        <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
+                <tr>
+                  <th className="px-4 py-4 font-bold">No</th>
+                  <th className="px-4 py-4 font-bold">Nama Guru</th>
+                  <th className="px-4 py-4 font-bold">Identitas (NUPTK/PegID)</th>
+                  <th className="px-4 py-4 font-bold">Status</th>
+                  <th className="px-4 py-4 font-bold">Jabatan & Studi</th>
+                  <th className="px-4 py-4 font-bold text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filtered.map((g, i) => (
+                  <tr key={g.id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-4 py-4 text-muted-foreground">{i + 1}</td>
+                    <td className="px-4 py-4">
+                      <div className="font-bold text-foreground">{g.nama}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{g.jenis_kelamin === "L" ? "Laki-laki" : g.jenis_kelamin === "P" ? "Perempuan" : ""}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1 text-xs font-mono">
+                        {g.nuptk ? <span><span className="text-muted-foreground mr-1">NUPTK:</span>{g.nuptk}</span> : null}
+                        {g.peg_id ? <span><span className="text-muted-foreground mr-1">PegID:</span>{g.peg_id}</span> : null}
+                        {g.nip ? <span><span className="text-muted-foreground mr-1">NIP:</span>{g.nip}</span> : null}
+                        {(!g.nuptk && !g.peg_id && !g.nip) && <span className="text-muted-foreground">—</span>}
                       </div>
-                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
-                        {g.nuptk && <span>NUPTK: <span className="font-mono font-medium text-foreground">{g.nuptk}</span></span>}
-                        {g.peg_id && <span>PegID: <span className="font-mono font-medium text-foreground">{g.peg_id}</span></span>}
-                        {g.nip && <span>NIP: <span className="font-mono font-medium text-foreground">{g.nip}</span></span>}
+                    </td>
+                    <td className="px-4 py-4">
+                      {g.status_kepegawaian ? (
+                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor(g.status_kepegawaian)}`}>
+                          {g.status_kepegawaian}
+                        </span>
+                      ) : <span className="text-muted-foreground">—</span>}
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="text-sm font-medium">{g.jabatan || "—"}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{g.bidang_studi || "—"}</div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => { setSelected(g); setMode("form"); }}>
+                          <Pencil className="w-3.5 h-3.5" /> Edit
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(g)}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <Button size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => { setSelected(g); setMode("form"); }}>
-                      <Pencil className="w-3.5 h-3.5" /> Edit
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(g)}>
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
