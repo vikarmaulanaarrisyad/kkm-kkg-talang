@@ -105,8 +105,8 @@ export async function POST(req: NextRequest) {
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
     const rows = await sheet.getRows();
     
-    const guruId = (session.user as any).id;
-    const sudahHadir = rows.find(r => r.get("kegiatan_id") === kegiatan_id && r.get("guru_id") === guruId);
+    const guruId = String((session.user as any).id);
+    const sudahHadir = rows.find(r => String(r.get("kegiatan_id")) === String(kegiatan_id) && String(r.get("guru_id")) === guruId);
 
     if (sudahHadir) {
       return NextResponse.json({ error: "Anda sudah melakukan presensi untuk kegiatan ini" }, { status: 400 });
