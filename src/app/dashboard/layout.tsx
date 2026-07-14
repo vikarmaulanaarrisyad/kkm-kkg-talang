@@ -28,8 +28,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
-import { getCachedSiteName } from "@/lib/settings";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import { getCachedSiteName, getCachedPendingMadrasahCount } from "@/lib/settings";
 
 export default async function DashboardLayout({
   children,
@@ -42,18 +41,8 @@ export default async function DashboardLayout({
 
   const siteName = await getCachedSiteName();
 
-  // Fetch pending madrasah count for badge
-  let pendingCount = 0;
-  try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (spreadsheetId) {
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Madrasah", [
-        "id", "nama", "nsm", "npsn", "alamat", "kecamatan", "username", "password_hash", "status", "created_at"
-      ]);
-      const rows = await sheet.getRows();
-      pendingCount = rows.filter((r: any) => r.get("status") === "pending").length;
-    }
-  } catch {}
+  // Fetch pending madrasah count for badge using cache to avoid API limit
+  const pendingCount = await getCachedPendingMadrasahCount();
 
   return (
     <SidebarProvider>

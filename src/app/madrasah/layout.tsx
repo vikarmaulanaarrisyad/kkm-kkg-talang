@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BookOpen, LayoutDashboard, Users, GraduationCap, Mail } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
 import MobileSidebar from "@/components/madrasah/MobileSidebar";
-import { getCachedSiteName } from "@/lib/settings";
+import { getCachedSiteName, getCachedUnreadSuratCount } from "@/lib/settings";
 
 export default async function MadrasahLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -17,37 +17,8 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
   const madrasahId = (session.user as any).id || session.user?.email || "";
   const siteName = await getCachedSiteName();
 
-  // Fetch unread surat count
-  let unreadCount = 0;
-  try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (spreadsheetId) {
-      const { getOrCreateGoogleSheet } = await import("@/lib/google-sheets");
-      const [suratSheet, bacaSheet] = await Promise.all([
-        getOrCreateGoogleSheet(spreadsheetId, "Surat", ["id", "penerima"]),
-        getOrCreateGoogleSheet(spreadsheetId, "SuratBaca", ["surat_id", "madrasah_id"])
-      ]);
-      const [suratRows, bacaRows] = await Promise.all([
-        suratSheet.getRows(),
-        bacaSheet.getRows()
-      ]);
-      
-      const myBacaIds = new Set(
-        bacaRows
-          .filter(b => b.get("madrasah_id") === madrasahId)
-          .map(b => b.get("surat_id"))
-      );
-
-      const mySurats = suratRows.filter(r => {
-        const penerima = r.get("penerima") || "all";
-        return penerima === "all" || penerima === madrasahId || penerima.split(",").includes(madrasahId);
-      });
-
-      unreadCount = mySurats.filter(s => !myBacaIds.has(s.get("id"))).length;
-    }
-  } catch (e) {
-    console.error("Gagal mengambil unread surat:", e);
-  }
+  // Fetch unread surat count using cache to avoid API limit
+  const unreadCount = await getCachedUnreadSuratCount(madrasahId);
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">

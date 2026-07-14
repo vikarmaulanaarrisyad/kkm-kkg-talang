@@ -8,6 +8,7 @@ import {
 import Swal from "sweetalert2";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import DownloadPdfBtn from "@/components/surat/DownloadPdfBtn";
 
 interface Surat {
   id: string;
@@ -300,12 +301,17 @@ export default function SuratPage() {
                   {selectedSurat.isi}
                 </div>
               )}
-              {selectedSurat.file_url && (
-                <a href={selectedSurat.file_url} target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
-                  <Download className="w-4 h-4" /> Unduh Lampiran
-                </a>
-              )}
+              
+              <div className="flex flex-wrap gap-3 pt-2">
+                {selectedSurat.file_url && (
+                  <a href={selectedSurat.file_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-sm transition-all">
+                    <Download className="w-4 h-4" /> Unduh Lampiran
+                  </a>
+                )}
+                {/* Tombol khusus PDF format resmi Kop KKG */}
+                <DownloadPdfBtn surat={selectedSurat} />
+              </div>
             </div>
           </div>
         </div>
