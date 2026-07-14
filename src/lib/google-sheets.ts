@@ -6,28 +6,50 @@ const SCOPES = [
   'https://www.googleapis.com/auth/spreadsheets',
 ];
 
+let docPromise: Promise<GoogleSpreadsheet> | null = null;
+let lastLoadTime = 0;
+const CACHE_TTL_MS = 60000; // Cache document info for 60 seconds
+
+async function getDoc(sheetId: string): Promise<GoogleSpreadsheet> {
+  const now = Date.now();
+  if (docPromise && now - lastLoadTime < CACHE_TTL_MS) {
+    return docPromise;
+  }
+  
+  const jwt = new JWT({
+    email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+    key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    scopes: SCOPES,
+  });
+  
+  const doc = new GoogleSpreadsheet(sheetId, jwt);
+  docPromise = doc.loadInfo().then(() => doc);
+  lastLoadTime = now;
+  
+  return docPromise.catch(err => {
+    // If it fails, clear the cache so next attempt retries
+    docPromise = null;
+    throw err;
+  });
+}
+
 export async function getOrCreateGoogleSheet(sheetId: string, sheetTitle: string, headers: string[] = []) {
   try {
-    const jwt = new JWT({
-      email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-      key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      scopes: SCOPES,
-    });
-
-    const doc = new GoogleSpreadsheet(sheetId, jwt);
-    await doc.loadInfo();
-    
+    const doc = await getDoc(sheetId);
     let sheet = doc.sheetsByTitle[sheetTitle];
     
     if (!sheet) {
       if (headers.length > 0) {
         sheet = await doc.addSheet({ title: sheetTitle, headerValues: headers });
+        // Refresh doc metadata after adding sheet
+        await doc.loadInfo(); 
       } else {
         throw new Error(`Sheet dengan judul "${sheetTitle}" tidak ditemukan di spreadsheet ini.`);
       }
     } else {
-      // Ensure headers exist
-      if (headers.length > 0) {
+      // Hanya loadHeaderRow jika kita butuh sinkronisasi kolom (biasanya hanya saat testing)
+      // Untuk mengurangi API Calls (mencegah 429), kita bisa melewati ini karena header sudah di set di awal.
+      if (headers.length > 0 && !sheet.headerValues?.length) {
         try {
           await sheet.loadHeaderRow();
           const existingHeaders = sheet.headerValues;
