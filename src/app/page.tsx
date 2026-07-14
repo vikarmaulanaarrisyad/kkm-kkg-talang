@@ -184,7 +184,7 @@ export default async function Home() {
                 Lihat Kegiatan
               </Link>
               <Link 
-                href="/tentang" 
+                href="/profil" 
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-100 text-emerald-900 px-8 py-3.5 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-sm transition-all duration-300 hover:-translate-y-0.5"
               >
                 Profil Kami

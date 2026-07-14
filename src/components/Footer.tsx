@@ -16,7 +16,7 @@ export default function Footer({ siteName = "CMS Madrasah Ibtidaiyah" }: { siteN
                 <a href="/berita" className="hover:text-emerald-400 transition-colors">Berita Terkini</a>
               </li>
               <li>
-                <a href="/tentang" className="hover:text-emerald-400 transition-colors">Tentang Pengurus</a>
+                <a href="/profil" className="hover:text-emerald-400 transition-colors">Profil KKG/KKM</a>
               </li>
               <li>
                 <a href="/kontak" className="hover:text-emerald-400 transition-colors">Hubungi Kami</a>

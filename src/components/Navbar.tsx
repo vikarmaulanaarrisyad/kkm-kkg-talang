@@ -43,8 +43,8 @@ export default function Navbar({ siteName = "KKM & KKG" }: { siteName?: string }
             <Link href="/agenda" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Agenda
             </Link>
-            <Link href="/tentang" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
-              Tentang Kami
+            <Link href="/profil" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
+              Profil
             </Link>
             <div className="pl-4 border-l border-slate-200">
               <Link
@@ -81,8 +81,8 @@ export default function Navbar({ siteName = "KKM & KKG" }: { siteName?: string }
           <Link href="/agenda" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Agenda
           </Link>
-          <Link href="/tentang" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
-            Tentang Kami
+          <Link href="/profil" className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+            Profil
           </Link>
           <Link href="/login" className="flex items-center justify-center gap-2 px-3 py-3 mt-4 w-full text-center rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm">
             <LogIn className="w-4 h-4" />
