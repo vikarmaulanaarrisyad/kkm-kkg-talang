@@ -41,11 +41,10 @@ export default async function DashboardPage() {
         return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
       }).length;
 
-      // Fetch visitor count from Settings
-      const settingsSheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-      const settingsRows = await settingsSheet.getRows();
-      const visitorRow = settingsRows.find((r: any) => r.get("key") === "visitor_count");
-      totalVisitors = visitorRow ? parseInt(visitorRow.get("value") || "0", 10) : 0;
+      // Fetch visitor count from Settings (use cache)
+      const { getAllSettings } = await import("@/lib/settings");
+      const allSettings = await getAllSettings();
+      totalVisitors = parseInt(allSettings.visitor_count || "0", 10);
       
       // Fetch total Siswa
       if (tahunAjaran) {

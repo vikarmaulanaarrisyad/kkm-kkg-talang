@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature } from "lucide-react";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
-import { getCachedSiteName } from "@/lib/settings";
+import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
 
 async function getCategories() {
@@ -39,22 +39,6 @@ async function getUnduhan() {
   }
 }
 
-async function getProfilSettings() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return {};
-  try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ['key', 'value']);
-    const rows = await sheet.getRows();
-    const settings: Record<string, string> = {};
-    rows.forEach(r => {
-      const key = r.get('key');
-      if (key) settings[key] = r.get('value') || "";
-    });
-    return settings;
-  } catch (e) {
-    return {};
-  }
-}
 
 async function getPengurus() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -153,7 +137,7 @@ export default async function Home() {
     getCachedSiteName(),
     getUpcomingAgendas(),
     getUnduhan(),
-    getProfilSettings(),
+    getAllSettings(),
     getPengurus(),
     getTotalGuru(),
   ]);

@@ -123,15 +123,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     if (imageFile && imageFile.size > 0) {
-      // Get Storage Provider setting
+      // Get Storage Provider setting (use cache)
       let storageProvider = "cloudinary";
       try {
-        const settingsSheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-        const settingsRows = await settingsSheet.getRows();
-        const providerRow = settingsRows.find(r => r.get("key") === "storage_provider");
-        if (providerRow && providerRow.get("value")) {
-          storageProvider = providerRow.get("value");
-        }
+        const { getCachedStorageProvider } = await import("@/lib/settings");
+        storageProvider = await getCachedStorageProvider();
       } catch (e) {
         console.error("Gagal membaca pengaturan penyimpanan, menggunakan cloudinary", e);
       }

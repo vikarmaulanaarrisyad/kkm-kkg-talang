@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { BookOpen, Users } from "lucide-react";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { getCachedSiteName } = await import("@/lib/settings");
   const siteName = await getCachedSiteName();
   return {
     title: `Profil | ${siteName}`,
@@ -11,22 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-async function getProfilSettings() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return {};
-  try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ['key', 'value']);
-    const rows = await sheet.getRows();
-    const settings: Record<string, string> = {};
-    rows.forEach(r => {
-      const key = r.get('key');
-      if (key) settings[key] = r.get('value') || "";
-    });
-    return settings;
-  } catch (e) {
-    return {};
-  }
-}
 
 async function getPengurus() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -49,12 +33,11 @@ async function getPengurus() {
 }
 
 export default async function ProfilPage() {
-  const [profilSettings, pengurusData] = await Promise.all([
-    getProfilSettings(),
+  const [profilSettings, pengurusData, siteName] = await Promise.all([
+    getAllSettings(),
     getPengurus(),
+    getCachedSiteName(),
   ]);
-
-  const siteName = await (await import("@/lib/settings")).getCachedSiteName();
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
