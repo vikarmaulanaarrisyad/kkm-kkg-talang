@@ -37,8 +37,11 @@ export default function GuruDashboard() {
           fetch("/api/presensi?guru_id=me")
         ]);
         
-        const kegiatans: Kegiatan[] = await resK.json();
-        const presensis: Presensi[] = await resP.json();
+        const kegiatansData = await resK.json();
+        const presensisData = await resP.json();
+        
+        const kegiatans: Kegiatan[] = Array.isArray(kegiatansData) ? kegiatansData : [];
+        const presensis: Presensi[] = Array.isArray(presensisData) ? presensisData : [];
         
         const activeKegiatan = kegiatans.filter(k => k.status === "active");
         setAktif(activeKegiatan);
@@ -51,7 +54,7 @@ export default function GuruDashboard() {
         
         setRiwayat(historyData);
       } catch (e) {
-        console.error(e);
+        console.error("Dashboard fetch error:", e);
       } finally {
         setLoading(false);
       }
