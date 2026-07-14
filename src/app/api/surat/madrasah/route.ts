@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
-const SURAT_HEADERS = ["id", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
+const SURAT_HEADERS = ["id", "nomor_surat", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
 const BACA_HEADERS = ["id", "surat_id", "madrasah_id", "dibaca_at"];
 
 export async function GET(req: NextRequest) {
@@ -38,8 +38,9 @@ export async function GET(req: NextRequest) {
         const penerima = r.get("penerima") || "all";
         return penerima === "all" || penerima === madrasahId || penerima.split(",").includes(madrasahId);
       })
-      .map(r => ({
+       .map(r => ({
         id: r.get("id"),
+        nomor_surat: r.get("nomor_surat") || "",
         judul: r.get("judul"),
         jenis: r.get("jenis"),
         isi: r.get("isi"),

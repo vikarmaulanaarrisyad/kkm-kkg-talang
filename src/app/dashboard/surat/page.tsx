@@ -12,6 +12,7 @@ import DownloadPdfBtn from "@/components/surat/DownloadPdfBtn";
 
 interface Surat {
   id: string;
+  nomor_surat: string;
   judul: string;
   jenis: string;
   isi: string;
@@ -22,7 +23,7 @@ interface Surat {
   dibaca_count: number;
 }
 
-const JENIS_OPTIONS = ["Undangan Rapat", "Surat Keputusan (SK)", "Edaran Umum", "Pengumuman"];
+const JENIS_OPTIONS = ["Undangan Rapat", "Undangan Workshop", "Surat Keputusan (SK)", "Edaran Umum", "Pengumuman"];
 
 const jenisIcon = (jenis: string) => {
   if (jenis.includes("Undangan")) return <Mail className="w-4 h-4 text-blue-500" />;
@@ -42,6 +43,9 @@ export default function SuratPage() {
   });
   const [template, setTemplate] = useState({
     tanggal: "", waktu: "", tempat: "", acara: ""
+  });
+  const [workshopTemplate, setWorkshopTemplate] = useState({
+    tanggal: "", waktu: "", tempat: "", tema: "", narasumber: "", peserta: "Guru Kelas MI se-Kecamatan Talang", dresscode: "Batik/Seragam Dinas"
   });
   const [fileInput, setFileInput] = useState<File | null>(null);
 
@@ -69,6 +73,8 @@ export default function SuratPage() {
       let finalIsi = form.isi;
       if (form.jenis === "Undangan Rapat") {
         finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat, \nSehubungan dengan adanya kegiatan KKG, kami mengundang Bapak/Ibu Kepala Madrasah beserta Guru Kelas untuk hadir pada pertemuan yang akan diselenggarakan pada:\n\nHari/Tanggal : ${template.tanggal}\nWaktu        : ${template.waktu} WIB\nTempat       : ${template.tempat}\nAcara        : ${template.acara}\n\nMengingat pentingnya acara tersebut, kehadiran Bapak/Ibu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kerjasamanya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
+      } else if (form.jenis === "Undangan Workshop") {
+        finalIsi = `Assalamu'alaikum Wr. Wb.\n\nDengan hormat,\nDalam rangka peningkatan kompetensi dan profesionalisme guru, Kelompok Kerja Guru (KKG) MI Kecamatan Talang bermaksud menyelenggarakan kegiatan Workshop. Untuk itu, kami mengundang Bapak/Ibu untuk hadir pada kegiatan yang akan dilaksanakan sebagai berikut:\n\nTema         : ${workshopTemplate.tema}\nHari/Tanggal : ${workshopTemplate.tanggal}\nWaktu        : ${workshopTemplate.waktu} WIB\nTempat       : ${workshopTemplate.tempat}\nNarasumber   : ${workshopTemplate.narasumber}\nPeserta      : ${workshopTemplate.peserta}\nDress Code   : ${workshopTemplate.dresscode}\n\nMengingat pentingnya kegiatan ini dalam rangka peningkatan mutu pembelajaran, kehadiran Bapak/Ibu tepat waktu sangat kami harapkan.\n\nDemikian undangan ini kami sampaikan. Atas perhatian dan kehadirannya, kami ucapkan terima kasih.\n\nWassalamu'alaikum Wr. Wb.`;
       }
 
       const fd = new FormData();
@@ -86,6 +92,7 @@ export default function SuratPage() {
       setShowModal(false);
       setForm({ judul: "", jenis: JENIS_OPTIONS[0], isi: "", penerima: "all" });
       setTemplate({ tanggal: "", waktu: "", tempat: "", acara: "" });
+      setWorkshopTemplate({ tanggal: "", waktu: "", tempat: "", tema: "", narasumber: "", peserta: "Guru Kelas MI se-Kecamatan Talang", dresscode: "Batik/Seragam Dinas" });
       setFileInput(null);
       fetchData();
     } catch (err: any) {
@@ -160,6 +167,7 @@ export default function SuratPage() {
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50/50 text-slate-500 font-medium">
                   <tr>
+                    <th className="px-5 py-4">Nomor Surat</th>
                     <th className="px-5 py-4">Surat</th>
                     <th className="px-5 py-4">Jenis</th>
                     <th className="px-5 py-4">Penerima</th>
@@ -171,6 +179,11 @@ export default function SuratPage() {
                 <tbody className="divide-y divide-slate-100">
                   {filtered.map(s => (
                     <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center font-mono text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">
+                          {s.nomor_surat || "—"}
+                        </span>
+                      </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-2">
                           {jenisIcon(s.jenis)}
@@ -261,8 +274,8 @@ export default function SuratPage() {
                 {form.jenis === "Undangan Rapat" ? (
                   <div className="sm:col-span-2 grid gap-5 sm:grid-cols-2 bg-emerald-50/30 p-5 rounded-xl border border-emerald-100">
                     <div className="sm:col-span-2">
-                      <p className="text-sm font-bold text-emerald-800">Detail Undangan Rapat</p>
-                      <p className="text-xs text-emerald-600 mt-1">Isi form di bawah ini, sistem akan menyusun kata-kata surat undangan secara otomatis.</p>
+                      <p className="text-sm font-bold text-emerald-800">🗓️ Detail Undangan Rapat</p>
+                      <p className="text-xs text-emerald-600 mt-1">Isi form berikut, teks surat akan disusun otomatis.</p>
                     </div>
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-slate-700">Hari/Tanggal <span className="text-red-500">*</span></label>
@@ -287,6 +300,55 @@ export default function SuratPage() {
                       <input type="text" required value={template.acara} onChange={e => setTemplate(t => ({ ...t, acara: e.target.value }))}
                         className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-white text-sm"
                         placeholder="Contoh: Rapat Koordinasi Kurikulum" />
+                    </div>
+                  </div>
+                ) : form.jenis === "Undangan Workshop" ? (
+                  <div className="sm:col-span-2 grid gap-5 sm:grid-cols-2 bg-blue-50/30 p-5 rounded-xl border border-blue-100">
+                    <div className="sm:col-span-2">
+                      <p className="text-sm font-bold text-blue-800">🎓 Detail Undangan Workshop KKG</p>
+                      <p className="text-xs text-blue-600 mt-1">Isi form berikut, teks undangan workshop akan disusun secara otomatis dan profesional.</p>
+                    </div>
+                    <div className="sm:col-span-2 space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Tema Workshop <span className="text-red-500">*</span></label>
+                      <input type="text" required value={workshopTemplate.tema} onChange={e => setWorkshopTemplate(t => ({ ...t, tema: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Contoh: Peningkatan Kompetensi Guru dalam Pembelajaran Berdiferensiasi" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Hari/Tanggal <span className="text-red-500">*</span></label>
+                      <input type="text" required value={workshopTemplate.tanggal} onChange={e => setWorkshopTemplate(t => ({ ...t, tanggal: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Contoh: Sabtu, 16 Agustus 2026" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Waktu (WIB) <span className="text-red-500">*</span></label>
+                      <input type="text" required value={workshopTemplate.waktu} onChange={e => setWorkshopTemplate(t => ({ ...t, waktu: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Contoh: 08.00 - 15.00" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Tempat <span className="text-red-500">*</span></label>
+                      <input type="text" required value={workshopTemplate.tempat} onChange={e => setWorkshopTemplate(t => ({ ...t, tempat: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Contoh: Aula MI Talang 1" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Narasumber <span className="text-red-500">*</span></label>
+                      <input type="text" required value={workshopTemplate.narasumber} onChange={e => setWorkshopTemplate(t => ({ ...t, narasumber: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Contoh: Pengawas Madrasah Kec. Talang" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Peserta</label>
+                      <input type="text" value={workshopTemplate.peserta} onChange={e => setWorkshopTemplate(t => ({ ...t, peserta: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Guru Kelas MI se-Kecamatan Talang" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-slate-700">Dress Code</label>
+                      <input type="text" value={workshopTemplate.dresscode} onChange={e => setWorkshopTemplate(t => ({ ...t, dresscode: e.target.value }))}
+                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white text-sm"
+                        placeholder="Batik/Seragam Dinas" />
                     </div>
                   </div>
                 ) : (

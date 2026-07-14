@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
-const SURAT_HEADERS = ["id", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
+const SURAT_HEADERS = ["id", "nomor_surat", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,6 +25,7 @@ export async function GET(req: NextRequest) {
       const dibacaCount = bacaRows.filter(b => b.get("surat_id") === suratId).length;
       return {
         id: suratId,
+        nomor_surat: r.get("nomor_surat") || "",
         judul: r.get("judul"),
         jenis: r.get("jenis"),
         isi: r.get("isi"),
@@ -79,19 +80,33 @@ export async function POST(req: NextRequest) {
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Surat", SURAT_HEADERS);
 
+    // Generate nomor surat otomatis: NNN/KKG-TALANG/BULAN_ROMAWI/TAHUN
+    const ROMAN_MONTHS = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = ROMAN_MONTHS[now.getMonth()];
+    const existingRows = await sheet.getRows();
+    const sameYearCount = existingRows.filter(r => {
+      const d = r.get("created_at");
+      return d && new Date(d).getFullYear() === currentYear;
+    }).length;
+    const nomorUrut = String(sameYearCount + 1).padStart(3, "0");
+    const nomorSurat = `${nomorUrut}/KKG-TALANG/${currentMonth}/${currentYear}`;
+
     const newId = `surat-${Date.now()}`;
     await sheet.addRow({
       id: newId,
+      nomor_surat: nomorSurat,
       judul,
       jenis,
       isi: isi || "",
       file_url,
       penerima,
-      created_at: new Date().toISOString(),
+      created_at: now.toISOString(),
       created_by: session.user?.name || "Admin",
     });
 
-    return NextResponse.json({ message: "Surat berhasil dibuat", id: newId }, { status: 201 });
+    return NextResponse.json({ message: "Surat berhasil dibuat", id: newId, nomor_surat: nomorSurat }, { status: 201 });
   } catch (error: any) {
     console.error("POST /api/surat error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

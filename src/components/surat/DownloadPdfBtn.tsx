@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 
 interface Surat {
   id: string;
+  nomor_surat?: string;
   judul: string;
   jenis: string;
   isi: string;
@@ -95,7 +96,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
 
       doc.text("Nomor", col1X, y);
       doc.text(":", col2X - 4, y);
-      doc.text("...............................", col2X, y);
+      doc.text(surat.nomor_surat || "...............................", col2X, y);
       y += lineH;
 
       doc.text("Lampiran", col1X, y);

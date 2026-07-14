@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
-const SURAT_HEADERS = ["id", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
+const SURAT_HEADERS = ["id", "nomor_surat", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -20,6 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({
       id: row.get("id"),
+      nomor_surat: row.get("nomor_surat") || "",
       judul: row.get("judul"),
       jenis: row.get("jenis"),
       isi: row.get("isi"),
