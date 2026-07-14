@@ -6,8 +6,9 @@ import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 const SHEET_TITLE = "TahunAjaran";
 const HEADERS = ["id", "nama_tahun", "semester", "created_at"];
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session || (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,7 +19,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
     const rows = await sheet.getRows();
-    const row = rows.find(r => r.get("id") === params.id);
+    const row = rows.find(r => r.get("id") === id);
     if (!row) {
       return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 });
     }
