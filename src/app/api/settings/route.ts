@@ -72,6 +72,11 @@ export async function PUT(req: NextRequest) {
     const logoFile = formData.get("site_logo") as File | null;
     const removeLogo = formData.get("remove_logo") as string;
 
+    const profil_tentang = formData.get("profil_tentang") as string;
+    const profil_visi = formData.get("profil_visi") as string;
+    const profil_misi = formData.get("profil_misi") as string;
+    const profil_misi_utama = formData.get("profil_misi_utama") as string;
+
     const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
     const rows = await sheet.getRows();
 
@@ -89,6 +94,11 @@ export async function PUT(req: NextRequest) {
     if (site_url !== null) await updateOrCreateRow("site_url", site_url);
     if (tahun_ajaran_aktif !== null) await updateOrCreateRow("tahun_ajaran_aktif", tahun_ajaran_aktif);
     if (storage_provider) await updateOrCreateRow("storage_provider", storage_provider);
+    
+    if (profil_tentang !== null) await updateOrCreateRow("profil_tentang", profil_tentang);
+    if (profil_visi !== null) await updateOrCreateRow("profil_visi", profil_visi);
+    if (profil_misi !== null) await updateOrCreateRow("profil_misi", profil_misi);
+    if (profil_misi_utama !== null) await updateOrCreateRow("profil_misi_utama", profil_misi_utama);
 
     // Get current target provider for logo logic
     const currentProviderRow = rows.find(r => r.get("key") === "storage_provider");

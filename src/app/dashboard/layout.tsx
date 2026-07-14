@@ -104,6 +104,12 @@ export default async function DashboardLayout({
                       <span>Kelola Unduhan</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton tooltip="Kelola Pengurus" render={<Link href="/dashboard/pengurus" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
+                      <Users className="w-4 h-4 mr-3 text-sidebar-primary" />
+                      <span>Kelola Pengurus</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Shield, Image as ImageIcon, Upload, Save, Eye, EyeOff, Plug, Database, Cloud, HardDrive, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Settings, Shield, Image as ImageIcon, Upload, Save, Eye, EyeOff, Plug, Database, Cloud, HardDrive, CheckCircle2, XCircle, AlertCircle, Book } from "lucide-react";
 import Swal from "sweetalert2";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,12 @@ export default function SettingsPage() {
   const [isLogoRemoved, setIsLogoRemoved] = useState(false);
   const [storageProvider, setStorageProvider] = useState("cloudinary");
   
+  // State Profil Lembaga
+  const [profilTentang, setProfilTentang] = useState("");
+  const [profilVisi, setProfilVisi] = useState("");
+  const [profilMisi, setProfilMisi] = useState("");
+  const [profilMisiUtama, setProfilMisiUtama] = useState("");
+
   // State Keamanan
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -50,6 +56,10 @@ export default function SettingsPage() {
           if (data.site_logo) {
             setLogoPreview(data.site_logo);
           }
+          if (data.profil_tentang) setProfilTentang(data.profil_tentang);
+          if (data.profil_visi) setProfilVisi(data.profil_visi);
+          if (data.profil_misi) setProfilMisi(data.profil_misi);
+          if (data.profil_misi_utama) setProfilMisiUtama(data.profil_misi_utama);
         }
       }
 
@@ -133,6 +143,42 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveProfil = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      Swal.fire({
+        title: "Menyimpan Profil...",
+        text: "Mohon tunggu sebentar",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const formData = new FormData();
+      formData.append("profil_tentang", profilTentang);
+      formData.append("profil_visi", profilVisi);
+      formData.append("profil_misi", profilMisi);
+      formData.append("profil_misi_utama", profilMisiUtama);
+
+      const res = await fetch("/api/settings", {
+        method: "PUT",
+        body: formData,
+      });
+
+      let json;
+      try {
+        json = await res.json();
+      } catch (e) {
+        throw new Error("Terjadi kesalahan pada server.");
+      }
+
+      if (!res.ok) throw new Error(json?.error || "Gagal menyimpan");
+
+      Swal.fire("Berhasil", "Pengaturan profil berhasil disimpan", "success");
+    } catch (err: any) {
+      Swal.fire("Gagal", err.message, "error");
+    }
+  };
+
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -195,9 +241,12 @@ export default function SettingsPage() {
         </Card>
       ) : (
         <Tabs defaultValue="umum" value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-lg grid-cols-3 bg-muted/50 p-1">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-muted/50 p-1">
             <TabsTrigger value="umum" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
               Umum
+            </TabsTrigger>
+            <TabsTrigger value="profil" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
+              Profil Lembaga
             </TabsTrigger>
             <TabsTrigger value="keamanan" className="rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all">
               Keamanan
@@ -314,6 +363,68 @@ export default function SettingsPage() {
                   <Button type="submit" className="shadow-md">
                     <Save className="w-4 h-4 mr-2" />
                     Simpan Perubahan
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="profil" className="mt-0">
+            <Card className="border-border/50 shadow-sm overflow-hidden">
+              <form onSubmit={handleSaveProfil}>
+                <CardHeader className="bg-muted/10 border-b border-border/50">
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Book className="w-5 h-5 text-primary" />
+                    Profil Lembaga
+                  </CardTitle>
+                  <CardDescription>Kelola teks Tentang Kami, Visi, dan Misi yang tampil di Landing Page.</CardDescription>
+                </CardHeader>
+                <CardContent className="p-6 space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-foreground/90">Tentang Kami</Label>
+                    <textarea 
+                      value={profilTentang} 
+                      onChange={(e) => setProfilTentang(e.target.value)} 
+                      placeholder="Masukkan deskripsi singkat tentang organisasi..."
+                      className="flex min-h-[100px] w-full rounded-md border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:bg-background transition-colors"
+                    />
+                  </div>
+                  
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-foreground/90">Visi</Label>
+                      <textarea 
+                        value={profilVisi} 
+                        onChange={(e) => setProfilVisi(e.target.value)} 
+                        placeholder="Masukkan Visi..."
+                        className="flex min-h-[100px] w-full rounded-md border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:bg-background transition-colors"
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label className="text-sm font-semibold text-foreground/90">Misi</Label>
+                      <textarea 
+                        value={profilMisi} 
+                        onChange={(e) => setProfilMisi(e.target.value)} 
+                        placeholder="Masukkan Misi..."
+                        className="flex min-h-[100px] w-full rounded-md border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:bg-background transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-sm font-semibold text-foreground/90">Misi Utama (Slogan/Sorotan)</Label>
+                    <textarea 
+                      value={profilMisiUtama} 
+                      onChange={(e) => setProfilMisiUtama(e.target.value)} 
+                      placeholder="Slogan atau poin misi utama yang paling ditonjolkan..."
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-muted/30 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:bg-background transition-colors"
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="px-6 py-4 bg-muted/10 border-t border-border/50 flex justify-end">
+                  <Button type="submit" className="gap-2">
+                    <Save className="w-4 h-4" />
+                    Simpan Profil
                   </Button>
                 </CardFooter>
               </form>

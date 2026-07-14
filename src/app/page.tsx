@@ -38,6 +38,43 @@ async function getUnduhan() {
   }
 }
 
+async function getProfilSettings() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return {};
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ['key', 'value']);
+    const rows = await sheet.getRows();
+    const settings: Record<string, string> = {};
+    rows.forEach(r => {
+      const key = r.get('key');
+      if (key) settings[key] = r.get('value') || "";
+    });
+    return settings;
+  } catch (e) {
+    return {};
+  }
+}
+
+async function getPengurus() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return [];
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Pengurus", ['id', 'name', 'role', 'image_url', 'order', 'created_at']);
+    const rows = await sheet.getRows();
+    const data = rows.map(row => ({
+      id: row.get('id'),
+      name: row.get('name'),
+      role: row.get('role'),
+      image_url: row.get('image_url'),
+      order: parseInt(row.get('order') || "99", 10),
+    }));
+    data.sort((a, b) => a.order - b.order);
+    return data;
+  } catch (error) {
+    return [];
+  }
+}
+
 async function getLatestNews() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
   if (!spreadsheetId) return [];
@@ -95,12 +132,14 @@ async function getUpcomingAgendas() {
 }
 
 export default async function Home() {
-  const [latestNews, categories, siteName, upcomingAgendas, unduhanData] = await Promise.all([
+  const [latestNews, categories, siteName, upcomingAgendas, unduhanData, profilSettings, pengurusData] = await Promise.all([
     getLatestNews(),
     getCategories(),
     getCachedSiteName(),
     getUpcomingAgendas(),
     getUnduhan(),
+    getProfilSettings(),
+    getPengurus(),
   ]);
 
   // Strip HTML from content for snippet
