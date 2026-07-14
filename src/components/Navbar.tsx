@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BookOpen, LogIn, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 
-export default function Navbar({ siteName = "KKM & KKG" }: { siteName?: string }) {
+export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 

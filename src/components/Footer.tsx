@@ -1,4 +1,4 @@
-export default function Footer({ siteName = "CMS Madrasah Ibtidaiyah" }: { siteName?: string }) {
+export default function Footer({ siteName = "KKM & KKG MI TALANG" }: { siteName?: string }) {
   return (
     <footer className="bg-slate-900 text-slate-300 py-10 border-t-4 border-emerald-500 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

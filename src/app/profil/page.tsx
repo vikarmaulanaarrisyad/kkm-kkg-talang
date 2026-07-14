@@ -1,6 +1,4 @@
 import { Metadata } from "next";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import { BookOpen, Users } from "lucide-react";
 
@@ -56,8 +54,6 @@ export default async function ProfilPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
-      <Navbar />
-
       <main className="flex-grow pt-20">
         {/* HEADER SECTION */}
         <section className="w-full bg-emerald-700 py-24 px-4 sm:px-6 relative overflow-hidden">
@@ -182,8 +178,6 @@ export default async function ProfilPage() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }

@@ -5,14 +5,14 @@ export const getCachedSiteName = unstable_cache(
   async () => {
     try {
       const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return "CMS Madrasah";
+      if (!spreadsheetId) return "KKM & KKG MI TALANG";
       const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
       const rows = await sheet.getRows();
       const nameRow = rows.find((row: any) => row.get("key") === "site_name");
-      return nameRow && nameRow.get("value") ? nameRow.get("value") : "CMS Madrasah";
+      return nameRow && nameRow.get("value") ? nameRow.get("value") : "KKM & KKG MI TALANG";
     } catch (e) {
       console.error("Failed to fetch site_name for cache:", e);
-      return "CMS Madrasah";
+      return "KKM & KKG MI TALANG";
     }
   },
   ['site-settings-name'],
