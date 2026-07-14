@@ -109,13 +109,35 @@ export default function KegiatanPage() {
     return `https://kkm-kkg-talang.vercel.app/guru/scan?kegiatan_id=${id}`;
   };
 
+  const updateStatus = async (id: string, status: string) => {
+    try {
+      setLoading(true);
+      const res = await fetch("/api/kegiatan", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status })
+      });
+      if (!res.ok) throw new Error("Gagal update status");
+      fetchData();
+    } catch (err: any) {
+      Swal.fire("Gagal", err.message, "error");
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    if (status === "active") return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>Scan Terbuka</span>;
+    if (status === "waiting") return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700"><div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div>Menunggu</span>;
+    return <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600"><div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>Selesai</span>;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Manajemen Kegiatan & E-Presensi</h1>
           <p className="text-slate-500 text-sm mt-1">
-            {isAdminView ? "Buat kegiatan dan tampilkan QR Code untuk absensi otomatis." : "Tampilkan QR Code untuk presensi kegiatan di Madrasah."}
+            {isAdminView ? "Buat kegiatan dan kontrol jadwal scan QR absensi." : "Tampilkan QR Code untuk presensi kegiatan di Madrasah."}
           </p>
         </div>
         {isAdminView && (
@@ -153,15 +175,24 @@ export default function KegiatanPage() {
                       <div className="flex items-center gap-2"><MapPin className="w-3.5 h-3.5" /> {d.tempat || "-"}</div>
                     </td>
                     <td className="p-4 text-center">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${d.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${d.status === "active" ? "bg-emerald-500" : "bg-slate-400"}`}></div>
-                        {d.status === "active" ? "Aktif" : "Selesai"}
-                      </span>
+                      {getStatusBadge(d.status)}
                     </td>
-                    <td className="p-4 text-center">
-                      <button onClick={() => { setShowQR(d); fetchPresensi(d.id); }} className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors inline-flex items-center gap-2">
-                        <QrCode className="w-4 h-4" /> Tampilkan QR
-                      </button>
+                    <td className="p-4 flex items-center justify-center gap-2">
+                      {d.status === "active" && (
+                        <button onClick={() => { setShowQR(d); fetchPresensi(d.id); }} className="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors inline-flex items-center gap-2">
+                          <QrCode className="w-4 h-4" /> Tampilkan QR
+                        </button>
+                      )}
+                      {isAdminView && d.status !== "active" && d.status !== "completed" && (
+                        <button onClick={() => updateStatus(d.id, "active")} className="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                          Buka Scan
+                        </button>
+                      )}
+                      {isAdminView && d.status === "active" && (
+                        <button onClick={() => updateStatus(d.id, "completed")} className="bg-rose-50 text-rose-600 hover:bg-rose-100 px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                          Tutup Scan
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

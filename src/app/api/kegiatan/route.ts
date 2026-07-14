@@ -72,13 +72,43 @@ export async function POST(req: NextRequest) {
       tempat: tempat || "",
       tanggal,
       waktu: waktu || "",
-      status: "active",
+      status: "waiting",
       created_by: session.user?.name || "",
       created_at: new Date().toISOString(),
       madrasah_id: (session.user as any).madrasahId || "",
     });
 
     return NextResponse.json({ message: "Kegiatan berhasil dibuat", id: newId }, { status: 201 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user as any).role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id, status } = await req.json();
+    if (!id || !status) {
+      return NextResponse.json({ error: "ID dan status wajib diisi" }, { status: 400 });
+    }
+
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
+    const rows = await sheet.getRows();
+
+    const row = rows.find(r => r.get("id") === id);
+    if (!row) {
+      return NextResponse.json({ error: "Kegiatan tidak ditemukan" }, { status: 404 });
+    }
+
+    row.set("status", status);
+    await row.save();
+
+    return NextResponse.json({ message: "Status berhasil diupdate" });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
