@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, CheckCircle, MapPin, Download, Award } from "lucide-react";
+import { Calendar, CheckCircle, MapPin, Download, Award, Pointer } from "lucide-react";
 import jsPDF from "jspdf";
 import { useSession } from "next-auth/react";
+import Swal from "sweetalert2";
 
 type Presensi = {
   id: string;
@@ -58,6 +59,28 @@ export default function GuruDashboard() {
     
     fetchDashboard();
   }, []);
+
+  const handleHadirDirect = async (kegiatan_id: string) => {
+    try {
+      Swal.fire({ title: "Mencatat kehadiran...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+      const res = await fetch("/api/presensi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kegiatan_id })
+      });
+      const json = await res.json();
+      
+      if (res.ok) {
+        Swal.fire("Berhasil", "Kehadiran Anda telah dicatat", "success").then(() => {
+          window.location.reload();
+        });
+      } else {
+        Swal.fire("Gagal", json.error || "Gagal mencatat kehadiran", "error");
+      }
+    } catch (e: any) {
+      Swal.fire("Gagal", e.message || "Terjadi kesalahan", "error");
+    }
+  };
 
   const downloadSertifikat = (item: Presensi & { kegiatan?: Kegiatan }) => {
     if (!item.kegiatan || !session?.user) return;
@@ -172,6 +195,11 @@ export default function GuruDashboard() {
                   <p className="text-xs text-slate-500 flex items-center gap-2">
                     <MapPin className="w-3.5 h-3.5 text-slate-400" /> {item.tempat}
                   </p>
+                </div>
+                <div className="mt-5">
+                  <button onClick={() => handleHadirDirect(item.id)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-sm transition-colors shadow-sm flex justify-center items-center gap-2">
+                    <Pointer className="w-4 h-4" /> Hadir Kegiatan
+                  </button>
                 </div>
               </div>
             ))}
