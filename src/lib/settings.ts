@@ -19,6 +19,42 @@ export const getCachedSiteName = unstable_cache(
   { revalidate: 60, tags: ['settings'] }
 );
 
+export const getCachedStorageProvider = unstable_cache(
+  async () => {
+    try {
+      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+      if (!spreadsheetId) return "google_drive";
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const rows = await sheet.getRows();
+      const providerRow = rows.find((row: any) => row.get("key") === "storage_provider");
+      return providerRow && providerRow.get("value") ? providerRow.get("value") : "google_drive";
+    } catch (e) {
+      console.error("Failed to fetch storage_provider for cache:", e);
+      return "google_drive";
+    }
+  },
+  ['site-settings-storage-provider'],
+  { revalidate: 60, tags: ['settings'] }
+);
+
+export const getCachedTahunAjaran = unstable_cache(
+  async () => {
+    try {
+      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+      if (!spreadsheetId) return "";
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
+      const rows = await sheet.getRows();
+      const row = rows.find((r: any) => r.get("key") === "tahun_ajaran_aktif");
+      return row && row.get("value") ? row.get("value") : "";
+    } catch (e) {
+      console.error("Failed to fetch tahun_ajaran_aktif for cache:", e);
+      return "";
+    }
+  },
+  ['site-settings-tahun-ajaran'],
+  { revalidate: 60, tags: ['settings'] }
+);
+
 export const getCachedSiteLogo = unstable_cache(
   async () => {
     try {

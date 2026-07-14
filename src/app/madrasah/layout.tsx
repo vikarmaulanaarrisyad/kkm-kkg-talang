@@ -2,9 +2,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, LayoutDashboard, Users } from "lucide-react";
+import { BookOpen, LayoutDashboard, Users, GraduationCap } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
 import MobileSidebar from "@/components/madrasah/MobileSidebar";
+import { getCachedSiteName } from "@/lib/settings";
 
 export default async function MadrasahLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -13,6 +14,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
   if ((session.user as any).role !== "madrasah") redirect("/dashboard");
 
   const madrasahName = session.user?.name || "Madrasah";
+  const siteName = await getCachedSiteName();
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
@@ -21,9 +23,9 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
       <div className="md:hidden flex items-center justify-between bg-emerald-950 p-4 text-white shadow-md z-30 sticky top-0">
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-amber-400" />
-          <span className="font-bold text-lg tracking-tight">Portal Madrasah</span>
+          <span className="font-bold text-lg tracking-tight">{siteName}</span>
         </div>
-        <MobileSidebar madrasahName={madrasahName} />
+        <MobileSidebar madrasahName={madrasahName} siteName={siteName} />
       </div>
 
       {/* Desktop Sidebar - Kemenag Theme */}
@@ -34,7 +36,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
               <BookOpen className="w-5 h-5 text-emerald-950" />
             </div>
             <div>
-              <p className="font-extrabold text-sm leading-tight text-white tracking-wide">Portal Madrasah</p>
+              <p className="font-extrabold text-sm leading-tight text-white tracking-wide">{siteName}</p>
               <p className="text-xs text-emerald-200 truncate max-w-[130px] font-medium">{madrasahName}</p>
             </div>
           </Link>
@@ -49,6 +51,10 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
           <Link href="/madrasah/guru" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
             <Users className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
             Data Guru
+          </Link>
+          <Link href="/madrasah/rombel" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
+            <GraduationCap className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
+            Data Rombel & Siswa
           </Link>
         </nav>
 

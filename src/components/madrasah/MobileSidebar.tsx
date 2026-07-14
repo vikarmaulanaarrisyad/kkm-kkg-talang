@@ -1,17 +1,15 @@
 "use client";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, BookOpen, LayoutDashboard, Users } from "lucide-react";
+import { Menu, BookOpen, LayoutDashboard, Users, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import LogoutButton from "@/app/dashboard/logout-button";
 
-export default function MadrasahMobileSidebar({ madrasahName }: { madrasahName: string }) {
+export default function MadrasahMobileSidebar({ madrasahName, siteName }: { madrasahName: string; siteName: string }) {
   return (
     <Sheet>
-      <SheetTrigger asChild>
-        <button className="p-2 -mr-2 text-white hover:bg-emerald-900 rounded-md">
-          <Menu className="w-6 h-6" />
-        </button>
+      <SheetTrigger className="p-2 -mr-2 text-white hover:bg-emerald-900 rounded-md">
+        <Menu className="w-6 h-6" />
       </SheetTrigger>
       <SheetContent side="left" className="w-72 bg-emerald-950 text-emerald-50 border-emerald-900 p-0 flex flex-col">
         <div className="p-6 border-b border-emerald-900">
@@ -20,7 +18,7 @@ export default function MadrasahMobileSidebar({ madrasahName }: { madrasahName: 
               <BookOpen className="w-5 h-5 text-emerald-950" />
             </div>
             <div>
-              <p className="font-extrabold text-sm leading-tight text-white tracking-wide">Portal Madrasah</p>
+              <p className="font-extrabold text-sm leading-tight text-white tracking-wide">{siteName}</p>
               <p className="text-xs text-emerald-200 truncate max-w-[150px] font-medium">{madrasahName}</p>
             </div>
           </Link>
@@ -35,6 +33,10 @@ export default function MadrasahMobileSidebar({ madrasahName }: { madrasahName: 
           <Link href="/madrasah/guru" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all">
             <Users className="w-4 h-4 text-amber-400" />
             Data Guru
+          </Link>
+          <Link href="/madrasah/rombel" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all">
+            <GraduationCap className="w-4 h-4 text-amber-400" />
+            Data Rombel & Siswa
           </Link>
         </nav>
 

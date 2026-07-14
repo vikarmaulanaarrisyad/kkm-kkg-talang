@@ -17,6 +17,8 @@ import Swal from "sweetalert2";
 type Guru = {
   id: string;
   nama: string;
+  gelar_depan: string;
+  gelar_belakang: string;
   nuptk: string;
   peg_id: string;
   nip: string;
@@ -32,7 +34,7 @@ type Guru = {
 };
 
 const EMPTY_FORM: Omit<Guru, "id"> = {
-  nama: "", nuptk: "", peg_id: "", nip: "",
+  nama: "", gelar_depan: "", gelar_belakang: "", nuptk: "", peg_id: "", nip: "",
   tempat_lahir: "", tanggal_lahir: "", jenis_kelamin: "",
   jabatan: "", status_kepegawaian: "", pendidikan_terakhir: "",
   bidang_studi: "", no_hp: "", email: "",
@@ -120,8 +122,14 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
 
       {/* Identitas */}
       <FormSection icon={UserCircle} title="Identitas Guru" subtitle="Data pribadi dan nomor identitas" color="bg-gradient-to-r from-emerald-600 to-emerald-500">
-        <FormField label="Nama Lengkap" required fullWidth>
-          <StyledInput icon={UserCircle} value={form.nama} onChange={set("nama")} placeholder="Nama lengkap guru sesuai KTP" required />
+        <FormField label="Gelar Depan" hint="Misal: Drs., H.">
+          <StyledInput icon={UserCircle} value={form.gelar_depan} onChange={set("gelar_depan")} placeholder="Gelar depan (opsional)" />
+        </FormField>
+        <FormField label="Nama Lengkap" required>
+          <StyledInput icon={UserCircle} value={form.nama} onChange={set("nama")} placeholder="Nama lengkap guru (tanpa gelar)" required />
+        </FormField>
+        <FormField label="Gelar Belakang" hint="Misal: S.Pd., M.Pd.">
+          <StyledInput icon={UserCircle} value={form.gelar_belakang} onChange={set("gelar_belakang")} placeholder="Gelar belakang (opsional)" />
         </FormField>
         <FormField label="NUPTK" hint="16 digit Nomor Unik Pendidik dan Tenaga Kependidikan">
           <StyledInput icon={Fingerprint} value={form.nuptk} onChange={set("nuptk")} placeholder="Contoh: 1234567890123456" maxLength={16} />
@@ -200,14 +208,14 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
       </FormSection>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-        <Button type="button" variant="outline" onClick={onCancel} className="gap-2 rounded-xl">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-100 mt-8">
+        <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto gap-2 rounded-xl">
           <ArrowLeft className="w-4 h-4" /> Batal
         </Button>
         <Button
           type="submit"
           disabled={loading}
-          className="gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-8 shadow-md hover:shadow-lg transition-all"
+          className="w-full sm:w-auto gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-8 shadow-md hover:shadow-lg transition-all"
         >
           {loading ? (
             <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Menyimpan...</>
@@ -302,28 +310,28 @@ export default function MadrasahGuruPage() {
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Page Header */}
         <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start sm:items-center gap-4">
+              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm shrink-0">
                 {isEdit ? <Pencil className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
               </div>
               <div>
-                <div className="flex items-center gap-2 text-emerald-200 text-xs font-semibold mb-1">
+                <div className="flex flex-wrap items-center gap-2 text-emerald-200 text-xs font-semibold mb-1">
                   <span>Portal Madrasah</span>
                   <ChevronRight className="w-3 h-3" />
                   <span>Data Guru</span>
                   <ChevronRight className="w-3 h-3" />
                   <span>{isEdit ? "Edit" : "Tambah"}</span>
                 </div>
-                <h1 className="text-xl font-extrabold tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
                   {isEdit ? `Edit Data: ${selected!.nama}` : "Tambah Data Guru Baru"}
                 </h1>
-                <p className="text-emerald-100 text-sm mt-0.5">Isi formulir berikut dengan data yang lengkap dan akurat</p>
+                <p className="text-emerald-100 text-xs sm:text-sm mt-0.5">Isi formulir berikut dengan data yang lengkap dan akurat</p>
               </div>
             </div>
             <button
               onClick={() => { setMode("list"); setSelected(null); }}
-              className="flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all"
+              className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all w-full sm:w-auto"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </button>
@@ -389,7 +397,9 @@ export default function MadrasahGuruPage() {
                   <tr key={g.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-4 py-4 text-muted-foreground">{i + 1}</td>
                     <td className="px-4 py-4">
-                      <div className="font-bold text-foreground">{g.nama}</div>
+                      <div className="font-bold text-foreground">
+                        {g.gelar_depan ? `${g.gelar_depan} ` : ""}{g.nama}{g.gelar_belakang ? `, ${g.gelar_belakang}` : ""}
+                      </div>
                       <div className="text-xs text-muted-foreground mt-0.5">{g.jenis_kelamin === "L" ? "Laki-laki" : g.jenis_kelamin === "P" ? "Perempuan" : ""}</div>
                     </td>
                     <td className="px-4 py-4">

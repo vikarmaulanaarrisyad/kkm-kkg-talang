@@ -5,7 +5,7 @@ import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
 const SHEET_TITLE = "Guru";
 const HEADERS = [
-  "id", "madrasah_id", "nama", "nuptk", "peg_id", "nip",
+  "id", "madrasah_id", "nama", "gelar_depan", "gelar_belakang", "nuptk", "peg_id", "nip",
   "tempat_lahir", "tanggal_lahir", "jenis_kelamin", "jabatan",
   "status_kepegawaian", "pendidikan_terakhir", "bidang_studi",
   "no_hp", "email", "created_at"
@@ -41,9 +41,11 @@ export async function GET(req: NextRequest) {
       id: r.get("id"),
       madrasah_id: r.get("madrasah_id"),
       nama: r.get("nama"),
-      nuptk: r.get("nuptk"),
-      peg_id: r.get("peg_id"),
-      nip: r.get("nip"),
+      gelar_depan: r.get("gelar_depan"),
+      gelar_belakang: r.get("gelar_belakang"),
+      nuptk: r.get("nuptk")?.replace(/^'/, ""),
+      peg_id: r.get("peg_id")?.replace(/^'/, ""),
+      nip: r.get("nip")?.replace(/^'/, ""),
       tempat_lahir: r.get("tempat_lahir"),
       tanggal_lahir: r.get("tanggal_lahir"),
       jenis_kelamin: r.get("jenis_kelamin"),
@@ -51,7 +53,7 @@ export async function GET(req: NextRequest) {
       status_kepegawaian: r.get("status_kepegawaian"),
       pendidikan_terakhir: r.get("pendidikan_terakhir"),
       bidang_studi: r.get("bidang_studi"),
-      no_hp: r.get("no_hp"),
+      no_hp: r.get("no_hp")?.replace(/^'/, ""),
       email: r.get("email"),
       created_at: r.get("created_at"),
     }));
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const {
-      nama, nuptk, peg_id, nip, tempat_lahir, tanggal_lahir,
+      nama, gelar_depan, gelar_belakang, nuptk, peg_id, nip, tempat_lahir, tanggal_lahir,
       jenis_kelamin, jabatan, status_kepegawaian, pendidikan_terakhir,
       bidang_studi, no_hp, email
     } = body;
@@ -88,11 +90,12 @@ export async function POST(req: NextRequest) {
 
     await sheet.addRow({
       id, madrasah_id: madrasahId, nama,
-      nuptk: nuptk || "", peg_id: peg_id || "", nip: nip || "",
+      gelar_depan: gelar_depan || "", gelar_belakang: gelar_belakang || "",
+      nuptk: nuptk ? `'${nuptk}` : "", peg_id: peg_id ? `'${peg_id}` : "", nip: nip ? `'${nip}` : "",
       tempat_lahir: tempat_lahir || "", tanggal_lahir: tanggal_lahir || "",
       jenis_kelamin: jenis_kelamin || "", jabatan: jabatan || "",
       status_kepegawaian: status_kepegawaian || "", pendidikan_terakhir: pendidikan_terakhir || "",
-      bidang_studi: bidang_studi || "", no_hp: no_hp || "", email: email || "",
+      bidang_studi: bidang_studi || "", no_hp: no_hp ? `'${no_hp}` : "", email: email || "",
       created_at: new Date().toISOString(),
     });
 

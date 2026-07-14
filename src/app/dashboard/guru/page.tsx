@@ -12,6 +12,8 @@ type Guru = {
   id: string;
   madrasah_id: string;
   nama: string;
+  gelar_depan: string;
+  gelar_belakang: string;
   nuptk: string;
   peg_id: string;
   nip: string;
@@ -51,7 +53,7 @@ export default function AdminGuruPage() {
   const exportCSV = () => {
     const headers = ["No", "Nama", "Madrasah", "NUPTK", "PegID/NIP", "Jabatan", "Status Kepegawaian", "Pend. Terakhir", "Bidang Studi", "No. HP", "Email"];
     const rows = filtered.map((g, i) => [
-      i + 1, g.nama, getMadrasahName(g.madrasah_id), g.nuptk, g.peg_id || g.nip,
+      i + 1, `${g.gelar_depan ? g.gelar_depan + ' ' : ''}${g.nama}${g.gelar_belakang ? ', ' + g.gelar_belakang : ''}`, getMadrasahName(g.madrasah_id), g.nuptk, g.peg_id || g.nip,
       g.jabatan, g.status_kepegawaian, g.pendidikan_terakhir, g.bidang_studi, g.no_hp, g.email
     ]);
     const csv = [headers, ...rows].map(r => r.map(c => `"${c ?? ""}"`).join(",")).join("\n");
@@ -120,7 +122,9 @@ export default function AdminGuruPage() {
               {filtered.map((g, i) => (
                 <tr key={g.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                   <td className="px-4 py-3 text-muted-foreground">{i + 1}</td>
-                  <td className="px-4 py-3 font-semibold">{g.nama}</td>
+                  <td className="px-4 py-3 font-semibold">
+                    {g.gelar_depan ? `${g.gelar_depan} ` : ""}{g.nama}{g.gelar_belakang ? `, ${g.gelar_belakang}` : ""}
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">{getMadrasahName(g.madrasah_id)}</td>
                   <td className="px-4 py-3 font-mono text-xs">{g.nuptk || "—"}</td>
                   <td className="px-4 py-3 font-mono text-xs">{g.peg_id || g.nip || "—"}</td>

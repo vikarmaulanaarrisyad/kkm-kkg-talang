@@ -5,7 +5,7 @@ import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
 const SHEET_TITLE = "Guru";
 const HEADERS = [
-  "id", "madrasah_id", "nama", "nuptk", "peg_id", "nip",
+  "id", "madrasah_id", "nama", "gelar_depan", "gelar_belakang", "nuptk", "peg_id", "nip",
   "tempat_lahir", "tanggal_lahir", "jenis_kelamin", "jabatan",
   "status_kepegawaian", "pendidikan_terakhir", "bidang_studi",
   "no_hp", "email", "created_at"
@@ -36,9 +36,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       id: row.get("id"),
       madrasah_id: row.get("madrasah_id"),
       nama: row.get("nama"),
-      nuptk: row.get("nuptk"),
-      peg_id: row.get("peg_id"),
-      nip: row.get("nip"),
+      gelar_depan: row.get("gelar_depan"),
+      gelar_belakang: row.get("gelar_belakang"),
+      nuptk: row.get("nuptk")?.replace(/^'/, ""),
+      peg_id: row.get("peg_id")?.replace(/^'/, ""),
+      nip: row.get("nip")?.replace(/^'/, ""),
       tempat_lahir: row.get("tempat_lahir"),
       tanggal_lahir: row.get("tanggal_lahir"),
       jenis_kelamin: row.get("jenis_kelamin"),
@@ -46,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       status_kepegawaian: row.get("status_kepegawaian"),
       pendidikan_terakhir: row.get("pendidikan_terakhir"),
       bidang_studi: row.get("bidang_studi"),
-      no_hp: row.get("no_hp"),
+      no_hp: row.get("no_hp")?.replace(/^'/, ""),
       email: row.get("email"),
       created_at: row.get("created_at"),
     });
@@ -78,10 +80,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const body = await req.json();
     row.assign({
-      nama: body.nama || row.get("nama"),
-      nuptk: body.nuptk ?? row.get("nuptk"),
-      peg_id: body.peg_id ?? row.get("peg_id"),
-      nip: body.nip ?? row.get("nip"),
+      nama: body.nama ?? row.get("nama"),
+      gelar_depan: body.gelar_depan ?? row.get("gelar_depan"),
+      gelar_belakang: body.gelar_belakang ?? row.get("gelar_belakang"),
+      nuptk: body.nuptk ? `'${body.nuptk}` : row.get("nuptk"),
+      peg_id: body.peg_id ? `'${body.peg_id}` : row.get("peg_id"),
+      nip: body.nip ? `'${body.nip}` : row.get("nip"),
       tempat_lahir: body.tempat_lahir ?? row.get("tempat_lahir"),
       tanggal_lahir: body.tanggal_lahir ?? row.get("tanggal_lahir"),
       jenis_kelamin: body.jenis_kelamin ?? row.get("jenis_kelamin"),
@@ -89,7 +93,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       status_kepegawaian: body.status_kepegawaian ?? row.get("status_kepegawaian"),
       pendidikan_terakhir: body.pendidikan_terakhir ?? row.get("pendidikan_terakhir"),
       bidang_studi: body.bidang_studi ?? row.get("bidang_studi"),
-      no_hp: body.no_hp ?? row.get("no_hp"),
+      no_hp: body.no_hp ? `'${body.no_hp}` : row.get("no_hp"),
       email: body.email ?? row.get("email"),
     });
     await row.save();

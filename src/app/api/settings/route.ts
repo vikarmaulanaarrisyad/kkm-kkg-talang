@@ -67,6 +67,7 @@ export async function PUT(req: NextRequest) {
     const formData = await req.formData();
     const site_name = formData.get("site_name") as string;
     const site_url = formData.get("site_url") as string;
+    const tahun_ajaran_aktif = formData.get("tahun_ajaran_aktif") as string;
     const storage_provider = formData.get("storage_provider") as string;
     const logoFile = formData.get("site_logo") as File | null;
     const removeLogo = formData.get("remove_logo") as string;
@@ -86,6 +87,7 @@ export async function PUT(req: NextRequest) {
 
     if (site_name !== null) await updateOrCreateRow("site_name", site_name);
     if (site_url !== null) await updateOrCreateRow("site_url", site_url);
+    if (tahun_ajaran_aktif !== null) await updateOrCreateRow("tahun_ajaran_aktif", tahun_ajaran_aktif);
     if (storage_provider) await updateOrCreateRow("storage_provider", storage_provider);
 
     // Get current target provider for logo logic

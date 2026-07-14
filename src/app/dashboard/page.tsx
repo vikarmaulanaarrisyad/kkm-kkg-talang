@@ -9,12 +9,13 @@ import { Newspaper, Users, Clock, ArrowUpRight, FileText, Activity, Sparkles, Ch
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
-import { getCachedSiteName } from "@/lib/settings";
+import { getCachedSiteName, getCachedTahunAjaran } from "@/lib/settings";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import { getActivityLogs } from "@/lib/activity-log";
 
 export default async function DashboardPage() {
   const siteName = await getCachedSiteName();
+  const tahunAjaran = await getCachedTahunAjaran();
 
   // Fetch real berita stats from database
   let totalBerita = 0;
@@ -22,6 +23,7 @@ export default async function DashboardPage() {
   let draftBerita = 0;
   let thisMonthBerita = 0;
   let totalVisitors = 0;
+  let totalSiswa = 0;
 
   try {
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -44,9 +46,17 @@ export default async function DashboardPage() {
       const settingsRows = await settingsSheet.getRows();
       const visitorRow = settingsRows.find((r: any) => r.get("key") === "visitor_count");
       totalVisitors = visitorRow ? parseInt(visitorRow.get("value") || "0", 10) : 0;
+      
+      // Fetch total Siswa
+      if (tahunAjaran) {
+        const rombelSheet = await getOrCreateGoogleSheet(spreadsheetId, "Rombel", ["id", "madrasah_id", "tahun_ajaran", "nama_rombel", "siswa_laki", "siswa_perempuan", "wali_kelas_id"]);
+        const rombelRows = await rombelSheet.getRows();
+        const activeRombel = rombelRows.filter((r: any) => r.get("tahun_ajaran") === tahunAjaran);
+        totalSiswa = activeRombel.reduce((acc, curr) => acc + parseInt(curr.get("siswa_laki") || "0", 10) + parseInt(curr.get("siswa_perempuan") || "0", 10), 0);
+      }
     }
   } catch (e) {
-    console.error("Failed to fetch berita stats:", e);
+    console.error("Failed to fetch dashboard stats:", e);
   }
 
   // Fetch real activity logs
@@ -150,6 +160,28 @@ export default async function DashboardPage() {
             </div>
           </CardContent>
         </Card>
+        
+        {/* Siswa Card */}
+        {tahunAjaran && (
+          <Card className="glass-panel border-0 hover-float relative overflow-hidden rounded-[2rem] xl:col-span-2">
+             <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Users className="w-32 h-32 text-blue-500" />
+            </div>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Total Siswa Aktif</CardTitle>
+              <div className="p-2.5 bg-blue-500/10 rounded-xl">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+            </CardHeader>
+            <CardContent className="relative z-10">
+              <div className="text-5xl font-black text-foreground tracking-tighter mt-2">{totalSiswa.toLocaleString('id-ID')}</div>
+              <div className="flex items-center mt-4 bg-blue-500/10 w-fit px-2.5 py-1 rounded-lg">
+                <Sparkles className="w-3 h-3 text-blue-600 mr-1" />
+                <span className="text-xs font-bold text-blue-600">Seluruh Madrasah - {tahunAjaran}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* System Status Card */}
         <Card className="glass-panel border-0 hover-float relative overflow-hidden rounded-[2rem] xl:col-span-2">

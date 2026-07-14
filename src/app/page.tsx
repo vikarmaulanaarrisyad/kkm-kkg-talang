@@ -48,10 +48,40 @@ async function getLatestNews() {
   }
 }
 
+async function getUpcomingAgendas() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return [];
+
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", [
+      "id", "title", "date", "time", "location", "description", "status"
+    ]);
+    const rows = await sheet.getRows();
+    const data = rows.map(r => ({
+      id: r.get("id"),
+      title: r.get("title"),
+      date: r.get("date"),
+      time: r.get("time"),
+      location: r.get("location"),
+      status: r.get("status")
+    }));
+
+    const upcoming = data.filter(a => a.status !== "Completed" && new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)));
+    upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return upcoming.slice(0, 4); // Ambil 4 terdekat
+  } catch (error) {
+    console.error("Gagal mengambil agenda", error);
+    return [];
+  }
+}
+
 export default async function Home() {
-  const latestNews = await getLatestNews();
-  const categories = await getCategories();
-  const siteName = await getCachedSiteName();
+  const [latestNews, categories, siteName, upcomingAgendas] = await Promise.all([
+    getLatestNews(),
+    getCategories(),
+    getCachedSiteName(),
+    getUpcomingAgendas(),
+  ]);
 
   // Strip HTML from content for snippet
   const stripHtml = (html: string) => {
@@ -107,6 +137,63 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* Rundown Agenda Section */}
+      {upcomingAgendas.length > 0 && (
+        <section className="w-full py-20 px-4 bg-slate-50">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2 className="text-3xl font-bold text-madrasah-900 mb-4 flex items-center gap-3">
+                  <Calendar className="w-8 h-8 text-gold-500" />
+                  Rundown Agenda
+                </h2>
+                <div className="w-24 h-1 bg-gold-500 rounded-full"></div>
+                <p className="mt-4 text-gray-600">Jadwal kegiatan terdekat KKM & KKG.</p>
+              </div>
+              <Link href="/agenda" className="hidden sm:flex items-center text-emerald-600 font-bold hover:text-emerald-800 transition-colors">
+                Lihat Seluruh Agenda <ArrowRight className="w-4 h-4 ml-1" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {upcomingAgendas.map((agenda) => (
+                <div key={agenda.id} className="bg-white rounded-2xl shadow-sm hover:shadow-lg border border-slate-100 p-6 transition-all group relative overflow-hidden flex flex-col h-full">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 rounded-bl-full -z-10 transition-transform group-hover:scale-110 duration-500" />
+                  
+                  <div className="mb-4">
+                    <span className="inline-block bg-emerald-100 text-emerald-800 font-bold text-sm px-3 py-1 rounded-full mb-3">
+                      {new Date(agenda.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-800 group-hover:text-emerald-700 transition-colors leading-tight">{agenda.title}</h3>
+                  </div>
+
+                  <div className="space-y-2 mt-auto pt-4 border-t border-slate-50 text-sm text-slate-600">
+                    {agenda.time && (
+                      <div className="flex items-start gap-2">
+                        <div className="w-4 h-4 mt-0.5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /></div>
+                        <span>{agenda.time}</span>
+                      </div>
+                    )}
+                    {agenda.location && (
+                      <div className="flex items-start gap-2">
+                        <div className="w-4 h-4 mt-0.5 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-amber-500" /></div>
+                        <span className="line-clamp-2">{agenda.location}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-8 text-center sm:hidden">
+              <Link href="/agenda" className="inline-flex items-center justify-center bg-emerald-50 text-emerald-700 font-bold px-6 py-3 rounded-full hover:bg-emerald-100 transition-colors">
+                Seluruh Agenda <ArrowRight className="w-4 h-4 ml-2" />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features Section */}
       <section className="w-full py-20 px-4 bg-madrasah-50">
