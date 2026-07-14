@@ -184,9 +184,11 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
   );
 }
 
-// Helper: convert image URL → base64 (needed by jsPDF for images)
+// Helper: load image via server proxy → base64 (avoids CORS/405 on Cloudinary/external URLs)
 async function loadImageAsBase64(url: string): Promise<string> {
-  const res = await fetch(url);
+  const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
+  if (!res.ok) throw new Error(`Image proxy failed: ${res.status}`);
   const blob = await res.blob();
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

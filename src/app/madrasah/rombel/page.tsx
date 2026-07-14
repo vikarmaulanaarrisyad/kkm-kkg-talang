@@ -116,6 +116,9 @@ export default function RombelPage() {
     });
 
     try {
+      if (isEditing && !editId) {
+        throw new Error("ID Rombel tidak ditemukan. Coba refresh halaman dan edit ulang.");
+      }
       const url = isEditing ? `/api/rombel/${editId}` : "/api/rombel";
       const method = isEditing ? "PUT" : "POST";
       const submittedWali = form.wali_kelas_id === "none" ? "" : form.wali_kelas_id;
@@ -143,14 +146,14 @@ export default function RombelPage() {
   };
 
   const handleEdit = (r: Rombel) => {
+    setEditId(r.id);       // Set ID first
+    setIsEditing(true);    // Then toggle edit mode
     setForm({
       nama_rombel: r.nama_rombel,
       siswa_laki: r.siswa_laki,
       siswa_perempuan: r.siswa_perempuan,
       wali_kelas_id: r.wali_kelas_id,
     });
-    setEditId(r.id);
-    setIsEditing(true);
   };
 
   const handleDelete = async (id: string) => {
