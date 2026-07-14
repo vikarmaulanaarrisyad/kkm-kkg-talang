@@ -51,9 +51,15 @@ export default function KegiatanPage() {
     try {
       const res = await fetch("/api/kegiatan");
       const json = await res.json();
-      setData(json);
+      if (Array.isArray(json)) {
+        setData(json);
+      } else {
+        console.error("API Error:", json);
+        setData([]);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Network Error:", err);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -64,9 +70,10 @@ export default function KegiatanPage() {
     try {
       const res = await fetch(`/api/presensi?kegiatan_id=${kegiatan_id}`);
       const json = await res.json();
-      setPresensi(json);
+      setPresensi(Array.isArray(json) ? json : []);
     } catch (err) {
       console.error(err);
+      setPresensi([]);
     } finally {
       setLoadingPresensi(false);
     }
@@ -75,7 +82,10 @@ export default function KegiatanPage() {
   useEffect(() => {
     fetchData();
     if (isAdminView) {
-      fetch("/api/madrasah").then(r => r.json()).then(setMadrasahs).catch(console.error);
+      fetch("/api/madrasah")
+        .then(r => r.json())
+        .then(json => setMadrasahs(Array.isArray(json) ? json : []))
+        .catch(console.error);
     }
   }, [isAdminView]);
 
