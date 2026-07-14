@@ -110,7 +110,28 @@ export default function SuratPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Gagal membuat surat");
 
-      Swal.fire("Berhasil! ✉️", "Surat berhasil dibuat dan didistribusikan", "success");
+      // Auto-create Kegiatan untuk Undangan agar ada QR Absensi
+      if (form.jenis === "Undangan Rapat" || form.jenis === "Undangan Workshop") {
+        try {
+           const isRapat = form.jenis === "Undangan Rapat";
+           const kData = {
+              nama: finalJudul,
+              jenis: isRapat ? "KKG" : "KKM",
+              tempat: isRapat ? template.tempat : workshopTemplate.tempat,
+              tanggal: isRapat ? template.tanggal : workshopTemplate.tanggal,
+              waktu: isRapat ? template.waktu : workshopTemplate.waktu
+           };
+           await fetch("/api/kegiatan", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(kData)
+           });
+        } catch (e) {
+           console.error("Gagal membuat kegiatan otomatis", e);
+        }
+      }
+
+      Swal.fire("Berhasil! ✉️", "Surat berhasil dibuat, dan Kegiatan + QR Absensi otomatis ditambahkan", "success");
       setShowModal(false);
       setForm({ judul: "", jenis: JENIS_OPTIONS[0], isi: "", penerima: "all" });
       setTemplate({ tanggal: "", waktu: "", tempat: "", acara: "" });
