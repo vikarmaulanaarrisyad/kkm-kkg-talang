@@ -16,9 +16,10 @@ export async function GET(req: NextRequest) {
 
     const url = new URL(req.url);
     const kegiatanId = url.searchParams.get("kegiatan_id");
+    const guruIdParam = url.searchParams.get("guru_id");
     
-    if (!kegiatanId) {
-      return NextResponse.json({ error: "kegiatan_id is required" }, { status: 400 });
+    if (!kegiatanId && !guruIdParam) {
+      return NextResponse.json({ error: "kegiatan_id or guru_id is required" }, { status: 400 });
     }
 
     const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
@@ -28,10 +29,20 @@ export async function GET(req: NextRequest) {
     const role = (session.user as any).role;
     const userMadrasahId = (session.user as any).madrasahId;
 
-    let filtered = rows.filter(r => r.get("kegiatan_id") === kegiatanId);
+    let filtered = rows;
+    
+    if (kegiatanId) {
+      filtered = filtered.filter(r => r.get("kegiatan_id") === kegiatanId);
+    }
+    
+    if (guruIdParam) {
+      // If "me", resolve to session user id, else use param
+      const targetGuruId = guruIdParam === "me" ? session.user?.id : guruIdParam;
+      filtered = filtered.filter(r => r.get("guru_id") === targetGuruId);
+    }
     
     // Madrasah hanya bisa lihat kehadiran guru dari madrasahnya sendiri
-    if (role === "madrasah") {
+    if (role === "madrasah" && !guruIdParam) {
       filtered = filtered.filter(r => r.get("madrasah_id") === userMadrasahId);
     }
 
