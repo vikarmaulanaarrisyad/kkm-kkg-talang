@@ -49,16 +49,22 @@ export async function getOrCreateGoogleSheet(sheetId: string, sheetTitle: string
     } else {
       // Hanya loadHeaderRow jika kita butuh sinkronisasi kolom (biasanya hanya saat testing)
       // Untuk mengurangi API Calls (mencegah 429), kita bisa melewati ini karena header sudah di set di awal.
-      if (headers.length > 0 && !sheet.headerValues?.length) {
+      if (headers.length > 0) {
         try {
-          await sheet.loadHeaderRow();
-          const existingHeaders = sheet.headerValues;
-          const missingHeaders = headers.filter(h => !existingHeaders.includes(h));
-          if (missingHeaders.length > 0) {
-            await sheet.setHeaderRow([...existingHeaders, ...missingHeaders]);
+          // Attempt to access headerValues. If they aren't loaded, it throws an error in v4.
+          const _dummy = sheet.headerValues;
+        } catch {
+          // It threw an error, so we need to load them
+          try {
+            await sheet.loadHeaderRow();
+            const existingHeaders = sheet.headerValues;
+            const missingHeaders = headers.filter(h => !existingHeaders.includes(h));
+            if (missingHeaders.length > 0) {
+              await sheet.setHeaderRow([...existingHeaders, ...missingHeaders]);
+            }
+          } catch (e) {
+            await sheet.setHeaderRow(headers);
           }
-        } catch (e) {
-          await sheet.setHeaderRow(headers);
         }
       }
     }
