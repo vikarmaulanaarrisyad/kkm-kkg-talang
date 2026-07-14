@@ -10,6 +10,7 @@ interface Surat {
   judul: string;
   jenis: string;
   isi: string;
+  penerima?: string;
   created_at: string;
 }
 
