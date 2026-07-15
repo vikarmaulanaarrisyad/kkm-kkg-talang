@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     let prompt = `Anda adalah seorang ahli pembuat soal ujian untuk tingkat Madrasah Ibtidaiyah (MI) di Indonesia.
 Buatlah soal dengan detail berikut:
