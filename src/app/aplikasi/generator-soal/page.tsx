@@ -92,8 +92,9 @@ export default function GeneratorSoalPage() {
         const html2pdf = (await import("html2pdf.js")).default;
         
         iframe = document.createElement('iframe');
-        iframe.style.visibility = 'hidden';
         iframe.style.position = 'absolute';
+        iframe.style.left = '-9999px';
+        iframe.style.top = '-9999px';
         iframe.style.width = '800px';
         document.body.appendChild(iframe);
         
