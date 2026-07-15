@@ -6,7 +6,7 @@ import React from "react";
 
 export function MadrasahNavItem({
   href,
-  icon: Icon,
+  icon,
   title,
   exact = false,
   badge

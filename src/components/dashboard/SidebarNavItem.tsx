@@ -7,7 +7,7 @@ import React from "react";
 
 export function SidebarNavItem({ 
   href, 
-  icon: Icon, 
+  icon, 
   title, 
   exact = false, 
   badge 
