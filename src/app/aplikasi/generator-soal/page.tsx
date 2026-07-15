@@ -89,7 +89,7 @@ export default function GeneratorSoalPage() {
         setIsGeneratingPdf(true);
         // Import html2pdf dynamically to avoid SSR issues
         const module = await import("html2pdf.js");
-        const html2pdf: any = module.default || module;
+        const generatePdf: any = module.default || module;
         
         const opt: any = {
           margin:       15,
@@ -99,7 +99,7 @@ export default function GeneratorSoalPage() {
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        await html2pdf().set(opt).from(resultRef.current).save();
+        await generatePdf().set(opt).from(resultRef.current).save();
       }
     } catch (err) {
       console.error(err);

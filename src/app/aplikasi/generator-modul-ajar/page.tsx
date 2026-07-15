@@ -109,7 +109,7 @@ export default function GeneratorModulPage() {
       if (typeof window !== "undefined" && resultRef.current) {
         setIsGeneratingPdf(true);
         const module = await import("html2pdf.js");
-        const html2pdf: any = module.default || module;
+        const generatePdf: any = module.default || module;
         
         const opt: any = {
           margin:       15,
@@ -120,7 +120,7 @@ export default function GeneratorModulPage() {
           pagebreak:    { mode: 'css', avoid: 'tr' }
         };
 
-        await html2pdf().set(opt).from(resultRef.current).save();
+        await generatePdf().set(opt).from(resultRef.current).save();
       }
     } catch (err) {
       console.error(err);
