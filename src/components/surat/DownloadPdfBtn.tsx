@@ -215,8 +215,8 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
           const textKetua = `Verifikasi TTE:\nDitandatangani oleh: ${namaKetua}\nJabatan: Ketua KKG MI Talang\nDokumen: ${surat.judul}\nTanggal: ${todayStr}`;
           const textSekretaris = `Verifikasi TTE:\nDitandatangani oleh: ${namaSekretaris}\nJabatan: Sekretaris KKG MI Talang\nDokumen: ${surat.judul}\nTanggal: ${todayStr}`;
           
-          const qrDataUriKetua = await QRCode.toDataURL(textKetua, { width: 150, margin: 0, color: { dark: '#047857', light: '#ffffff' } });
-          const qrDataUriSekretaris = await QRCode.toDataURL(textSekretaris, { width: 150, margin: 0, color: { dark: '#047857', light: '#ffffff' } });
+          const qrDataUriKetua = await QRCode.toDataURL(textKetua, { width: 150, margin: 0, color: { dark: '#000000', light: '#ffffff' } });
+          const qrDataUriSekretaris = await QRCode.toDataURL(textSekretaris, { width: 150, margin: 0, color: { dark: '#000000', light: '#ffffff' } });
           
           doc.addImage(qrDataUriKetua, "PNG", leftSigX + sigW / 2 - qrSize / 2, y, qrSize, qrSize);
           doc.addImage(qrDataUriSekretaris, "PNG", rightSigX + sigW / 2 - qrSize / 2, y, qrSize, qrSize);
@@ -225,16 +225,6 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         }
         
         y += qrSize + 2;
-
-        doc.setFont("helvetica", "italic");
-        doc.setFontSize(7);
-        doc.setTextColor(5, 150, 105); // emerald-600
-        
-        doc.text("Ditandatangani Secara Elektronik", leftSigX + sigW / 2, y, { align: "center" });
-        doc.text("Ditandatangani Secara Elektronik", rightSigX + sigW / 2, y, { align: "center" });
-        
-        doc.setTextColor(0, 0, 0);
-        y += 4;
       } else {
         y += 22; // space for manual signature
       }
@@ -299,36 +289,34 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
         <Download className="w-4 h-4" />
         Unduh PDF
       </button>
-      
-      <div className="absolute left-0 mt-2 w-64 bg-white border border-slate-200 shadow-xl rounded-xl hidden z-50 overflow-hidden text-sm animate-in fade-in zoom-in-95 duration-100">
+      <div className="absolute left-0 mt-2 w-72 bg-white border border-slate-200 shadow-xl rounded-xl hidden z-50 p-2 text-sm animate-in fade-in zoom-in-95 duration-100">
         <button
           onClick={(e) => { e.preventDefault(); e.currentTarget.parentElement?.classList.add('hidden'); handleDownload(false); }}
-          className="w-full text-left px-4 py-3 hover:bg-slate-50 border-b border-slate-100 flex items-center justify-between transition-colors group"
+          className="w-full text-left px-3 py-3 rounded-lg hover:bg-slate-50 flex items-center justify-between transition-colors group mb-1"
         >
           <div className="flex items-center gap-3">
-            <div className="bg-slate-100 text-slate-500 p-1.5 rounded-lg group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
+            <div className="bg-slate-100 text-slate-500 p-2 rounded-lg group-hover:bg-amber-100 group-hover:text-amber-600 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 5-3-3H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2"/><path d="M8 18h1"/><path d="M18.4 9.6a2 2 0 1 1 3 3L17 17l-4 1 1-4Z"/></svg>
             </div>
             <div>
-              <p className="font-semibold text-slate-700 group-hover:text-amber-700 transition-colors">Tanda Tangan Manual</p>
-              <p className="text-[10px] text-slate-400">Kosongkan ruang untuk cap & tinta</p>
+              <p className="font-semibold text-slate-700 group-hover:text-amber-700 transition-colors text-[13px]">Tanda Tangan Manual</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Kosongkan ruang untuk cap tinta</p>
             </div>
           </div>
         </button>
         <button
           onClick={(e) => { e.preventDefault(); e.currentTarget.parentElement?.classList.add('hidden'); handleDownload(true); }}
-          className="w-full text-left px-4 py-3 hover:bg-emerald-50 text-emerald-700 font-medium flex items-center justify-between transition-colors group"
+          className="w-full text-left px-3 py-3 rounded-lg hover:bg-emerald-50 text-emerald-700 font-medium flex items-center justify-between transition-colors group"
         >
           <div className="flex items-center gap-3">
-            <div className="bg-emerald-100/50 text-emerald-500 p-1.5 rounded-lg group-hover:bg-emerald-200 group-hover:text-emerald-700 transition-colors">
+            <div className="bg-emerald-100 text-emerald-600 p-2 rounded-lg group-hover:bg-emerald-200 group-hover:text-emerald-700 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
             </div>
             <div>
-              <p className="font-semibold text-emerald-800">Tanda Tangan Elektronik</p>
-              <p className="text-[10px] text-emerald-600/70">Beri lencana keamanan digital</p>
+              <p className="font-semibold text-emerald-800 text-[13px]">Tanda Tangan Elektronik</p>
+              <p className="text-[10px] text-emerald-600/70 mt-0.5">Berisi lencana QR keamanan digital</p>
             </div>
           </div>
-          <span className="text-[9px] bg-emerald-100 border border-emerald-200 px-1.5 py-0.5 rounded text-emerald-800 shadow-sm ml-2 font-bold uppercase tracking-wider">TTE</span>
         </button>
       </div>
     </div>
