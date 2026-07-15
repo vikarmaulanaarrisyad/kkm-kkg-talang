@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Calendar, CheckCircle, MapPin, Download, Award, Pointer } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
+import jsPDF from "jspdf";
 
 type Presensi = {
   id: string;
@@ -45,7 +46,7 @@ export default function GuruDashboard() {
         const presensis: Presensi[] = Array.isArray(presensisData) ? presensisData : [];
         
         // Ambil info Madrasah dan Guru jika memungkinkan
-        if ((session?.user as any)?.madrasahId) {
+        if (session && (session.user as any)?.madrasahId) {
           fetch(`/api/madrasah/${(session.user as any).madrasahId}`)
             .then(r => r.ok ? r.json() : null)
             .then(data => {
