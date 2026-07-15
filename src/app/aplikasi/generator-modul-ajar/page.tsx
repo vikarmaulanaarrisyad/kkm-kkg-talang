@@ -1,0 +1,250 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { BookOpen, FileText, Loader2, Sparkles, Download } from "lucide-react";
+
+export default function GeneratorModulPage() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  const [formData, setFormData] = useState({
+    faseKelas: "Fase A - Kelas 1",
+    mapel: "",
+    topik: "",
+    waktu: "2 JP (2 x 35 Menit)",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const res = await fetch("/api/generate-modul", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal menghasilkan modul ajar");
+      }
+
+      setResult(data.data);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const exportPDF = async () => {
+    if (typeof window !== "undefined" && resultRef.current) {
+      const html2pdf = (await import("html2pdf.js")).default;
+      
+      const opt: any = {
+        margin:       15,
+        filename:     `Modul_Ajar_${formData.mapel}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: 'css' }
+      };
+
+      html2pdf().set(opt).from(resultRef.current).save();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 pt-24 pb-16 px-4 sm:px-6 print:bg-white print:pt-0 print:pb-0 print:px-0">
+      <div className="max-w-6xl mx-auto space-y-8 print:space-y-0">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 print:hidden">
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-100 p-3 rounded-xl flex-shrink-0">
+              <BookOpen className="w-8 h-8 text-blue-600" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800">
+                AI Generator Modul Ajar
+              </h1>
+              <p className="text-slate-500 mt-1">
+                Susun Modul Ajar (RPP) Kurikulum Merdeka secara praktis dan otomatis.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:block">
+          
+          {/* Form */}
+          <div className="lg:col-span-1 print:hidden">
+            <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 sticky top-24">
+              <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-600" />
+                Data Modul
+              </h2>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Fase / Kelas</label>
+                  <select 
+                    name="faseKelas" 
+                    value={formData.faseKelas} 
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                  >
+                    <option value="Fase A - Kelas 1">Fase A - Kelas 1</option>
+                    <option value="Fase A - Kelas 2">Fase A - Kelas 2</option>
+                    <option value="Fase B - Kelas 3">Fase B - Kelas 3</option>
+                    <option value="Fase B - Kelas 4">Fase B - Kelas 4</option>
+                    <option value="Fase C - Kelas 5">Fase C - Kelas 5</option>
+                    <option value="Fase C - Kelas 6">Fase C - Kelas 6</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
+                  <input 
+                    type="text" 
+                    name="mapel"
+                    placeholder="Contoh: Fikih, IPAS, Bahasa Arab..."
+                    value={formData.mapel} 
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Topik / Materi Pokok</label>
+                  <input 
+                    type="text" 
+                    name="topik"
+                    placeholder="Contoh: Rukun Islam, Fotosintesis..."
+                    value={formData.topik} 
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Alokasi Waktu</label>
+                  <input 
+                    type="text" 
+                    name="waktu"
+                    placeholder="Contoh: 2 x 35 Menit"
+                    value={formData.waktu} 
+                    onChange={handleChange}
+                    required
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full mt-4 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
+                >
+                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                  {loading ? "Menyusun Modul..." : "Generate Modul Ajar"}
+                </button>
+              </form>
+            </div>
+          </div>
+
+          {/* Result Area */}
+          <div className="lg:col-span-2 print:col-span-1 print:w-full">
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 min-h-[500px] flex flex-col print:border-none print:shadow-none print:p-0 print:m-0">
+              
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-slate-100 print:hidden">
+                <h2 className="text-xl font-bold text-slate-800">Hasil Modul Ajar</h2>
+                
+                {result && (
+                  <button 
+                    onClick={exportPDF}
+                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    Unduh PDF
+                  </button>
+                )}
+              </div>
+
+              {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 print:hidden">
+                  <p className="font-semibold">Terjadi Kesalahan</p>
+                  <p className="text-sm mt-1">{error}</p>
+                </div>
+              )}
+
+              {!result && !loading && !error && (
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 py-12 print:hidden">
+                  <BookOpen className="w-20 h-20 mb-6 opacity-20" />
+                  <p className="text-center px-4 font-medium text-slate-500">
+                    Lengkapi formulir di samping dan klik <strong className="text-blue-600">"Generate Modul Ajar"</strong><br/>untuk mendapatkan susunan modul secara otomatis.
+                  </p>
+                </div>
+              )}
+
+              {loading && (
+                <div className="flex-1 flex flex-col items-center justify-center text-slate-500 py-20 space-y-6 print:hidden">
+                  <div className="relative w-20 h-20">
+                    <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-blue-500 animate-pulse" />
+                    </div>
+                  </div>
+                  <p className="font-bold animate-pulse text-blue-600 text-lg">AI sedang merangkai Modul Ajar untuk Anda...</p>
+                </div>
+              )}
+
+              {result && (
+                <div className="flex-1 bg-white relative print:bg-white text-black" ref={resultRef}>
+                  
+                  {/* Kop Surat Modul Ajar */}
+                  <div className="text-center mb-8 pb-4 border-b-2 border-black">
+                    <h1 className="text-xl sm:text-2xl font-extrabold uppercase tracking-widest text-slate-900 print:text-black">MODUL AJAR KURIKULUM MERDEKA</h1>
+                    <h2 className="text-md sm:text-lg font-bold uppercase tracking-widest text-slate-800 print:text-black mt-1">MADRASAH IBTIDAIYAH</h2>
+                  </div>
+
+                  <div 
+                    className="prose prose-slate max-w-none 
+                               prose-h2:text-slate-900 prose-h2:font-extrabold prose-h2:border-b-2 prose-h2:border-slate-300 prose-h2:pb-2 prose-h2:mt-10
+                               prose-h3:text-slate-800 prose-h3:font-bold prose-h3:mt-6
+                               prose-h4:text-slate-800 prose-h4:font-semibold
+                               prose-ol:text-slate-800 prose-ol:pl-6 prose-ol:font-medium
+                               prose-ul:text-slate-800 prose-ul:pl-6
+                               prose-li:my-2 prose-li:leading-relaxed
+                               prose-p:text-slate-800 prose-p:my-3 prose-p:font-medium prose-p:leading-relaxed
+                               prose-table:w-full prose-table:border-collapse prose-th:border prose-th:border-slate-300 prose-th:bg-slate-100 prose-th:p-2 prose-td:border prose-td:border-slate-300 prose-td:p-2
+                               prose-strong:text-slate-900
+                               print:prose-h2:text-black print:prose-h2:border-black
+                               print:prose-h3:text-black print:prose-h4:text-black print:prose-ol:text-black print:prose-ul:text-black print:prose-li:text-black print:prose-p:text-black print:prose-strong:text-black print:prose-th:border-black print:prose-td:border-black print:prose-th:bg-gray-200
+                               px-2 sm:px-4"
+                    dangerouslySetInnerHTML={{ __html: result }}
+                  />
+                  
+                </div>
+              )}
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
