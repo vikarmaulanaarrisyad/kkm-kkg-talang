@@ -24,7 +24,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
       // 1. Fetch config (logo, site name, contacts, signatures)
       let cfg = config;
       if (!cfg) {
-        const res = await fetch("/api/surat/pdf-config");
+        const res = await fetch("/api/surat/pdf-config", { cache: "no-store" });
         if (!res.ok) throw new Error("Gagal mengambil data Kop Surat");
         cfg = await res.json();
         setConfig(cfg);
