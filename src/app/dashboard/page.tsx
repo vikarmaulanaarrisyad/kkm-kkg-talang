@@ -9,7 +9,7 @@ import { Newspaper, Users, Clock, ArrowUpRight, FileText, Activity, Sparkles, Ch
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
-import { getCachedSiteName, getCachedTahunAjaran } from "@/lib/settings";
+import { getCachedSiteName, getCachedTahunAjaran, getAllSettings } from "@/lib/settings";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import { getActivityLogs } from "@/lib/activity-log";
 
@@ -42,7 +42,6 @@ export default async function DashboardPage() {
       }).length;
 
       // Fetch visitor count from Settings (use cache)
-      const { getAllSettings } = await import("@/lib/settings");
       const allSettings = await getAllSettings();
       totalVisitors = parseInt(allSettings.visitor_count || "0", 10);
       
