@@ -205,7 +205,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
       const namaSekretaris = cfg.signatures?.sekretaris_nama || cfg.sekretaris || "SITI AMINAH, S.Pd";
 
       if (isTTE) {
-        y += 2;
+        y += 5; // Padding atas (sebelumnya 2)
         const qrSize = 20; // 20x20 mm
         
         try {
@@ -224,7 +224,7 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
           console.error("Gagal membuat QR Code", e);
         }
         
-        y += qrSize + 2;
+        y += qrSize + 5; // Padding bawah (sebelumnya 2)
       } else {
         y += 22; // space for manual signature
       }
