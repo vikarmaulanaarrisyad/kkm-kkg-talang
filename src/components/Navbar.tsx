@@ -52,6 +52,26 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             <Link href="/kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Hubungi Kami
             </Link>
+
+            {/* Aplikasi Dropdown Desktop */}
+            <div className="relative group h-full flex items-center">
+              <button className="flex items-center gap-1 text-slate-600 hover:text-emerald-600 font-semibold transition-colors focus:outline-none py-2">
+                Aplikasi
+                <svg className="w-4 h-4 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div className="absolute top-full left-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden transform origin-top scale-95 group-hover:scale-100">
+                  <div className="py-2">
+                    <Link href="/aplikasi/generator-soal" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                      Generator Soal MI
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="pl-4 border-l border-slate-200">
               <Link
                 href="/login"
@@ -96,6 +116,14 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
           <Link href="/kontak" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Hubungi Kami
           </Link>
+          
+          <div className="pt-2 pb-1 border-t border-slate-50 mt-2">
+            <span className="block px-3 py-1.5 text-xs font-bold text-emerald-600/70 uppercase tracking-wider">Aplikasi</span>
+            <Link href="/aplikasi/generator-soal" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+              Generator Soal MI
+            </Link>
+          </div>
+
           <Link href="/login" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 px-3 py-3 mt-4 w-full text-center rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm">
             <LogIn className="w-4 h-4" />
             Login Admin
