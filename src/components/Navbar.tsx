@@ -49,9 +49,6 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             <Link href="/#unduhan" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Unduhan
             </Link>
-            <Link href="/kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
-              Hubungi Kami
-            </Link>
 
             {/* Aplikasi Dropdown Desktop */}
             <div className="relative group h-full flex items-center">
@@ -61,7 +58,7 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div className="absolute top-full left-0 pt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="absolute top-full left-0 pt-1 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                 <div className="bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden transform origin-top scale-95 group-hover:scale-100">
                   <div className="py-2">
                     <Link href="/aplikasi/generator-soal" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
@@ -74,7 +71,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
                 </div>
               </div>
             </div>
-
+            <Link href="/kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
+              Hubungi Kami
+            </Link>
             <div className="pl-4 border-l border-slate-200">
               <Link
                 href="/login"
@@ -119,7 +118,7 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
           <Link href="/kontak" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Hubungi Kami
           </Link>
-          
+
           <div className="pt-2 pb-1 border-t border-slate-50 mt-2">
             <span className="block px-3 py-1.5 text-xs font-bold text-emerald-600/70 uppercase tracking-wider">Aplikasi</span>
             <Link href="/aplikasi/generator-soal" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
