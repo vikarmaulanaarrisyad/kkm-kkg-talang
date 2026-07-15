@@ -105,26 +105,43 @@ export default function GeneratorModulPage() {
   };
 
   const exportPDF = async () => {
+    let iframe: HTMLIFrameElement | null = null;
     try {
       if (typeof window !== "undefined" && resultRef.current) {
         setIsGeneratingPdf(true);
         // @ts-ignore
         const html2pdf = (await import("html2pdf.js")).default;
         
-        const htmlString = `
-          <div style="font-family: sans-serif; color: #000; line-height: 1.5; padding: 20px;">
-            <style>
-              h1, h2, h3, h4 { color: #000; }
-              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-              th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-              th { background-color: #f1f1f1; }
-              ul, ol { margin-left: 20px; margin-bottom: 15px; }
-              li { margin-bottom: 5px; }
-              p { margin-bottom: 15px; }
-            </style>
-            ${resultRef.current.innerHTML}
-          </div>
-        `;
+        iframe = document.createElement('iframe');
+        iframe.style.visibility = 'hidden';
+        iframe.style.position = 'absolute';
+        iframe.style.width = '800px';
+        document.body.appendChild(iframe);
+        
+        const doc = iframe.contentWindow?.document || iframe.contentDocument;
+        if (!doc) throw new Error("Gagal membuat dokumen PDF");
+        
+        doc.open();
+        doc.write(`
+          <html>
+            <head>
+              <style>
+                body { font-family: sans-serif; color: #000; line-height: 1.5; padding: 20px; background-color: #fff; }
+                h1, h2, h3, h4 { color: #000; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                th { background-color: #f1f1f1; }
+                ul, ol { margin-left: 20px; margin-bottom: 15px; }
+                li { margin-bottom: 5px; }
+                p { margin-bottom: 15px; }
+              </style>
+            </head>
+            <body>
+              ${resultRef.current.innerHTML}
+            </body>
+          </html>
+        `);
+        doc.close();
         
         const opt: any = {
           margin:       15,
@@ -136,12 +153,15 @@ export default function GeneratorModulPage() {
         };
 
         // @ts-ignore
-        await html2pdf().set(opt).from(htmlString).save();
+        await html2pdf().set(opt).from(doc.body).save();
       }
     } catch (err) {
       console.error(err);
       alert("Gagal mencetak PDF.");
     } finally {
+      if (iframe && iframe.parentNode) {
+        iframe.parentNode.removeChild(iframe);
+      }
       setIsGeneratingPdf(false);
     }
   };
