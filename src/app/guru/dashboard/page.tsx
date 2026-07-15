@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Calendar, CheckCircle, MapPin, Download, Award, Pointer } from "lucide-react";
-import jsPDF from "jspdf";
 import { useSession } from "next-auth/react";
+import Swal from "sweetalert2";
+import QRCode from "qrcode";
 import Swal from "sweetalert2";
 
 type Presensi = {
@@ -28,6 +29,8 @@ export default function GuruDashboard() {
   const [aktif, setAktif] = useState<Kegiatan[]>([]);
   const [riwayat, setRiwayat] = useState<(Presensi & { kegiatan?: Kegiatan })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [madrasahName, setMadrasahName] = useState<string>("");
+  const [guruDetail, setGuruDetail] = useState<any>(null);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -42,6 +45,23 @@ export default function GuruDashboard() {
         
         const kegiatans: Kegiatan[] = Array.isArray(kegiatansData) ? kegiatansData : [];
         const presensis: Presensi[] = Array.isArray(presensisData) ? presensisData : [];
+        
+        // Ambil info Madrasah dan Guru jika memungkinkan
+        if ((session?.user as any)?.madrasahId) {
+          fetch(`/api/madrasah/${(session.user as any).madrasahId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => {
+              if (data && data.nama) setMadrasahName(data.nama);
+            }).catch(() => {});
+            
+          fetch(`/api/guru`)
+            .then(r => r.ok ? r.json() : [])
+            .then(gurus => {
+              const myId = (session.user as any).id;
+              const me = gurus.find((g: any) => g.id === myId || g.peg_id === myId || g.nip === myId);
+              if (me) setGuruDetail(me);
+            }).catch(() => {});
+        }
         
         const activeKegiatan = kegiatans.filter(k => k.status === "active");
         setAktif(activeKegiatan);
@@ -186,6 +206,86 @@ export default function GuruDashboard() {
     doc.save(`Sertifikat_${guruName.replace(/\s+/g, "_")}.pdf`);
   };
 
+  const downloadKTA = async () => {
+    if (!session?.user) return;
+    const guruName = session.user.name || "Guru";
+    const madrasah = madrasahName || "MI TALANG";
+    const identitas = guruDetail?.peg_id || guruDetail?.nip || (session.user as any).id || "Anggota KKG";
+    
+    // CR-80 standard size: 85.6 mm x 53.98 mm
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 53.98] });
+    const width = 85.6;
+    const height = 53.98;
+
+    // Background
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, width, height, "F");
+
+    // Header Polygon (Emerald)
+    doc.setFillColor(16, 185, 129); // emerald-500
+    doc.rect(0, 0, width, 14, "F");
+
+    // Header Text
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("KARTU TANDA ANGGOTA KKG", width / 2, 6, { align: "center" });
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.text("KECAMATAN TALANG - KABUPATEN TEGAL", width / 2, 10, { align: "center" });
+
+    // Decorative Yellow Bar
+    doc.setFillColor(245, 158, 11);
+    doc.rect(0, 14, width, 1.5, "F");
+
+    // Content: Profile details
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text(guruName.toUpperCase(), 5, 25);
+    
+    doc.setTextColor(71, 85, 105); // slate-600
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "normal");
+    doc.text("PegID / NIP:", 5, 30);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "bold");
+    doc.text(identitas, 25, 30);
+
+    doc.setTextColor(71, 85, 105);
+    doc.setFont("helvetica", "normal");
+    doc.text("Unit Kerja:", 5, 35);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "bold");
+    doc.text(madrasah.toUpperCase(), 25, 35);
+    
+    if (guruDetail?.jabatan) {
+      doc.setTextColor(71, 85, 105);
+      doc.setFont("helvetica", "normal");
+      doc.text("Jabatan:", 5, 40);
+      doc.setTextColor(15, 23, 42);
+      doc.setFont("helvetica", "bold");
+      doc.text(guruDetail.jabatan.toUpperCase(), 25, 40);
+    }
+
+    // Generate QR Code
+    try {
+      const qrData = `KTA KKG Talang\nNama: ${guruName}\nID: ${identitas}\nUnit: ${madrasah}`;
+      const qrDataUri = await QRCode.toDataURL(qrData, { margin: 0, width: 60 });
+      doc.addImage(qrDataUri, "PNG", width - 20, 20, 15, 15);
+    } catch (e) {
+      console.error("Gagal generate QR untuk KTA", e);
+    }
+    
+    // Watermark Logo if we had one, but we'll skip for now
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(6);
+    doc.setFont("helvetica", "normal");
+    doc.text("Berlaku selama menjadi anggota KKG MI Talang", width / 2, height - 3, { align: "center" });
+
+    doc.save(`KTA_${guruName.replace(/\s+/g, "_")}.pdf`);
+  };
+
   return (
     <div className="space-y-6 sm:space-y-8 pb-10">
       {/* Full bleed mobile header */}
@@ -208,6 +308,81 @@ export default function GuruDashboard() {
       </div>
 
       <div className="px-5 sm:px-8 space-y-8 -mt-6 relative z-20">
+        
+        {/* KTA UI Card Section */}
+        <div>
+          <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+            <Award className="w-5 h-5 text-emerald-600" /> Kartu Tanda Anggota (KTA) Digital
+          </h3>
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row gap-6 items-center">
+            
+            {/* Visual KTA Card */}
+            <div className="w-full max-w-[340px] aspect-[1.58] bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden relative group">
+              {/* Header Card */}
+              <div className="bg-emerald-600 h-14 w-full flex flex-col justify-center items-center text-white px-4 pt-1">
+                <h4 className="font-bold text-sm leading-tight tracking-wide">KARTU TANDA ANGGOTA KKG</h4>
+                <p className="text-[9px] text-emerald-100 uppercase tracking-widest">Kec. Talang - Kab. Tegal</p>
+              </div>
+              <div className="h-1.5 w-full bg-amber-500"></div>
+              
+              {/* Body Card */}
+              <div className="p-4 flex gap-3 relative h-full">
+                {/* Photo Placeholder */}
+                <div className="w-16 h-20 bg-slate-100 border border-slate-200 rounded shrink-0 flex items-center justify-center">
+                  <div className="text-slate-400 font-bold text-lg">
+                    {session?.user?.name?.substring(0,2).toUpperCase() || "GU"}
+                  </div>
+                </div>
+                
+                {/* Details */}
+                <div className="flex-1 pb-4">
+                  <p className="font-bold text-slate-900 text-[13px] leading-tight mb-2 truncate">
+                    {(session?.user?.name || "GURU").toUpperCase()}
+                  </p>
+                  <table className="text-[10px] text-slate-700 w-full leading-tight">
+                    <tbody>
+                      <tr>
+                        <td className="w-16 py-0.5 align-top">NIP/PegID</td>
+                        <td className="w-2 py-0.5 align-top">:</td>
+                        <td className="font-bold py-0.5 truncate">{guruDetail?.peg_id || guruDetail?.nip || (session?.user as any)?.id || "-"}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-0.5 align-top">Unit Kerja</td>
+                        <td className="py-0.5 align-top">:</td>
+                        <td className="font-bold py-0.5 line-clamp-2">{madrasahName ? madrasahName.toUpperCase() : "MI TALANG"}</td>
+                      </tr>
+                      {guruDetail?.jabatan && (
+                        <tr>
+                          <td className="py-0.5 align-top">Jabatan</td>
+                          <td className="py-0.5 align-top">:</td>
+                          <td className="font-bold py-0.5 truncate">{guruDetail.jabatan.toUpperCase()}</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                
+                {/* Decorative Bottom */}
+                <div className="absolute bottom-2 right-4 opacity-50 flex items-center justify-center">
+                  <div className="w-10 h-10 border border-dashed border-slate-300 flex items-center justify-center rounded">
+                    <span className="text-[6px] text-slate-400">QR CODE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions & Info */}
+            <div className="flex-1 space-y-4 text-center md:text-left">
+              <p className="text-slate-600 text-sm">
+                Ini adalah KTA Digital resmi Anda sebagai anggota aktif Kelompok Kerja Guru (KKG) MI Kecamatan Talang. Anda dapat mengunduh dan mencetaknya.
+              </p>
+              <button onClick={downloadKTA} className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2 mx-auto md:mx-0">
+                <Download className="w-4 h-4" /> Download KTA (PDF)
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Kegiatan Aktif */}
       <div>
         <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
