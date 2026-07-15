@@ -54,7 +54,7 @@ export default function GeneratorSoalPage() {
       // Import html2pdf dynamically to avoid SSR issues
       const html2pdf = (await import("html2pdf.js")).default;
       
-      const opt = {
+      const opt: any = {
         margin:       15,
         filename:     `Soal_${formData.mapel}_Kelas_${formData.kelas}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
