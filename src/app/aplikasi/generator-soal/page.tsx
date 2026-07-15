@@ -84,87 +84,120 @@ export default function GeneratorSoalPage() {
   };
 
   const exportPDF = async () => {
-    let iframe: HTMLIFrameElement | null = null;
+    let container: HTMLDivElement | null = null;
     try {
       if (typeof window !== "undefined" && resultRef.current) {
         setIsGeneratingPdf(true);
         // @ts-ignore
         const html2pdf = (await import("html2pdf.js")).default;
         
-        iframe = document.createElement('iframe');
-        iframe.style.position = 'absolute';
-        iframe.style.left = '-9999px';
-        iframe.style.top = '-9999px';
-        iframe.style.width = '800px';
-        document.body.appendChild(iframe);
+        container = document.createElement('div');
+        container.innerHTML = resultRef.current.innerHTML;
         
-        const doc = iframe.contentWindow?.document || iframe.contentDocument;
-        if (!doc) throw new Error("Gagal membuat dokumen PDF");
+        // Hapus semua class Tailwind bawaan agar tidak memicu error 'lab' color di html2canvas
+        const allElements = container.querySelectorAll('*');
+        allElements.forEach(el => el.removeAttribute('class'));
         
-        doc.open();
-        doc.write(`
-          <html>
-            <head>
-              <style>
-                body { font-family: sans-serif; color: #000; line-height: 1.5; padding: 20px; background-color: #fff; }
-                h1, h2, h3, h4 { color: #000; }
-                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-                ul, ol { margin-left: 20px; margin-bottom: 15px; }
-                li { margin-bottom: 8px; }
-                p { margin-bottom: 15px; }
-              </style>
-            </head>
-            <body>
-              ${resultRef.current.innerHTML}
-            </body>
-          </html>
-        `);
-        doc.close();
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '-9999px';
+        container.style.width = '800px';
+        container.style.backgroundColor = '#ffffff';
+        container.style.color = '#000000';
+        container.style.padding = '20px';
+        container.style.fontFamily = 'sans-serif, Arial';
+        
+        const style = document.createElement('style');
+        style.setAttribute('data-pdf-style', 'true');
+        style.innerHTML = `
+          h1, h2, h3, h4 { color: #000; font-weight: bold; }
+          h3 { font-size: 16px; margin-top: 20px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+          h4 { font-size: 14px; margin-top: 15px; }
+          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; }
+          th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+          th { background-color: #f1f1f1; }
+          ul, ol { margin-left: 20px; margin-bottom: 15px; font-size: 14px; }
+          li { margin-bottom: 5px; }
+          p { margin-bottom: 15px; font-size: 14px; line-height: 1.5; }
+        `;
+        container.prepend(style);
+        
+        // Tambahkan Kop Surat Manual Khusus Soal
+        const kop = document.createElement('div');
+        kop.innerHTML = `
+          <div style="text-align: center; border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+            <h1 style="font-size: 22px; margin: 0; text-transform: uppercase;">LATIHAN SOAL UJIAN</h1>
+            <h2 style="font-size: 18px; margin: 5px 0 0 0; text-transform: uppercase;">MADRASAH IBTIDAIYAH</h2>
+            <p style="font-size: 14px; margin: 10px 0 0 0; font-weight: bold;">
+              Mata Pelajaran: ${formData.mapel || "........................"} | Kelas: ${formData.kelas}
+            </p>
+            <p style="font-size: 14px; margin: 5px 0 0 0; font-weight: bold;">
+              Materi / Topik: ${formData.topik || "........................"}
+            </p>
+          </div>
+        `;
+        // Hapus header lama jika ada (dari innerHTML)
+        const oldHeader = container.querySelector('div:first-child');
+        if (oldHeader && oldHeader.textContent?.includes('LATIHAN SOAL UJIAN')) {
+            oldHeader.remove();
+        }
+        container.prepend(kop);
+        
+        document.body.appendChild(container);
 
         const opt: any = {
           margin:       15,
           filename:     `Soal_${formData.mapel}_Kelas_${formData.kelas}.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2, useCORS: true, logging: false },
+          html2canvas:  { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            onclone: (clonedDoc: Document) => {
+              // Hancurkan semua style global Tailwind di dalam clone agar 'lab' tidak diproses!
+              const styles = clonedDoc.querySelectorAll('style:not([data-pdf-style]), link[rel="stylesheet"]');
+              styles.forEach(s => s.remove());
+            }
+          },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
         // @ts-ignore
-        await html2pdf().set(opt).from(doc.body).save();
+        await html2pdf().set(opt).from(container).save();
       }
     } catch (err) {
       console.error(err);
       alert("Gagal mencetak PDF.");
     } finally {
-      if (iframe && iframe.parentNode) {
-        iframe.parentNode.removeChild(iframe);
+      if (container && container.parentNode) {
+        container.parentNode.removeChild(container);
       }
       setIsGeneratingPdf(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pt-24 pb-16 px-4 sm:px-6 print:bg-white print:pt-0 print:pb-0 print:px-0">
-      <div className="max-w-6xl mx-auto space-y-8 print:space-y-0">
+    <main className="flex-grow flex flex-col w-full bg-slate-50 min-h-screen pb-20 print:bg-white print:pb-0">
+      
+      {/* Header Section */}
+      <section className="w-full bg-gradient-to-br from-emerald-50 via-white to-emerald-100/50 pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden print:hidden">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-200/40 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-teal-100/40 blur-3xl" />
         
-        {/* Header - Hidden in Print */}
-        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 print:hidden">
-          <div className="flex items-center gap-4">
-            <div className="bg-emerald-100 p-3 rounded-xl flex-shrink-0">
-              <Bot className="w-8 h-8 text-emerald-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-800">
-                AI Generator Soal MI
-              </h1>
-              <p className="text-slate-500 mt-1">
-                Buat soal ujian secara otomatis dan instan untuk siswa Madrasah Ibtidaiyah.
-              </p>
-            </div>
+        <div className="max-w-4xl mx-auto relative z-10 text-center text-slate-800">
+          <div className="w-16 h-16 bg-white/50 backdrop-blur-md rounded-2xl border border-white/40 flex items-center justify-center mx-auto mb-8 shadow-xl">
+            <Bot className="w-8 h-8 text-emerald-600" />
           </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
+            <span className="text-emerald-600">AI Generator</span> Soal MI
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+            Buat soal ujian secara otomatis dan instan untuk siswa Madrasah Ibtidaiyah.
+          </p>
         </div>
+      </section>
 
+      <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-20 w-full space-y-8 print:space-y-0 print:mt-0 print:px-0">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:block">
           
           {/* Form Configuration - Hidden in Print */}
@@ -380,6 +413,6 @@ export default function GeneratorSoalPage() {
 
         </div>
       </div>
-    </div>
+    </main>
   );
 }
