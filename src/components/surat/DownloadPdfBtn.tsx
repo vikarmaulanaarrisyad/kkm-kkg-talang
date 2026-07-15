@@ -231,13 +231,26 @@ export default function DownloadPdfBtn({ surat }: { surat: Surat }) {
 
       doc.setFont("times", "bold");
       doc.setFontSize(12);
-      doc.text(namaKetua, leftSigX + sigW / 2, y, { align: "center" });
-      doc.text(namaSekretaris, rightSigX + sigW / 2, y, { align: "center" });
+      
+      const formatName = (name: string) => {
+        const parts = name.split(',');
+        if (parts.length > 1) {
+          const gelar = parts.slice(1).join(',');
+          return parts[0].toUpperCase() + ',' + gelar;
+        }
+        return name.toUpperCase();
+      };
+
+      const formattedKetua = formatName(namaKetua);
+      const formattedSekretaris = formatName(namaSekretaris);
+
+      doc.text(formattedKetua, leftSigX + sigW / 2, y, { align: "center" });
+      doc.text(formattedSekretaris, rightSigX + sigW / 2, y, { align: "center" });
       
       // Underlines
       doc.setLineWidth(0.3);
-      const ketuaTextW = doc.getTextWidth(namaKetua);
-      const sekretarisTextW = doc.getTextWidth(namaSekretaris);
+      const ketuaTextW = doc.getTextWidth(formattedKetua);
+      const sekretarisTextW = doc.getTextWidth(formattedSekretaris);
       doc.line(
         leftSigX + sigW / 2 - ketuaTextW / 2, y + 1,
         leftSigX + sigW / 2 + ketuaTextW / 2, y + 1

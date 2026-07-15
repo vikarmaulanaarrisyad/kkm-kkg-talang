@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCachedSiteName, getCachedSiteLogo, getCachedKontakInfo, getAllSettings } from "@/lib/settings";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const siteName = await getCachedSiteName();
