@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, LogIn, Menu } from "lucide-react";
+import { BookOpen, LogIn, Menu, UserPlus } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?: string }) {
@@ -129,10 +129,16 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             </Link>
           </div>
 
-          <Link href="/login" onClick={() => setIsOpen(false)} className="flex items-center justify-center gap-2 px-3 py-3 mt-4 w-full text-center rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm">
-            <LogIn className="w-4 h-4" />
-            Login Admin
-          </Link>
+          <div className="flex items-center gap-3 mt-4 w-full">
+            <Link href="/register" onClick={() => setIsOpen(false)} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-base font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 shadow-sm transition-all">
+              <UserPlus className="w-4 h-4" />
+              Register
+            </Link>
+            <Link href="/login" onClick={() => setIsOpen(false)} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-base font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-all">
+              <LogIn className="w-4 h-4" />
+              Login Admin
+            </Link>
+          </div>
         </div>
       )}
     </nav>
