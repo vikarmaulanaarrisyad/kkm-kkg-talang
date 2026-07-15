@@ -49,50 +49,77 @@ export default function GeneratorModulPage() {
   };
 
   const exportWord = () => {
-    if (!resultRef.current) return;
-    const content = resultRef.current.innerHTML;
-    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-    <head><meta charset='utf-8'><title>Modul Ajar</title></head><body>${content}</body></html>`;
-    
-    const blob = new Blob(['\ufeff', html], {
-      type: 'application/msword'
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Modul_Ajar_${formData.mapel}.doc`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      if (!resultRef.current) {
+        alert("Mohon tunggu, dokumen belum siap.");
+        return;
+      }
+      const content = resultRef.current.innerHTML;
+      const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>Modul Ajar</title></head><body>${content}</body></html>`;
+      
+      const blob = new Blob(['\ufeff', html], {
+        type: 'application/msword'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Modul_Ajar_${formData.mapel}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      alert("Gagal mendownload Word.");
+    }
   };
 
   const copyToClipboard = async () => {
-    if (!resultRef.current) return;
+    if (!resultRef.current) {
+      alert("Konten belum siap.");
+      return;
+    }
     try {
       const text = resultRef.current.innerText;
-      await navigator.clipboard.writeText(text);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy', err);
+      alert("Gagal menyalin teks.");
     }
   };
 
   const exportPDF = async () => {
-    if (typeof window !== "undefined" && resultRef.current) {
-      const html2pdf = (await import("html2pdf.js")).default;
-      
-      const opt: any = {
-        margin:       15,
-        filename:     `Modul_Ajar_${formData.mapel}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: 'css' }
-      };
+    try {
+      if (typeof window !== "undefined" && resultRef.current) {
+        const html2pdf = (await import("html2pdf.js")).default;
+        
+        const opt: any = {
+          margin:       15,
+          filename:     `Modul_Ajar_${formData.mapel}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2 },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak:    { mode: 'css' }
+        };
 
-      html2pdf().set(opt).from(resultRef.current).save();
+        html2pdf().set(opt).from(resultRef.current).save();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Gagal mencetak PDF.");
     }
   };
 
@@ -206,6 +233,7 @@ export default function GeneratorModulPage() {
                 {result && (
                   <div className="flex flex-wrap items-center gap-2">
                     <button 
+                      type="button"
                       onClick={copyToClipboard}
                       className="flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl font-semibold transition-all shadow-sm text-sm"
                     >
@@ -213,6 +241,7 @@ export default function GeneratorModulPage() {
                       {copied ? "Tersalin!" : "Copy Teks"}
                     </button>
                     <button 
+                      type="button"
                       onClick={exportWord}
                       className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
                     >
@@ -220,6 +249,7 @@ export default function GeneratorModulPage() {
                       Download Word
                     </button>
                     <button 
+                      type="button"
                       onClick={exportPDF}
                       className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
                     >
