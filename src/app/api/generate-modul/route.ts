@@ -6,7 +6,8 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: Request) {
   try {
-    const { faseKelas, mapel, topik, waktu } = await req.json();
+    const body = await req.json();
+    const { faseKelas, mapel, topik, waktu, modelPembelajaran, tujuanPembelajaran } = body;
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
@@ -32,6 +33,8 @@ Buatkan sebuah Modul Ajar (Rencana Pelaksanaan Pembelajaran) yang komprehensif, 
 - Mata Pelajaran: ${mapel}
 - Materi Pokok / Topik: ${topik}
 - Alokasi Waktu: ${waktu}
+${modelPembelajaran ? `- Model Pembelajaran: ${modelPembelajaran}` : ''}
+${tujuanPembelajaran ? `- Tujuan Pembelajaran Spesifik: ${tujuanPembelajaran}` : ''}
 
 Modul Ajar ini harus memuat secara berurutan:
 1. INFORMASI UMUM: Kompetensi Awal, Profil Pelajar Pancasila & Pelajar Rahmatan Lil 'Alamin, Sarana dan Prasarana, Target Peserta Didik, Model Pembelajaran.

@@ -15,10 +15,12 @@ export default function GeneratorModulPage() {
     faseKelas: "Fase A - Kelas 1",
     mapel: "",
     topik: "",
-    waktu: "2 JP (2 x 35 Menit)",
+    waktu: "2 x 35 Menit",
+    modelPembelajaran: "Problem Based Learning (PBL)",
+    tujuanPembelajaran: ""
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -214,6 +216,36 @@ export default function GeneratorModulPage() {
                     required
                     className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Model Pembelajaran</label>
+                  <select 
+                    name="modelPembelajaran" 
+                    value={formData.modelPembelajaran} 
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                  >
+                    <option value="Problem Based Learning (PBL)">Problem Based Learning (PBL)</option>
+                    <option value="Project Based Learning (PjBL)">Project Based Learning (PjBL)</option>
+                    <option value="Discovery / Inquiry Learning">Discovery / Inquiry Learning</option>
+                    <option value="Konvensional / Ceramah Interaktif">Konvensional / Ceramah Interaktif</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Tujuan Pembelajaran (Opsional)</label>
+                  <textarea 
+                    name="tujuanPembelajaran"
+                    placeholder="Contoh: Siswa dapat menjelaskan rukun Islam dengan benar."
+                    value={formData.tujuanPembelajaran} 
+                    onChange={handleChange}
+                    rows={2}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white resize-none"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">
+                    Isi jika Anda memiliki target spesifik. Kosongkan agar AI menyesuaikan secara otomatis.
+                  </p>
                 </div>
 
                 <button 
