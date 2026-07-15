@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { BookOpen, FileText, Loader2, Sparkles, Download } from "lucide-react";
+import { BookOpen, FileText, Loader2, Sparkles, Download, FileDown, Copy, Check, Printer } from "lucide-react";
 
 export default function GeneratorModulPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -44,6 +45,37 @@ export default function GeneratorModulPage() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportWord = () => {
+    if (!resultRef.current) return;
+    const content = resultRef.current.innerHTML;
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>Modul Ajar</title></head><body>${content}</body></html>`;
+    
+    const blob = new Blob(['\ufeff', html], {
+      type: 'application/msword'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Modul_Ajar_${formData.mapel}.doc`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const copyToClipboard = async () => {
+    if (!resultRef.current) return;
+    try {
+      const text = resultRef.current.innerText;
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy', err);
     }
   };
 
@@ -172,13 +204,29 @@ export default function GeneratorModulPage() {
                 <h2 className="text-xl font-bold text-slate-800">Hasil Modul Ajar</h2>
                 
                 {result && (
-                  <button 
-                    onClick={exportPDF}
-                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
-                  >
-                    <Download className="w-4 h-4" />
-                    Unduh PDF
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button 
+                      onClick={copyToClipboard}
+                      className="flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-4 py-2.5 rounded-xl font-semibold transition-all shadow-sm text-sm"
+                    >
+                      {copied ? <Check className="w-4 h-4 text-blue-500" /> : <Copy className="w-4 h-4" />}
+                      {copied ? "Tersalin!" : "Copy Teks"}
+                    </button>
+                    <button 
+                      onClick={exportWord}
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                    >
+                      <FileDown className="w-4 h-4" />
+                      Download Word
+                    </button>
+                    <button 
+                      onClick={exportPDF}
+                      className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                    >
+                      <Printer className="w-4 h-4" />
+                      Cetak PDF
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -212,7 +260,8 @@ export default function GeneratorModulPage() {
               )}
 
               {result && (
-                <div className="flex-1 bg-white relative print:bg-white text-black" ref={resultRef}>
+                <div className="flex-1 overflow-y-auto max-h-[700px] pr-2 custom-scrollbar">
+                 <div className="bg-white relative print:bg-white text-black" ref={resultRef}>
                   
                   {/* Kop Surat Modul Ajar */}
                   <div className="text-center mb-8 pb-4 border-b-2 border-black">
@@ -237,6 +286,7 @@ export default function GeneratorModulPage() {
                     dangerouslySetInnerHTML={{ __html: result }}
                   />
                   
+                 </div>
                 </div>
               )}
 

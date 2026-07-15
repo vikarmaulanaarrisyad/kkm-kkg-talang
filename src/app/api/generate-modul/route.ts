@@ -43,10 +43,15 @@ Modul Ajar ini harus memuat secara berurutan:
 4. ASESMEN: Penilaian Sikap, Pengetahuan, dan Keterampilan.
 5. PENGAYAAN & REMEDIAL.
 
-Aturan tambahan:
-- Format hasil output wajib menggunakan elemen HTML standar (<br>, <h3>, <h4>, <ul>, <ol>, <li>, <strong>, <p>, <table> untuk rubrik jika perlu) tanpa membungkus dengan backtick markdown (\`\`\`html).
-- Jangan berikan pembuka percakapan (seperti "Berikut adalah modulnya"), langsung berikan kode HTML-nya.
-- Pastikan kalimatnya baku, mendidik, dan sesuai dengan karakteristik kurikulum merdeka pada Madrasah Ibtidaiyah.
+Aturan tambahan dan Format HTML:
+- WAJIB gunakan struktur HTML yang semantik dan RAPI. JANGAN menumpuk teks tanpa jarak.
+- Gunakan <h3> untuk Judul Utama (seperti: 1. INFORMASI UMUM, 2. KOMPONEN INTI).
+- Gunakan <h4> untuk Sub-judul (seperti: A. Identitas Modul, B. Tujuan Pembelajaran).
+- Untuk Identitas Modul (Nama Penyusun, Institusi, Tahun, dll), WAJIB gunakan format tabel HTML agar sejajar: <table><tr><td width="200"><strong>Nama Penyusun</strong></td><td>: [Nama]</td></tr>...</table>
+- Untuk mendaftar poin (seperti Sarana Prasarana, Langkah Pembelajaran, Asesmen), WAJIB gunakan tag <ul> atau <ol> dengan <li>. JANGAN HANYA menggunakan teks biasa dengan enter/br.
+- Beri jarak antar elemen menggunakan <br> atau <p> jika perlu.
+- Jangan berikan pembuka percakapan, langsung berikan kode HTML-nya (tanpa backtick markdown \`\`\`html).
+- Pastikan kalimatnya baku, mendidik, dan sesuai kurikulum MI.
 `;
 
     const result = await model.generateContent(prompt);
