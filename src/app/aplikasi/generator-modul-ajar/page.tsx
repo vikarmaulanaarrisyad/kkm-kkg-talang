@@ -5,6 +5,7 @@ import { BookOpen, FileText, Loader2, Sparkles, Download, FileDown, Copy, Check,
 
 export default function GeneratorModulPage() {
   const [loading, setLoading] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -104,22 +105,26 @@ export default function GeneratorModulPage() {
   const exportPDF = async () => {
     try {
       if (typeof window !== "undefined" && resultRef.current) {
-        const html2pdf = (await import("html2pdf.js")).default;
+        setIsGeneratingPdf(true);
+        const module = await import("html2pdf.js");
+        const html2pdf = module.default ? module.default : module;
         
         const opt: any = {
           margin:       15,
           filename:     `Modul_Ajar_${formData.mapel}.pdf`,
           image:        { type: 'jpeg', quality: 0.98 },
-          html2canvas:  { scale: 2 },
+          html2canvas:  { scale: 2, useCORS: true, logging: false },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak:    { mode: 'css' }
+          pagebreak:    { mode: 'css', avoid: 'tr' }
         };
 
-        html2pdf().set(opt).from(resultRef.current).save();
+        await html2pdf().set(opt).from(resultRef.current).save();
       }
     } catch (err) {
       console.error(err);
       alert("Gagal mencetak PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -250,11 +255,12 @@ export default function GeneratorModulPage() {
                     </button>
                     <button 
                       type="button"
+                      disabled={isGeneratingPdf}
                       onClick={exportPDF}
-                      className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                      className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm disabled:opacity-50"
                     >
-                      <Printer className="w-4 h-4" />
-                      Cetak PDF
+                      {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                      {isGeneratingPdf ? "Menyiapkan PDF..." : "Cetak PDF"}
                     </button>
                   </div>
                 )}

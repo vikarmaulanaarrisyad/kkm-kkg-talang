@@ -5,6 +5,7 @@ import { Bot, FileText, Loader2, Sparkles, Printer, FileDown, Copy, Check } from
 
 export default function GeneratorSoalPage() {
   const [loading, setLoading] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -83,19 +84,28 @@ export default function GeneratorSoalPage() {
   };
 
   const exportPDF = async () => {
-    if (typeof window !== "undefined" && resultRef.current) {
-      // Import html2pdf dynamically to avoid SSR issues
-      const html2pdf = (await import("html2pdf.js")).default;
-      
-      const opt: any = {
-        margin:       15,
-        filename:     `Soal_${formData.mapel}_Kelas_${formData.kelas}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+    try {
+      if (typeof window !== "undefined" && resultRef.current) {
+        setIsGeneratingPdf(true);
+        // Import html2pdf dynamically to avoid SSR issues
+        const module = await import("html2pdf.js");
+        const html2pdf = module.default ? module.default : module;
+        
+        const opt: any = {
+          margin:       15,
+          filename:     `Soal_${formData.mapel}_Kelas_${formData.kelas}.pdf`,
+          image:        { type: 'jpeg', quality: 0.98 },
+          html2canvas:  { scale: 2, useCORS: true, logging: false },
+          jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
 
-      html2pdf().set(opt).from(resultRef.current).save();
+        await html2pdf().set(opt).from(resultRef.current).save();
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Gagal mencetak PDF.");
+    } finally {
+      setIsGeneratingPdf(false);
     }
   };
 
@@ -253,10 +263,11 @@ export default function GeneratorSoalPage() {
                     </button>
                     <button 
                       onClick={exportPDF}
-                      className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm"
+                      disabled={isGeneratingPdf}
+                      className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg text-sm disabled:opacity-50"
                     >
-                      <Printer className="w-4 h-4" />
-                      Cetak PDF
+                      {isGeneratingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
+                      {isGeneratingPdf ? "Menyiapkan PDF..." : "Cetak PDF"}
                     </button>
                   </div>
                 )}
