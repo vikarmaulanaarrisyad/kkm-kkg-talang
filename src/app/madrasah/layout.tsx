@@ -49,12 +49,12 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
 
         <nav className="flex-1 px-4 py-6 space-y-2">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400 px-2 mb-4">Menu Utama</p>
-          <MadrasahNavItem href="/madrasah" icon={LayoutDashboard} title="Dashboard" exact />
-          <MadrasahNavItem href="/madrasah/guru" icon={Users} title="Data Guru" />
-          <MadrasahNavItem href="/madrasah/rombel" icon={GraduationCap} title="Data Rombel & Siswa" />
+          <MadrasahNavItem href="/madrasah" icon={<LayoutDashboard />} title="Dashboard" exact />
+          <MadrasahNavItem href="/madrasah/guru" icon={<Users />} title="Data Guru" />
+          <MadrasahNavItem href="/madrasah/rombel" icon={<GraduationCap />} title="Data Rombel & Siswa" />
           <MadrasahNavItem 
             href="/madrasah/surat" 
-            icon={Mail} 
+            icon={<Mail />} 
             title="Surat Masuk" 
             badge={unreadCount > 0 ? (
               <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
@@ -62,7 +62,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
               </span>
             ) : null}
           />
-          <MadrasahNavItem href="/madrasah/kegiatan" icon={Calendar} title="Kegiatan & Presensi" />
+          <MadrasahNavItem href="/madrasah/kegiatan" icon={<Calendar />} title="Kegiatan & Presensi" />
         </nav>
 
         <div className="p-4 border-t border-emerald-900 bg-emerald-950/50">

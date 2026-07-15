@@ -13,7 +13,7 @@ export function SidebarNavItem({
   badge 
 }: { 
   href: string; 
-  icon: any; 
+  icon: React.ReactNode; 
   title: string; 
   exact?: boolean;
   badge?: React.ReactNode;
@@ -37,7 +37,9 @@ export function SidebarNavItem({
           />
         }
       >
-        <Icon className={`w-4 h-4 mr-3 ${isActive ? 'text-emerald-600' : 'text-sidebar-primary'}`} />
+        <div className={`mr-3 flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 [&>svg]:shrink-0 transition-transform ${isActive ? 'text-emerald-600 scale-110' : 'text-sidebar-primary'}`}>
+          {icon}
+        </div>
         <span className="flex-1">{title}</span>
         {badge}
       </SidebarMenuButton>

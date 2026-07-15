@@ -12,7 +12,7 @@ export function MadrasahNavItem({
   badge
 }: {
   href: string;
-  icon: any;
+  icon: React.ReactNode;
   title: string;
   exact?: boolean;
   badge?: React.ReactNode;
@@ -29,7 +29,9 @@ export function MadrasahNavItem({
           : 'hover:bg-emerald-800 hover:text-white'
       }`}
     >
-      <Icon className={`w-4 h-4 transition-transform group-hover:scale-110 ${isActive ? 'text-amber-300 scale-110' : 'text-amber-400'}`} />
+      <div className={`flex items-center justify-center transition-transform group-hover:scale-110 [&>svg]:w-4 [&>svg]:h-4 [&>svg]:shrink-0 ${isActive ? 'text-amber-300 scale-110' : 'text-amber-400'}`}>
+        {icon}
+      </div>
       <div className="flex-1 flex items-center justify-between">
         <span>{title}</span>
         {badge}

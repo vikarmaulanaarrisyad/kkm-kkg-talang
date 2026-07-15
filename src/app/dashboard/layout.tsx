@@ -64,15 +64,15 @@ export default async function DashboardLayout({
               <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Utama</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarNavItem href="/dashboard" icon={LayoutDashboard} title="Dashboard" exact />
-                  <SidebarNavItem href="/dashboard/berita" icon={FileText} title="Kelola Berita" />
-                  <SidebarNavItem href="/dashboard/kategori" icon={Tag} title="Kelola Kategori" />
-                  <SidebarNavItem href="/dashboard/agenda" icon={Calendar} title="Kelola Agenda" />
-                  <SidebarNavItem href="/dashboard/unduhan" icon={Download} title="Kelola Unduhan" />
-                  <SidebarNavItem href="/dashboard/pengurus" icon={Users} title="Kelola Pengurus" />
-                  <SidebarNavItem href="/dashboard/kontak" icon={MessageSquare} title="Pesan Masuk" />
-                  <SidebarNavItem href="/dashboard/surat" icon={FileSignature} title="Surat Menyurat" />
-                  <SidebarNavItem href="/dashboard/kegiatan" icon={Calendar} title="Kegiatan & Presensi" />
+                  <SidebarNavItem href="/dashboard" icon={<LayoutDashboard />} title="Dashboard" exact />
+                  <SidebarNavItem href="/dashboard/berita" icon={<FileText />} title="Kelola Berita" />
+                  <SidebarNavItem href="/dashboard/kategori" icon={<Tag />} title="Kelola Kategori" />
+                  <SidebarNavItem href="/dashboard/agenda" icon={<Calendar />} title="Kelola Agenda" />
+                  <SidebarNavItem href="/dashboard/unduhan" icon={<Download />} title="Kelola Unduhan" />
+                  <SidebarNavItem href="/dashboard/pengurus" icon={<Users />} title="Kelola Pengurus" />
+                  <SidebarNavItem href="/dashboard/kontak" icon={<MessageSquare />} title="Pesan Masuk" />
+                  <SidebarNavItem href="/dashboard/surat" icon={<FileSignature />} title="Surat Menyurat" />
+                  <SidebarNavItem href="/dashboard/kegiatan" icon={<Calendar />} title="Kegiatan & Presensi" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -83,11 +83,11 @@ export default async function DashboardLayout({
                 <SidebarMenu>
                   <SidebarNavItem 
                     href="/dashboard/madrasah" 
-                    icon={School} 
+                    icon={<School />} 
                     title="Kelola Madrasah" 
                     badge={pendingCount > 0 ? <span className="ml-auto bg-amber-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">{pendingCount}</span> : null}
                   />
-                  <SidebarNavItem href="/dashboard/guru" icon={Users} title="Data Guru" />
+                  <SidebarNavItem href="/dashboard/guru" icon={<Users />} title="Data Guru" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -96,9 +96,9 @@ export default async function DashboardLayout({
               <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Sistem</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarNavItem href="/dashboard/tahun-ajaran" icon={Calendar} title="Tahun Ajaran" />
-                  <SidebarNavItem href="/dashboard/master" icon={Settings} title="Master Data" />
-                  <SidebarNavItem href="/dashboard/settings" icon={Settings} title="Pengaturan" />
+                  <SidebarNavItem href="/dashboard/tahun-ajaran" icon={<Calendar />} title="Tahun Ajaran" />
+                  <SidebarNavItem href="/dashboard/master" icon={<Settings />} title="Master Data" />
+                  <SidebarNavItem href="/dashboard/settings" icon={<Settings />} title="Pengaturan" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
