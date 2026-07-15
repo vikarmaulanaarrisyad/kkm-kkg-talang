@@ -107,7 +107,7 @@ export default function GeneratorModulPage() {
       if (typeof window !== "undefined" && resultRef.current) {
         setIsGeneratingPdf(true);
         const module = await import("html2pdf.js");
-        const html2pdf = module.default ? module.default : module;
+        const html2pdf: any = module.default || module;
         
         const opt: any = {
           margin:       15,
