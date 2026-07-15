@@ -16,16 +16,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Mata pelajaran, Fase, dan Capaian Pembelajaran wajib diisi" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "API Key Gemini belum dikonfigurasi di server" }, { status: 500 });
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json({ error: "API Key Gemini belum dikonfigurasi. Silakan tambahkan GEMINI_API_KEY di environment variables." }, { status: 500 });
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
     const model = genAI.getGenerativeModel({ 
       model: "gemini-flash-latest",
       generationConfig: {
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        maxOutputTokens: 4096
       }
     });
 
@@ -59,7 +59,13 @@ Pastikan output HANYA JSON murni tanpa ada teks lain di luarnya.`;
     // Clean markdown code blocks if any
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
-    const jsonResult = JSON.parse(text);
+    let jsonResult;
+    try {
+      jsonResult = JSON.parse(text);
+    } catch (parseError) {
+      console.error("JSON Parse Error. Raw text:", text);
+      return NextResponse.json({ error: "Terjadi kesalahan format data dari AI. Silakan klik Generate lagi." }, { status: 500 });
+    }
 
     return NextResponse.json(jsonResult);
   } catch (error: any) {
