@@ -88,9 +88,23 @@ export default function GeneratorSoalPage() {
       if (typeof window !== "undefined" && resultRef.current) {
         setIsGeneratingPdf(true);
         // Import html2pdf dynamically to avoid SSR issues
-        const module = await import("html2pdf.js");
-        const generatePdf: any = module.default || module;
+        // @ts-ignore
+        const html2pdf = (await import("html2pdf.js")).default;
         
+        const htmlString = `
+          <div style="font-family: sans-serif; color: #000; line-height: 1.5; padding: 20px;">
+            <style>
+              h1, h2, h3, h4 { color: #000; }
+              table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+              th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+              ul, ol { margin-left: 20px; margin-bottom: 15px; }
+              li { margin-bottom: 8px; }
+              p { margin-bottom: 15px; }
+            </style>
+            ${resultRef.current.innerHTML}
+          </div>
+        `;
+
         const opt: any = {
           margin:       15,
           filename:     `Soal_${formData.mapel}_Kelas_${formData.kelas}.pdf`,
@@ -99,7 +113,8 @@ export default function GeneratorSoalPage() {
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        await generatePdf().set(opt).from(resultRef.current).save();
+        // @ts-ignore
+        await html2pdf().set(opt).from(htmlString).save();
       }
     } catch (err) {
       console.error(err);
