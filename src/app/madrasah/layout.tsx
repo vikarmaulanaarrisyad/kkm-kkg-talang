@@ -6,6 +6,7 @@ import { BookOpen, LayoutDashboard, Users, GraduationCap, Mail, Calendar } from 
 import LogoutButton from "@/app/dashboard/logout-button";
 import MobileSidebar from "@/components/madrasah/MobileSidebar";
 import { getCachedSiteName, getCachedUnreadSuratCount } from "@/lib/settings";
+import { MadrasahNavItem } from "@/components/madrasah/MadrasahNavItem";
 
 export default async function MadrasahLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -48,33 +49,20 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
 
         <nav className="flex-1 px-4 py-6 space-y-2">
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400 px-2 mb-4">Menu Utama</p>
-          <Link href="/madrasah" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
-            <LayoutDashboard className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-            Dashboard
-          </Link>
-          <Link href="/madrasah/guru" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
-            <Users className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-            Data Guru
-          </Link>
-          <Link href="/madrasah/rombel" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
-            <GraduationCap className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-            Data Rombel & Siswa
-          </Link>
-          <Link href="/madrasah/surat" className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
-            <div className="flex items-center gap-3">
-              <Mail className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-              Surat Masuk
-            </div>
-            {unreadCount > 0 && (
+          <MadrasahNavItem href="/madrasah" icon={LayoutDashboard} title="Dashboard" exact />
+          <MadrasahNavItem href="/madrasah/guru" icon={Users} title="Data Guru" />
+          <MadrasahNavItem href="/madrasah/rombel" icon={GraduationCap} title="Data Rombel & Siswa" />
+          <MadrasahNavItem 
+            href="/madrasah/surat" 
+            icon={Mail} 
+            title="Surat Masuk" 
+            badge={unreadCount > 0 ? (
               <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
                 {unreadCount}
               </span>
-            )}
-          </Link>
-          <Link href="/madrasah/kegiatan" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all group">
-            <Calendar className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />
-            Kegiatan & Presensi
-          </Link>
+            ) : null}
+          />
+          <MadrasahNavItem href="/madrasah/kegiatan" icon={Calendar} title="Kegiatan & Presensi" />
         </nav>
 
         <div className="p-4 border-t border-emerald-900 bg-emerald-950/50">

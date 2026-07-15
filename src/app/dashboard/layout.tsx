@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { SidebarNavItem } from "@/components/dashboard/SidebarNavItem";
 
 import { getCachedSiteName, getCachedPendingMadrasahCount } from "@/lib/settings";
 
@@ -63,60 +64,15 @@ export default async function DashboardLayout({
               <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Utama</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Dashboard" render={<Link href="/dashboard" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <LayoutDashboard className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Dashboard</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kelola Berita" render={<Link href="/dashboard/berita" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <FileText className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Kelola Berita</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kelola Kategori" render={<Link href="/dashboard/kategori" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Tag className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Kelola Kategori</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kelola Agenda" render={<Link href="/dashboard/agenda" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Calendar className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Kelola Agenda</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kelola Unduhan" render={<Link href="/dashboard/unduhan" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Download className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Kelola Unduhan</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kelola Pengurus" render={<Link href="/dashboard/pengurus" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Users className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Kelola Pengurus</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Pesan Masuk" render={<Link href="/dashboard/kontak" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <MessageSquare className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Pesan Masuk</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Surat Menyurat" render={<Link href="/dashboard/surat" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <FileSignature className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Surat Menyurat</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kegiatan & Presensi" render={<Link href="/dashboard/kegiatan" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Calendar className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Kegiatan & Presensi</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <SidebarNavItem href="/dashboard" icon={LayoutDashboard} title="Dashboard" exact />
+                  <SidebarNavItem href="/dashboard/berita" icon={FileText} title="Kelola Berita" />
+                  <SidebarNavItem href="/dashboard/kategori" icon={Tag} title="Kelola Kategori" />
+                  <SidebarNavItem href="/dashboard/agenda" icon={Calendar} title="Kelola Agenda" />
+                  <SidebarNavItem href="/dashboard/unduhan" icon={Download} title="Kelola Unduhan" />
+                  <SidebarNavItem href="/dashboard/pengurus" icon={Users} title="Kelola Pengurus" />
+                  <SidebarNavItem href="/dashboard/kontak" icon={MessageSquare} title="Pesan Masuk" />
+                  <SidebarNavItem href="/dashboard/surat" icon={FileSignature} title="Surat Menyurat" />
+                  <SidebarNavItem href="/dashboard/kegiatan" icon={Calendar} title="Kegiatan & Presensi" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -125,21 +81,13 @@ export default async function DashboardLayout({
               <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Madrasah</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Kelola Madrasah" render={<Link href="/dashboard/madrasah" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <School className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span className="flex-1">Kelola Madrasah</span>
-                      {pendingCount > 0 && (
-                        <span className="ml-auto bg-amber-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">{pendingCount}</span>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Data Guru" render={<Link href="/dashboard/guru" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Users className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Data Guru</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <SidebarNavItem 
+                    href="/dashboard/madrasah" 
+                    icon={School} 
+                    title="Kelola Madrasah" 
+                    badge={pendingCount > 0 ? <span className="ml-auto bg-amber-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">{pendingCount}</span> : null}
+                  />
+                  <SidebarNavItem href="/dashboard/guru" icon={Users} title="Data Guru" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
@@ -148,24 +96,9 @@ export default async function DashboardLayout({
               <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Sistem</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Tahun Ajaran" render={<Link href="/dashboard/tahun-ajaran" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Calendar className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Tahun Ajaran</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Master Data" render={<Link href="/dashboard/master" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Settings className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Master Data</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton tooltip="Pengaturan" render={<Link href="/dashboard/settings" className="flex items-center px-4 py-3 rounded-xl text-sm font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm transition-all duration-300" />}>
-                      <Settings className="w-4 h-4 mr-3 text-sidebar-primary" />
-                      <span>Pengaturan</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
+                  <SidebarNavItem href="/dashboard/tahun-ajaran" icon={Calendar} title="Tahun Ajaran" />
+                  <SidebarNavItem href="/dashboard/master" icon={Settings} title="Master Data" />
+                  <SidebarNavItem href="/dashboard/settings" icon={Settings} title="Pengaturan" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
