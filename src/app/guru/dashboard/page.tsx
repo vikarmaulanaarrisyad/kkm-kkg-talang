@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { Calendar, CheckCircle, MapPin, Download, Award, Pointer } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
-import QRCode from "qrcode";
-import Swal from "sweetalert2";
 
 type Presensi = {
   id: string;
@@ -270,6 +268,7 @@ export default function GuruDashboard() {
 
     // Generate QR Code
     try {
+      const QRCode = (await import("qrcode")).default;
       const qrData = `KTA KKG Talang\nNama: ${guruName}\nID: ${identitas}\nUnit: ${madrasah}`;
       const qrDataUri = await QRCode.toDataURL(qrData, { margin: 0, width: 60 });
       doc.addImage(qrDataUri, "PNG", width - 20, 20, 15, 15);
