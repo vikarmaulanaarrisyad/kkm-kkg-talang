@@ -223,8 +223,9 @@ export default async function DashboardPage() {
             </div>
           ) : (
             activityLogs.map((item) => {
-              const isDelete = item.action.includes("Dihapus");
-              const isEdit = item.action.includes("Diperbarui");
+              const actionStr = item.action || "";
+              const isDelete = actionStr.includes("Dihapus");
+              const isEdit = actionStr.includes("Diperbarui");
               const Icon = isDelete ? Activity : isEdit ? Settings : FileText;
               const color = isDelete ? "text-red-500" : isEdit ? "text-purple-500" : "text-blue-500";
               const bg = isDelete ? "bg-red-500/10" : isEdit ? "bg-purple-500/10" : "bg-blue-500/10";

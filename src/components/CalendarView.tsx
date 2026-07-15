@@ -20,6 +20,7 @@ export interface Agenda {
 
 // Fungsi untuk menentukan warna/kategori berdasarkan kata kunci judul
 const getCategoryColor = (title: string) => {
+  if (!title) return "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200";
   const t = title.toLowerCase();
   if (t.includes("libur")) return "bg-red-100 text-red-700 border-red-200 hover:bg-red-200";
   if (t.includes("ujian") || t.includes("penilaian") || t.includes("pts") || t.includes("pas") || t.includes("pat") || t.includes("sumatif")) return "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200";
@@ -28,6 +29,7 @@ const getCategoryColor = (title: string) => {
 };
 
 const getCategoryBadgeColor = (title: string) => {
+  if (!title) return "bg-amber-500 hover:bg-amber-600";
   const t = title.toLowerCase();
   if (t.includes("libur")) return "bg-red-500 hover:bg-red-600";
   if (t.includes("ujian") || t.includes("penilaian") || t.includes("pts") || t.includes("pas") || t.includes("pat") || t.includes("sumatif")) return "bg-blue-500 hover:bg-blue-600";
