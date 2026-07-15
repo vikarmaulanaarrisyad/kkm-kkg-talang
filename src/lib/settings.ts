@@ -4,7 +4,7 @@ import { getOrCreateGoogleSheet } from './google-sheets';
 // ─── MASTER CACHE: Ambil SEMUA data Settings dalam SATU request ───────────────
 // Semua fungsi turunan di bawah menggunakan cache ini agar tidak membebani
 // Google Sheets API quota (error 429).
-const getAllSettings = unstable_cache(
+export const getAllSettings = unstable_cache(
   async (): Promise<Record<string, string>> => {
     try {
       const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
