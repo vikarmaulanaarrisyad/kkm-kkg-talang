@@ -47,15 +47,27 @@ export default async function BeritaPublicPage({ searchParams }: { searchParams:
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-20">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-madrasah-900 mb-4 tracking-tight">Semua Berita & Pengumuman</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+    <main className="flex-grow flex flex-col w-full bg-slate-50 min-h-screen pb-20">
+      
+      {/* Header Section */}
+      <section className="w-full bg-gradient-to-br from-indigo-50 via-white to-indigo-100/50 pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-indigo-200/40 blur-3xl" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-violet-100/40 blur-3xl" />
+        
+        <div className="max-w-4xl mx-auto relative z-10 text-center text-slate-800">
+          <div className="w-16 h-16 bg-white/50 backdrop-blur-md rounded-2xl border border-white/40 flex items-center justify-center mx-auto mb-8 shadow-xl">
+            <Newspaper className="w-8 h-8 text-indigo-600" />
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
+            <span className="text-indigo-600">Berita</span> & Pengumuman
+          </h1>
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
             Temukan informasi terbaru seputar kegiatan, pengumuman, dan prestasi di lingkungan KKM & KKG Madrasah Ibtidaiyah Kecamatan Talang.
           </p>
         </div>
+      </section>
 
+      <div className="max-w-7xl mx-auto px-4 -mt-10 relative z-20 w-full space-y-12">
         {paginatedNews.length > 0 ? (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -131,6 +143,6 @@ export default async function BeritaPublicPage({ searchParams }: { searchParams:
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }
