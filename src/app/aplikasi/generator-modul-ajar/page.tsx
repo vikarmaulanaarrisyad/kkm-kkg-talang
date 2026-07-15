@@ -158,7 +158,7 @@ export default function GeneratorModulPage() {
             oldHeader.remove();
         }
         container.prepend(kop);
-        
+        container.id = 'pdf-hidden-container';
         document.body.appendChild(container);
         
         const opt: any = {
@@ -173,6 +173,14 @@ export default function GeneratorModulPage() {
               // Hancurkan semua style global Tailwind di dalam clone agar 'lab' tidak diproses!
               const styles = clonedDoc.querySelectorAll('style:not([data-pdf-style]), link[rel="stylesheet"]');
               styles.forEach(s => s.remove());
+              
+              // Kembalikan posisi clone container ke normal agar html2canvas tidak merender area kosong (-9999px)
+              const clonedContainer = clonedDoc.getElementById('pdf-hidden-container');
+              if (clonedContainer) {
+                clonedContainer.style.position = 'relative';
+                clonedContainer.style.left = '0px';
+                clonedContainer.style.top = '0px';
+              }
             }
           },
           jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
