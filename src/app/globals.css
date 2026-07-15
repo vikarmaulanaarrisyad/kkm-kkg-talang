@@ -233,3 +233,5 @@
   scrollbar-width: thin;
   scrollbar-color: #10b981 #f1f5f9;
 }
+
+@media print { nav, footer, .visitor-tracker { display: none !important; } }
