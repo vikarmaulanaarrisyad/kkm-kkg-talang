@@ -7,12 +7,14 @@ export function TypewriterEffect({
   text, 
   words,
   className = "",
-  loop = false
+  loop = false,
+  hideCursor = false
 }: { 
   text?: string; 
   words?: string[];
   className?: string;
   loop?: boolean;
+  hideCursor?: boolean;
 }) {
   const [displayedText, setDisplayedText] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
@@ -52,11 +54,13 @@ export function TypewriterEffect({
   return (
     <span className={className}>
       {displayedText}
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
-        className="inline-block w-[3px] h-[1em] bg-current ml-[2px] align-text-bottom rounded-full"
-      />
+      {!hideCursor && (
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
+          className="inline-block w-[3px] h-[1em] bg-current ml-[2px] align-text-bottom rounded-full"
+        />
+      )}
     </span>
   );
 }

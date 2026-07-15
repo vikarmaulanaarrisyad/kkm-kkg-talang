@@ -166,9 +166,13 @@ export default async function Home() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4 min-h-[40px]">
               <TypewriterEffect text={`✨ Selamat Datang di Website Resmi ${siteName}`} className="text-sm font-bold tracking-tight" />
             </div>
-            
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
-              <span className="block text-slate-900">Wadah Profesionalisme</span>
+              <TypewriterEffect 
+                text="Wadah Profesionalisme" 
+                className="block text-slate-900 min-h-[1.2em]" 
+                loop={true} 
+                hideCursor={true}
+              />
               <TypewriterEffect 
                 text="Guru Madrasah" 
                 className="block text-emerald-600 mt-1 min-h-[1.2em]" 
