@@ -8,6 +8,7 @@ export default function GeneratorRaportPage() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -60,6 +61,31 @@ export default function GeneratorRaportPage() {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy', err);
+    }
+  };
+
+  const copyPrompt = async () => {
+    const prompt = `Buatkan deskripsi atau catatan wali kelas untuk raport siswa (Madrasah Ibtidaiyah/SD) dengan data berikut:
+- Nama Siswa: ${formData.namaSiswa || 'Siswa'}
+- Nilai Rata-rata: ${formData.nilaiRata} (Predikat: ${formData.predikat})
+- Kelebihan / Pencapaian: ${formData.kelebihan}
+- Area yang Perlu Ditingkatkan / Kelemahan: ${formData.kelemahan || 'Tidak ada catatan khusus'}
+- Gaya Bahasa: ${formData.gayaBahasa}
+- Panjang Narasi: ${formData.panjangNarasi}
+
+Aturan Penulisan:
+1. Posisikan diri Anda sebagai Guru Wali Kelas yang sedang menulis catatan di raport.
+2. Buat 1 atau 2 paragraf yang mengalir dengan baik, menggabungkan apresiasi atas kelebihan/pencapaian, memberikan motivasi atau saran konstruktif untuk mengatasi kelemahan (jika ada), dan harapan untuk semester/tahun berikutnya.
+3. Jangan sebutkan nilai angka secara gamblang jika tidak perlu, lebih fokus pada perkembangan sikap dan akademisnya.
+4. Gunakan sapaan yang sesuai (misalnya Ananda ${formData.namaSiswa || 'Siswa'}).
+5. Format hasil output dalam paragraf HTML biasa menggunakan tag <p>. Jangan gunakan judul, langsung ke isi catatan. Jangan membungkus dengan markdown \`\`\`html.`;
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy prompt', err);
     }
   };
 
@@ -193,14 +219,24 @@ export default function GeneratorRaportPage() {
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full mt-4 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                  {loading ? "Merangkai Kata..." : "Generate Narasi"}
-                </button>
+                <div className="flex flex-col gap-3 mt-4">
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                    {loading ? "Merangkai Kata..." : "Generate Narasi"}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={copyPrompt}
+                    className="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-3.5 rounded-xl font-bold transition-all shadow-sm hover:shadow-md"
+                  >
+                    {promptCopied ? <Check className="w-5 h-5 text-indigo-500" /> : <Copy className="w-5 h-5" />}
+                    {promptCopied ? "Prompt Tersalin!" : "Copy Prompt AI"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>

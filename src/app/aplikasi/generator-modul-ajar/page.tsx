@@ -9,6 +9,7 @@ export default function GeneratorModulPage() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -101,6 +102,47 @@ export default function GeneratorModulPage() {
     } catch (err) {
       console.error('Failed to copy', err);
       alert("Gagal menyalin teks.");
+    }
+  };
+
+  const copyPrompt = async () => {
+    const prompt = `Anda adalah seorang instruktur pendidik profesional dan ahli Kurikulum Merdeka untuk tingkat Madrasah Ibtidaiyah (MI) di Indonesia.
+Buatkan sebuah Modul Ajar (Rencana Pelaksanaan Pembelajaran) yang komprehensif, terstruktur, praktis, dan inspiratif berdasarkan detail berikut:
+
+- Fase & Kelas: ${formData.faseKelas}
+- Mata Pelajaran: ${formData.mapel}
+- Materi Pokok / Topik: ${formData.topik}
+- Alokasi Waktu: ${formData.waktu}
+${formData.modelPembelajaran ? `- Model Pembelajaran: ${formData.modelPembelajaran}` : ''}
+${formData.tujuanPembelajaran ? `- Tujuan Pembelajaran Spesifik: ${formData.tujuanPembelajaran}` : ''}
+
+Modul Ajar ini harus memuat secara berurutan:
+1. INFORMASI UMUM: Kompetensi Awal, Profil Pelajar Pancasila & Pelajar Rahmatan Lil 'Alamin, Sarana dan Prasarana, Target Peserta Didik, Model Pembelajaran.
+2. KOMPONEN INTI: Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik.
+3. KEGIATAN PEMBELAJARAN:
+   - Kegiatan Pendahuluan (Apersepsi, Motivasi, dll)
+   - Kegiatan Inti (Langkah-langkah terstruktur dan interaktif)
+   - Kegiatan Penutup (Refleksi, Kesimpulan, Doa)
+4. ASESMEN: Penilaian Sikap, Pengetahuan, dan Keterampilan.
+5. PENGAYAAN & REMEDIAL.
+6. LAMPIRAN: Lembar Kerja Peserta Didik (LKPD) yang terstruktur, menarik, dan siap cetak (berisi nama/kelas, instruksi, dan soal/tugas interaktif).
+
+Aturan tambahan dan Format HTML:
+- WAJIB gunakan struktur HTML yang semantik dan RAPI. JANGAN menumpuk teks tanpa jarak.
+- Gunakan <h3> untuk Judul Utama (seperti: 1. INFORMASI UMUM, 6. LAMPIRAN LKPD).
+- Gunakan <h4> untuk Sub-judul (seperti: A. Identitas Modul, B. Tujuan Pembelajaran).
+- Untuk Identitas Modul (Nama Penyusun, Institusi, Tahun, dll), WAJIB gunakan format tabel HTML agar sejajar: <table><tr><td width="200"><strong>Nama Penyusun</strong></td><td>: [Nama]</td></tr>...</table>
+- Untuk mendaftar poin (seperti Sarana Prasarana, Langkah Pembelajaran, Asesmen), WAJIB gunakan tag <ul> atau <ol> dengan <li>. JANGAN HANYA menggunakan teks biasa dengan enter/br.
+- Beri jarak antar elemen menggunakan <br> atau <p> jika perlu.
+- Jangan berikan pembuka percakapan, langsung berikan kode HTML-nya (tanpa backtick markdown \`\`\`html).
+- Pastikan kalimatnya baku, mendidik, dan sesuai kurikulum MI.`;
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy prompt', err);
     }
   };
 
@@ -227,14 +269,24 @@ export default function GeneratorModulPage() {
                   </p>
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full mt-4 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                  {loading ? "Menyusun Modul..." : "Generate Modul Ajar"}
-                </button>
+                <div className="flex flex-col gap-3 mt-4">
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                    {loading ? "Menyusun Modul..." : "Generate Modul Ajar"}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={copyPrompt}
+                    className="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-3.5 rounded-xl font-bold transition-all shadow-sm hover:shadow-md"
+                  >
+                    {promptCopied ? <Check className="w-5 h-5 text-blue-500" /> : <Copy className="w-5 h-5" />}
+                    {promptCopied ? "Prompt Tersalin!" : "Copy Prompt AI"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>

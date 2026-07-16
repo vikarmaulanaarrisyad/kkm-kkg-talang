@@ -9,6 +9,7 @@ export default function GeneratorSoalPage() {
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
   const resultRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -80,6 +81,31 @@ export default function GeneratorSoalPage() {
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy', err);
+    }
+  };
+
+  const copyPrompt = async () => {
+    const prompt = `Buatkan soal ujian berstandar Kurikulum Merdeka untuk anak Madrasah Ibtidaiyah (MI) dengan kriteria berikut:
+- Kelas: ${formData.kelas}
+- Mata Pelajaran: ${formData.mapel}
+- Topik/Materi Pokok: ${formData.topik}
+- Jumlah Soal: ${formData.jumlahSoal} soal
+- Tingkat Kesulitan: ${formData.kesulitan}
+- Jenis Soal: ${formData.jenisSoal}
+
+Aturan Penulisan:
+1. Jika jenis soal Pilihan Ganda, PASTIKAN setiap pilihan jawaban SELALU DITULIS dengan format huruf awalan A, B, C, D secara eksplisit (contoh: A. Jawaban pertama, B. Jawaban kedua, dst). Jangan sekadar menggunakan bullet points biasa. Ketik hurufnya secara manual di setiap pilihan.
+2. Sediakan KUNCI JAWABAN lengkap di bagian paling akhir.
+3. Format hasil output WAJIB menggunakan elemen HTML standar (<br>, <h3>, <h4>, <ul>, <ol>, <li>, <strong>, <p>) tanpa membungkus dengan backtick markdown (\`\`\`html).
+4. Jangan berikan kalimat pembuka, langsung berikan kode HTML-nya.
+5. Gunakan bahasa Indonesia yang baku, sopan, dan mudah dipahami siswa MI.`;
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy prompt', err);
     }
   };
 
@@ -206,14 +232,24 @@ export default function GeneratorSoalPage() {
                   </select>
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full mt-4 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
-                >
-                  {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                  {loading ? "Menyusun Soal..." : "Generate Soal AI"}
-                </button>
+                <div className="flex flex-col gap-3 mt-4">
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-bold transition-all disabled:opacity-70 shadow-sm hover:shadow-md"
+                  >
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                    {loading ? "Menyusun Soal..." : "Generate Soal AI"}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={copyPrompt}
+                    className="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-3.5 rounded-xl font-bold transition-all shadow-sm hover:shadow-md"
+                  >
+                    {promptCopied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+                    {promptCopied ? "Prompt Tersalin!" : "Copy Prompt AI"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>

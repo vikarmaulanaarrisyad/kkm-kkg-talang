@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Bot, Save, FileText, File } from "lucide-react";
+import { Download, Bot, Save, FileText, File, Copy, Check } from "lucide-react";
 import Swal from "sweetalert2";
 import jsPDF from "jspdf";
 import "jspdf-autotable"; // Make sure to install if not present, but we will use raw or html2pdf if needed. Actually we'll use autoTable if available, otherwise manual.
@@ -30,6 +30,40 @@ export default function GeneratorATPPage() {
   });
 
   const [result, setResult] = useState<ATPResult | null>(null);
+  const [promptCopied, setPromptCopied] = useState(false);
+
+  const copyPrompt = async () => {
+    const prompt = `Anda adalah ahli kurikulum merdeka yang bertugas menyusun Alur Tujuan Pembelajaran (ATP).
+Buatlah Alur Tujuan Pembelajaran berdasarkan data berikut:
+- Mata Pelajaran: ${formData.mapel}
+- Fase/Kelas: ${formData.fase} / ${formData.kelas || "-"}
+- Elemen: ${formData.elemen || "Umum"}
+- Capaian Pembelajaran (CP): ${formData.cp}
+
+Berikan hasilnya dalam format JSON dengan struktur yang valid (TANPA MARKDOWN) sebagai berikut:
+{
+  "atp": [
+    {
+      "kode": "Tuliskan kode tujuan, misal: TP.1.1",
+      "tujuan": "Tuliskan deskripsi Tujuan Pembelajaran yang terukur (mengandung kompetensi dan materi)",
+      "materi": "Materi Inti",
+      "alokasiWaktu": "Misal: 2 JP",
+      "profilPelajarPancasila": "Karakter/Profil Pelajar Pancasila yang relevan"
+    }
+  ],
+  "ringkasan": "Ringkasan singkat tentang alur yang dibuat"
+}
+
+Pastikan output HANYA JSON murni tanpa ada teks lain di luarnya.`;
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setPromptCopied(true);
+      setTimeout(() => setPromptCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy prompt', err);
+    }
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,17 +297,27 @@ export default function GeneratorATPPage() {
                   ></textarea>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-                >
-                  {loading ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : (
-                    <><Bot className="w-5 h-5" /> Generate ATP</>
-                  )}
-                </button>
+                <div className="flex flex-col gap-3 mt-6">
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <><Bot className="w-5 h-5" /> Generate ATP</>
+                    )}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={copyPrompt}
+                    className="w-full flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md"
+                  >
+                    {promptCopied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5" />}
+                    {promptCopied ? "Prompt Tersalin!" : "Copy Prompt AI"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
