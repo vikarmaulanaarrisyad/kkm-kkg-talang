@@ -120,13 +120,13 @@ export default function ChatbotKMA() {
               {messages.map((msg, idx) => (
                 <div 
                   key={idx} 
-                  className={\`flex gap-3 max-w-[90%] \${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}\`}
+                  className={`flex gap-3 max-w-[90%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
                 >
-                  <div className={\`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 \${msg.role === 'user' ? 'bg-slate-200 text-slate-500' : 'bg-emerald-100 text-emerald-600'}\`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${msg.role === 'user' ? 'bg-slate-200 text-slate-500' : 'bg-emerald-100 text-emerald-600'}`}>
                     {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                   </div>
                   <div 
-                    className={\`p-3 rounded-2xl text-sm leading-relaxed shadow-sm \${msg.role === 'user' ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm prose-emerald'}\`}
+                    className={`p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none prose prose-sm prose-emerald'}`}
                     dangerouslySetInnerHTML={{ __html: msg.content }}
                   />
                 </div>
@@ -161,7 +161,7 @@ export default function ChatbotKMA() {
                   }}
                   placeholder="Ketik pertanyaan Anda..."
                   className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-sm resize-none max-h-32"
-                  rows={Math.min(Math.max(input.split('\\n').length, 1), 4)}
+                  rows={Math.min(Math.max(input.split('\n').length, 1), 4)}
                   disabled={isLoading}
                 />
                 <button
