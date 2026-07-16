@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Calendar, CheckCircle, MapPin, Download, Award, Pointer } from "lucide-react";
+import Link from "next/link";
+import { Calendar, CheckCircle, MapPin, Download, Award, Pointer, Quote, ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Swal from "sweetalert2";
 import jsPDF from "jspdf";
@@ -381,6 +382,21 @@ export default function GuruDashboard() {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Testimoni Link */}
+        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-1">
+              <Quote className="w-5 h-5 text-emerald-600" /> Suara Anda (Testimoni)
+            </h3>
+            <p className="text-slate-600 text-sm">
+              Bagikan pengalaman Anda menggunakan platform KKG ini agar dapat menginspirasi guru lain.
+            </p>
+          </div>
+          <Link href="/guru/testimoni" className="whitespace-nowrap bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-sm flex items-center gap-2">
+            Tulis Testimoni <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* Kegiatan Aktif */}

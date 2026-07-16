@@ -6,6 +6,7 @@ import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
+import TestimonialCarousel from "@/components/landing/TestimonialCarousel";
 
 async function getCategories() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -130,8 +131,31 @@ async function getUpcomingAgendas() {
   }
 }
 
+async function getTestimonials() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return [];
+
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Testimoni", ["id", "name", "role", "quote", "image_url", "status", "created_at"]);
+    const rows = await sheet.getRows();
+    const data = rows.map(r => ({
+      id: r.get("id"),
+      author: r.get("name"),
+      role: r.get("role"),
+      quote: r.get("quote"),
+      image: r.get("image_url"),
+      status: r.get("status")
+    }));
+
+    return data.filter(t => t.status === "Approved");
+  } catch (error) {
+    console.error("Gagal mengambil testimoni", error);
+    return [];
+  }
+}
+
 export default async function Home() {
-  const [latestNews, categories, siteName, upcomingAgendas, unduhanData, profilSettings, pengurusData, totalGuru] = await Promise.all([
+  const [latestNews, categories, siteName, upcomingAgendas, unduhanData, profilSettings, pengurusData, totalGuru, testimonialsData] = await Promise.all([
     getLatestNews(),
     getCategories(),
     getCachedSiteName(),
@@ -140,6 +164,7 @@ export default async function Home() {
     getAllSettings(),
     getPengurus(),
     getTotalGuru(),
+    getTestimonials(),
   ]);
 
   // Strip HTML from content for snippet
@@ -414,6 +439,15 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* 
+        ========================================================
+        TESTIMONIAL CAROUSEL SECTION
+        ========================================================
+      */}
+      {testimonialsData && testimonialsData.length > 0 && (
+        <TestimonialCarousel testimonials={testimonialsData} />
+      )}
 
       {/* 
         ========================================================
