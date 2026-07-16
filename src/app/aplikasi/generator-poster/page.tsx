@@ -6,10 +6,12 @@ import { Image as ImageIcon, Copy, Check, Sparkles, RefreshCcw } from "lucide-re
 export default function GeneratorPosterPage() {
   const [formData, setFormData] = useState({
     namaKegiatan: "",
+    namaSekolah: "",
     temaVisual: "3D Pixar / Disney Style",
     objekUtama: "",
     nuansaWarna: "",
-    orientasi: "Potret (Vertical)"
+    orientasi: "Potret (Vertical)",
+    opsiTeks: "Masukkan teks ke dalam gambar"
   });
 
   const [generatedPrompt, setGeneratedPrompt] = useState<string | null>(null);
@@ -46,10 +48,10 @@ export default function GeneratorPosterPage() {
     else if (formData.orientasi === "Lanskap (Horizontal)") orientation = "--ar 16:9";
     else orientation = "--ar 1:1"; // Persegi
 
-    const prompt = `A highly detailed and creative poster background illustration for a Madrasah (Islamic school) event called "${formData.namaKegiatan}". 
+    const prompt = `A highly detailed and creative poster illustration for a Madrasah (Islamic school) event called "${formData.namaKegiatan}". 
 The main subject/focus: ${formData.objekUtama || "cheerful Indonesian Madrasah students and festive decorations"}. 
 ${formData.nuansaWarna ? `Color palette: ${formData.nuansaWarna}.` : ''} 
-Ensure there is plenty of negative space (empty space) at the top and bottom to add text later. Do NOT include any real text or words in the image. 
+${formData.opsiTeks === "Masukkan teks ke dalam gambar" ? `Prominently feature the exact text "${formData.namaKegiatan}" and "${formData.namaSekolah}" in beautiful, bold typography integrated elegantly into the poster design.` : `Ensure there is plenty of negative space (empty space) at the top and bottom to add text later. Do NOT include any real text or words in the image.`}
 Style: ${styleDescription}. ${orientation}`;
 
     setGeneratedPrompt(prompt.replace(/\s+/g, ' ').trim());
@@ -69,10 +71,12 @@ Style: ${styleDescription}. ${orientation}`;
   const resetForm = () => {
     setFormData({
       namaKegiatan: "",
+      namaSekolah: "",
       temaVisual: "3D Pixar / Disney Style",
       objekUtama: "",
       nuansaWarna: "",
-      orientasi: "Potret (Vertical)"
+      orientasi: "Potret (Vertical)",
+      opsiTeks: "Masukkan teks ke dalam gambar"
     });
     setGeneratedPrompt(null);
   };
@@ -122,6 +126,19 @@ Style: ${styleDescription}. ${orientation}`;
               </div>
 
               <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Sekolah / Madrasah <span className="text-red-500">*</span></label>
+                <input 
+                  type="text" 
+                  name="namaSekolah"
+                  placeholder="Contoh: MI Muhammadiyah Talang..."
+                  value={formData.namaSekolah} 
+                  onChange={handleChange}
+                  required
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white"
+                />
+              </div>
+
+              <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Tema / Gaya Visual</label>
                 <select 
                   name="temaVisual" 
@@ -138,11 +155,24 @@ Style: ${styleDescription}. ${orientation}`;
               </div>
 
               <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Opsi Teks di Dalam Gambar</label>
+                <select 
+                  name="opsiTeks" 
+                  value={formData.opsiTeks} 
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white"
+                >
+                  <option value="Masukkan teks ke dalam gambar">Otomatis tuliskan Judul Acara & Nama Sekolah di gambar</option>
+                  <option value="Jangan masukkan teks">Kosongkan dari teks (Hanya ilustrasi/Negative Space)</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Fokus Objek (Opsional)</label>
                 <input 
                   type="text" 
                   name="objekUtama"
-                  placeholder="Contoh: Masjid besar, anak-anak madrasah membawa piala..."
+                  placeholder="Contoh: Masjid besar, logo Kemenag, anak-anak madrasah membawa bendera..."
                   value={formData.objekUtama} 
                   onChange={handleChange}
                   className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white"
@@ -230,7 +260,7 @@ Style: ${styleDescription}. ${orientation}`;
                   <p className="text-sm text-blue-800 font-medium flex items-start gap-2">
                     <span className="text-xl leading-none">💡</span>
                     <span>
-                      <strong>Tips:</strong> Buka <a href="https://bing.com/create" target="_blank" rel="noreferrer" className="text-blue-600 underline">Bing Image Creator</a> atau Canva AI, lalu <em>Paste</em> teks di atas. AI sengaja diminta mengosongkan area teks agar Anda bisa menambahkan tulisan judul acara dengan rapi menggunakan Canva.
+                      <strong>Tips:</strong> Buka <a href="https://bing.com/create" target="_blank" rel="noreferrer" className="text-blue-600 underline">Bing Image Creator (DALL-E 3)</a> atau Midjourney v6, lalu <em>Paste</em> teks di atas. Jika Anda memilih agar AI menuliskan teks, ejaannya bisa jadi sedikit keliru (Anda bisa mengulanginya sampai benar). Jika Anda memilih kosongan, Anda bisa memakai Canva untuk merapikan teksnya.
                     </span>
                   </p>
                 </div>
