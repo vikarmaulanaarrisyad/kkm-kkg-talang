@@ -103,7 +103,7 @@ function StyledInput({ icon: Icon, ...props }: { icon?: React.ElementType } & Re
 
 function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   initial?: Partial<Guru>;
-  onSave: (data: any) => Promise<void>;
+  onSave: (data: any) => Promise<boolean>;
   onCancel: () => void;
   loading: boolean;
   masterData: any[];
