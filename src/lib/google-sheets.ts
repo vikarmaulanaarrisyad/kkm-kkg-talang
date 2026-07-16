@@ -10,6 +10,24 @@ let docPromise: Promise<GoogleSpreadsheet> | null = null;
 let lastLoadTime = 0;
 const CACHE_TTL_MS = 60000; // Cache document info for 60 seconds
 
+function formatPrivateKey(key: string | undefined) {
+  if (!key) return '';
+  // Hilangkan tanda kutip ganda atau tunggal di awal dan akhir (jika ada)
+  let formattedKey = key.replace(/^["']|["']$/g, '');
+  // Ganti literal \n dengan newline (enter) yang sebenarnya
+  formattedKey = formattedKey.replace(/\\n/g, '\n');
+  
+  // Jika karena suatu hal key menjadi 1 baris tanpa \n sama sekali
+  if (!formattedKey.includes('\n') && formattedKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    formattedKey = formattedKey.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n');
+    formattedKey = formattedKey.replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
+    // Mengganti spasi di tengah-tengah base64 menjadi newline
+    formattedKey = formattedKey.replace(/([a-zA-Z0-9+/=]) ([a-zA-Z0-9+/=])/g, '$1\n$2');
+  }
+  
+  return formattedKey;
+}
+
 async function getDoc(sheetId: string): Promise<GoogleSpreadsheet> {
   const now = Date.now();
   if (docPromise && now - lastLoadTime < CACHE_TTL_MS) {
@@ -18,7 +36,7 @@ async function getDoc(sheetId: string): Promise<GoogleSpreadsheet> {
   
   const jwt = new JWT({
     email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-    key: process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    key: formatPrivateKey(process.env.GOOGLE_PRIVATE_KEY),
     scopes: SCOPES,
   });
   

@@ -52,10 +52,10 @@ export default function StatistikSection({
   totalKegiatanSelesai?: number;
 }) {
   const stats = [
-    { label: "Madrasah Anggota", value: totalMadrasah > 0 ? totalMadrasah : 12, icon: School, color: "text-emerald-400", suffix: "" },
-    { label: "Guru & Tendik", value: totalGuru > 0 ? totalGuru : 150, icon: Users, color: "text-blue-400", suffix: "+" },
-    { label: "Siswa Dibina", value: totalSiswa > 0 ? totalSiswa : 2500, icon: BookOpen, color: "text-amber-400", suffix: "+" },
-    { label: "Kegiatan Selesai", value: totalKegiatanSelesai > 0 ? totalKegiatanSelesai : 34, icon: Trophy, color: "text-rose-400", suffix: "" },
+    { label: "Madrasah Anggota", value: totalMadrasah, icon: School, color: "text-emerald-400", suffix: "" },
+    { label: "Guru & Tendik", value: totalGuru, icon: Users, color: "text-blue-400", suffix: "" },
+    { label: "Siswa Dibina", value: totalSiswa, icon: BookOpen, color: "text-amber-400", suffix: "" },
+    { label: "Kegiatan Selesai", value: totalKegiatanSelesai, icon: Trophy, color: "text-rose-400", suffix: "" },
   ];
 
   return (
