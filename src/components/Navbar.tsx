@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 
 export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAplikasiOpen, setIsAplikasiOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -135,28 +136,38 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
           </Link>
 
           <div className="pt-2 pb-1 border-t border-slate-50 mt-2">
-            <span className="block px-3 py-1.5 text-xs font-bold text-emerald-600/70 uppercase tracking-wider">Aplikasi</span>
-            <Link href="/aplikasi/generator-soal" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Generator Soal MI
-            </Link>
-            <Link href="/aplikasi/generator-modul-ajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Generator Modul Ajar
-            </Link>
-            <Link href="/aplikasi/atp" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Generator ATP
-            </Link>
-            <Link href="/aplikasi/generator-raport" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Generator Narasi Raport
-            </Link>
-            <Link href="/aplikasi/asisten-arab" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Asisten Bahasa Arab
-            </Link>
-            <Link href="/aplikasi/asisten-inggris" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Asisten Bahasa Inggris
-            </Link>
-            <Link href="/aplikasi/analis-gaya-belajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-              Analis Gaya Belajar
-            </Link>
+            <button 
+              onClick={() => setIsAplikasiOpen(!isAplikasiOpen)}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg focus:outline-none"
+            >
+              <span className="text-xs font-bold text-emerald-600/70 uppercase tracking-wider">Aplikasi</span>
+              <svg className={`w-5 h-5 transition-transform duration-300 ${isAplikasiOpen ? "rotate-180 text-emerald-600" : "text-slate-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAplikasiOpen ? "max-h-[500px] mt-2 opacity-100" : "max-h-0 opacity-0"}`}>
+              <Link href="/aplikasi/generator-soal" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Generator Soal MI
+              </Link>
+              <Link href="/aplikasi/generator-modul-ajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Generator Modul Ajar
+              </Link>
+              <Link href="/aplikasi/atp" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Generator ATP
+              </Link>
+              <Link href="/aplikasi/generator-raport" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Generator Narasi Raport
+              </Link>
+              <Link href="/aplikasi/asisten-arab" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Asisten Bahasa Arab
+              </Link>
+              <Link href="/aplikasi/asisten-inggris" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Asisten Bahasa Inggris
+              </Link>
+              <Link href="/aplikasi/analis-gaya-belajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Analis Gaya Belajar
+              </Link>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 mt-4 w-full">
