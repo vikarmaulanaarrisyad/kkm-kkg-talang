@@ -51,7 +51,7 @@ Aturan Penulisan:
   } catch (error: any) {
     console.error('Error generating raport narrative:', error);
     return NextResponse.json(
-      { error: error.message || 'Terjadi kesalahan saat menghubungi layanan AI.' },
+      { error: (error.message || '').includes('429') || (error.message || '').includes('Quota') ? 'Batas penggunaan AI gratis harian telah habis atau server Google sedang sibuk. Mohon coba kembali besok atau beberapa saat lagi.' : (error.message || 'Terjadi kesalahan saat menghubungi layanan AI.') },
       { status: 500 }
     );
   }

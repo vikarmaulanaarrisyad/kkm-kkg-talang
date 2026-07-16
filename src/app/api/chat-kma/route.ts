@@ -55,6 +55,6 @@ WAJIB: Format jawaban Anda WAJIB menggunakan tag HTML semantik (contoh: <p>, <st
     return NextResponse.json({ text });
   } catch (error: any) {
     console.error("Chat API Error:", error);
-    return NextResponse.json({ error: error.message || "Terjadi kesalahan pada AI" }, { status: 500 });
+    return NextResponse.json({ error: (error.message || '').includes('429') || (error.message || '').includes('Quota') ? 'Batas penggunaan AI gratis harian telah habis atau server Google sedang sibuk. Mohon coba kembali besok atau beberapa saat lagi.' : (error.message || 'Terjadi kesalahan pada AI') }, { status: 500 });
   }
 }

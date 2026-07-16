@@ -70,6 +70,6 @@ Pastikan output HANYA JSON murni tanpa ada teks lain di luarnya.`;
     return NextResponse.json(jsonResult);
   } catch (error: any) {
     console.error("Error generating ATP:", error);
-    return NextResponse.json({ error: error.message || "Terjadi kesalahan saat men-generate ATP" }, { status: 500 });
+    return NextResponse.json({ error: (error.message || '').includes('429') || (error.message || '').includes('Quota') ? 'Batas penggunaan AI gratis harian telah habis atau server Google sedang sibuk. Mohon coba kembali besok atau beberapa saat lagi.' : (error.message || 'Terjadi kesalahan saat men-generate ATP') }, { status: 500 });
   }
 }

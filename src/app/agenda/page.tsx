@@ -9,33 +9,43 @@ export const metadata = {
   description: "Jadwal dan Agenda Kegiatan Kelompok Kerja Madrasah (KKM) dan Kelompok Kerja Guru (KKG)",
 };
 
+import { unstable_cache } from "next/cache";
+
+const getCachedAgendas = unstable_cache(
+  async () => {
+    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+    if (!spreadsheetId) return [];
+
+    try {
+      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", [
+        "id", "title", "date", "time", "location", "description", "status", "created_at"
+      ]);
+      const rows = await sheet.getRows();
+      const data = rows.map(r => ({
+        id: r.get("id") || "",
+        title: r.get("title") || "",
+        date: r.get("date") || "",
+        time: r.get("time") || "",
+        location: r.get("location") || "",
+        description: r.get("description") || "",
+        status: r.get("status") || "",
+        created_at: r.get("created_at") || "",
+      }));
+
+      // Urutkan berdasarkan tanggal terdekat / terbaru
+      data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      return data;
+    } catch (error) {
+      console.error("Gagal mengambil data agenda:", error);
+      return [];
+    }
+  },
+  ['agenda-page-cache'],
+  { revalidate: 300, tags: ['agenda'] }
+);
+
 async function getAgendas() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
-
-  try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", [
-      "id", "title", "date", "time", "location", "description", "status", "created_at"
-    ]);
-    const rows = await sheet.getRows();
-    const data = rows.map(r => ({
-      id: r.get("id"),
-      title: r.get("title"),
-      date: r.get("date"),
-      time: r.get("time"),
-      location: r.get("location"),
-      description: r.get("description"),
-      status: r.get("status"),
-      created_at: r.get("created_at"),
-    }));
-
-    // Urutkan berdasarkan tanggal terdekat / terbaru
-    data.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    return data;
-  } catch (error) {
-    console.error("Gagal mengambil data agenda:", error);
-    return [];
-  }
+  return await getCachedAgendas();
 }
 
 export default async function AgendaPage() {
