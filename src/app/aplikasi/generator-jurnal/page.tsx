@@ -161,14 +161,14 @@ export default function GeneratorJurnalPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
-                  <input 
-                    type="text" 
+                  <textarea 
                     name="mapel"
                     placeholder="Contoh: Akidah Akhlak, Matematika..."
                     value={formData.mapel} 
                     onChange={handleChange}
                     required
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-emerald-500 outline-none transition-all bg-white"
+                    rows={2}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-emerald-500 outline-none transition-all bg-white resize-none"
                   />
                 </div>
 
@@ -188,25 +188,25 @@ export default function GeneratorJurnalPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-1">Waktu / JP</label>
-                    <input 
-                      type="text" 
+                    <textarea 
                       name="waktu"
                       placeholder="Misal: 2 JP"
                       value={formData.waktu} 
                       onChange={handleChange}
                       required
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-emerald-500 outline-none transition-all bg-white"
+                      rows={2}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-emerald-500 outline-none transition-all bg-white resize-none"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-1">Kehadiran (Opsional)</label>
-                    <input 
-                      type="text" 
+                    <textarea 
                       name="kehadiran"
                       placeholder="Misal: Hadir 25, Sakit 1"
                       value={formData.kehadiran} 
                       onChange={handleChange}
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-emerald-500 outline-none transition-all bg-white"
+                      rows={2}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-emerald-500 focus:ring-emerald-500 outline-none transition-all bg-white resize-none"
                     />
                   </div>
                 </div>
