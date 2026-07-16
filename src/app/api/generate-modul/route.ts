@@ -7,7 +7,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { faseKelas, mapel, topik, waktu, modelPembelajaran, tujuanPembelajaran } = body;
+    const { namaPenyusun, institusi, tahunPelajaran, faseKelas, mapel, topik, waktu, modelPembelajaran, tujuanPembelajaran } = body;
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
@@ -29,6 +29,9 @@ export async function POST(req: Request) {
     let prompt = `Anda adalah seorang instruktur pendidik profesional dan ahli Kurikulum Merdeka untuk tingkat Madrasah Ibtidaiyah (MI) di Indonesia.
 Buatkan sebuah Modul Ajar (Rencana Pelaksanaan Pembelajaran) yang komprehensif, terstruktur, praktis, dan inspiratif berdasarkan detail berikut:
 
+- Nama Penyusun: ${namaPenyusun || 'Guru'}
+- Institusi / Madrasah: ${institusi || 'Madrasah Ibtidaiyah'}
+- Tahun Pelajaran: ${tahunPelajaran || '2026/2027'}
 - Fase & Kelas: ${faseKelas}
 - Mata Pelajaran: ${mapel}
 - Materi Pokok / Topik: ${topik}

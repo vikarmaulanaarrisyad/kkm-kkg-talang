@@ -13,6 +13,9 @@ export default function GeneratorModulPage() {
   const resultRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
+    namaPenyusun: "",
+    institusi: "",
+    tahunPelajaran: "2026/2027",
     faseKelas: "Fase A - Kelas 1",
     mapel: "",
     topik: "",
@@ -109,6 +112,9 @@ export default function GeneratorModulPage() {
     const prompt = `Anda adalah seorang instruktur pendidik profesional dan ahli Kurikulum Merdeka untuk tingkat Madrasah Ibtidaiyah (MI) di Indonesia.
 Buatkan sebuah Modul Ajar (Rencana Pelaksanaan Pembelajaran) yang komprehensif, terstruktur, praktis, dan inspiratif berdasarkan detail berikut:
 
+- Nama Penyusun: ${formData.namaPenyusun || 'Guru'}
+- Institusi / Madrasah: ${formData.institusi || 'Madrasah Ibtidaiyah'}
+- Tahun Pelajaran: ${formData.tahunPelajaran || '2026/2027'}
 - Fase & Kelas: ${formData.faseKelas}
 - Mata Pelajaran: ${formData.mapel}
 - Materi Pokok / Topik: ${formData.topik}
@@ -185,6 +191,43 @@ Aturan tambahan dan Format HTML:
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Penyusun</label>
+                  <input 
+                    type="text" 
+                    name="namaPenyusun"
+                    placeholder="Contoh: Ahmad Yani, S.Pd.I"
+                    value={formData.namaPenyusun} 
+                    onChange={handleChange}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Institusi / Madrasah</label>
+                    <input 
+                      type="text" 
+                      name="institusi"
+                      placeholder="Contoh: MI Muhammadiyah"
+                      value={formData.institusi} 
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Tahun Pelajaran</label>
+                    <input 
+                      type="text" 
+                      name="tahunPelajaran"
+                      placeholder="Contoh: 2026/2027"
+                      value={formData.tahunPelajaran} 
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Fase / Kelas</label>
                   <select 
                     name="faseKelas" 
@@ -203,40 +246,40 @@ Aturan tambahan dan Format HTML:
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Mata Pelajaran</label>
-                  <input 
-                    type="text" 
+                  <textarea 
                     name="mapel"
                     placeholder="Contoh: Fikih, IPAS, Bahasa Arab..."
                     value={formData.mapel} 
                     onChange={handleChange}
                     required
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                    rows={2}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white resize-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Topik / Materi Pokok</label>
-                  <input 
-                    type="text" 
+                  <textarea 
                     name="topik"
                     placeholder="Contoh: Rukun Islam, Fotosintesis..."
                     value={formData.topik} 
                     onChange={handleChange}
                     required
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                    rows={2}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white resize-none"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Alokasi Waktu</label>
-                  <input 
-                    type="text" 
+                  <textarea 
                     name="waktu"
                     placeholder="Contoh: 2 x 35 Menit"
                     value={formData.waktu} 
                     onChange={handleChange}
                     required
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white"
+                    rows={2}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-blue-500 focus:ring-blue-500 outline-none transition-all bg-white resize-none"
                   />
                 </div>
 
