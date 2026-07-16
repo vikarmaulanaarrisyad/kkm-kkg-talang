@@ -83,6 +83,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
                     <Link href="/aplikasi/analis-gaya-belajar" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
                       Analis Gaya Belajar
                     </Link>
+                    <Link href="/aplikasi/generator-kbc" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                      Generator Panca Cinta KBC
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -166,6 +169,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
               </Link>
               <Link href="/aplikasi/analis-gaya-belajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
                 Analis Gaya Belajar
+              </Link>
+              <Link href="/aplikasi/generator-kbc" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+                Generator Panca Cinta KBC
               </Link>
             </div>
           </div>
