@@ -122,7 +122,7 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
     <form onSubmit={async e => { 
       e.preventDefault(); 
       const success = await onSave(form); 
-      if (success !== false) clearDraft();
+      if (success) clearDraft();
     }} className="space-y-6">
 
       {/* Identitas */}
