@@ -124,28 +124,28 @@ Aturan Penulisan:
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Siswa / Panggilan</label>
-                  <input 
-                    type="text"
+                  <textarea 
                     name="namaSiswa"
                     placeholder="Contoh: Ahmad, Budi, Siti..."
                     value={formData.namaSiswa} 
                     onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white"
-                  />
+                    rows={2}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white resize-none"
+                  ></textarea>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-1">Nilai Rata-rata</label>
-                    <input 
-                      type="text"
+                    <textarea 
                       name="nilaiRata"
                       placeholder="Contoh: 85"
                       value={formData.nilaiRata} 
                       onChange={handleChange}
                       required
-                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white"
-                    />
+                      rows={2}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white resize-none"
+                    ></textarea>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-1">Predikat</label>
