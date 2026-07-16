@@ -36,16 +36,17 @@ Buatkan sebuah Modul Ajar (Rencana Pelaksanaan Pembelajaran) yang komprehensif, 
 ${modelPembelajaran ? `- Model Pembelajaran: ${modelPembelajaran}` : ''}
 ${tujuanPembelajaran ? `- Tujuan Pembelajaran Spesifik: ${tujuanPembelajaran}` : ''}
 
-Modul Ajar ini harus memuat secara berurutan:
+Modul Ajar ini harus memuat secara berurutan sesuai pedoman KMA 1503 (Kurikulum Berbasis Cinta & Deep Learning):
 1. INFORMASI UMUM: Kompetensi Awal, Profil Pelajar Pancasila & Pelajar Rahmatan Lil 'Alamin, Sarana dan Prasarana, Target Peserta Didik, Model Pembelajaran.
-2. KOMPONEN INTI: Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik.
-3. KEGIATAN PEMBELAJARAN:
-   - Kegiatan Pendahuluan (Apersepsi, Motivasi, dll)
-   - Kegiatan Inti (Langkah-langkah terstruktur dan interaktif)
-   - Kegiatan Penutup (Refleksi, Kesimpulan, Doa)
-4. ASESMEN: Penilaian Sikap, Pengetahuan, dan Keterampilan.
-5. PENGAYAAN & REMEDIAL.
-6. LAMPIRAN: Lembar Kerja Peserta Didik (LKPD) yang terstruktur, menarik, dan siap cetak (berisi nama/kelas, instruksi, dan soal/tugas interaktif).
+2. KOMPONEN INTI: Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik (HOTS).
+3. INTEGRASI PANCA CINTA (KBC): Jelaskan minimal 3 aktivitas spesifik yang mengintegrasikan nilai Panca Cinta (Cinta Allah/Rasul, Cinta Ilmu, Cinta Diri, Cinta Sesama, atau Cinta Lingkungan) dalam materi ini.
+4. KEGIATAN PEMBELAJARAN (Pendekatan Deep Learning):
+   - Kegiatan Pendahuluan (Apersepsi, Motivasi, Eksplorasi Makna Awal)
+   - Kegiatan Inti (Langkah-langkah Deep Learning: Mindful, Meaningful, Joyful. Jangan hanya transfer materi, berikan aktivitas diskusi, proyek mini, atau pemecahan masalah nyata).
+   - Kegiatan Penutup (Refleksi, Kesimpulan bermakna, Doa)
+5. ASESMEN: Penilaian Sikap (berbasis KBC), Pengetahuan, dan Keterampilan.
+6. PENGAYAAN & REMEDIAL.
+7. LAMPIRAN: Lembar Kerja Peserta Didik (LKPD) yang menuntut *Higher Order Thinking Skills* (HOTS), menarik, dan siap cetak.
 
 Aturan tambahan dan Format HTML:
 - WAJIB gunakan struktur HTML yang semantik dan RAPI. JANGAN menumpuk teks tanpa jarak.

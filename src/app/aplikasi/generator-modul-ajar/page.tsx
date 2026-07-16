@@ -116,16 +116,17 @@ Buatkan sebuah Modul Ajar (Rencana Pelaksanaan Pembelajaran) yang komprehensif, 
 ${formData.modelPembelajaran ? `- Model Pembelajaran: ${formData.modelPembelajaran}` : ''}
 ${formData.tujuanPembelajaran ? `- Tujuan Pembelajaran Spesifik: ${formData.tujuanPembelajaran}` : ''}
 
-Modul Ajar ini harus memuat secara berurutan:
+Modul Ajar ini harus memuat secara berurutan sesuai pedoman KMA 1503 (Kurikulum Berbasis Cinta & Deep Learning):
 1. INFORMASI UMUM: Kompetensi Awal, Profil Pelajar Pancasila & Pelajar Rahmatan Lil 'Alamin, Sarana dan Prasarana, Target Peserta Didik, Model Pembelajaran.
-2. KOMPONEN INTI: Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik.
-3. KEGIATAN PEMBELAJARAN:
-   - Kegiatan Pendahuluan (Apersepsi, Motivasi, dll)
-   - Kegiatan Inti (Langkah-langkah terstruktur dan interaktif)
-   - Kegiatan Penutup (Refleksi, Kesimpulan, Doa)
-4. ASESMEN: Penilaian Sikap, Pengetahuan, dan Keterampilan.
-5. PENGAYAAN & REMEDIAL.
-6. LAMPIRAN: Lembar Kerja Peserta Didik (LKPD) yang terstruktur, menarik, dan siap cetak (berisi nama/kelas, instruksi, dan soal/tugas interaktif).
+2. KOMPONEN INTI: Tujuan Pembelajaran, Pemahaman Bermakna, Pertanyaan Pemantik (HOTS).
+3. INTEGRASI PANCA CINTA (KBC): Jelaskan minimal 3 aktivitas spesifik yang mengintegrasikan nilai Panca Cinta (Cinta Allah/Rasul, Cinta Ilmu, Cinta Diri, Cinta Sesama, atau Cinta Lingkungan) dalam materi ini.
+4. KEGIATAN PEMBELAJARAN (Pendekatan Deep Learning):
+   - Kegiatan Pendahuluan (Apersepsi, Motivasi, Eksplorasi Makna Awal)
+   - Kegiatan Inti (Langkah-langkah Deep Learning: Mindful, Meaningful, Joyful. Jangan hanya transfer materi, berikan aktivitas diskusi, proyek mini, atau pemecahan masalah nyata).
+   - Kegiatan Penutup (Refleksi, Kesimpulan bermakna, Doa)
+5. ASESMEN: Penilaian Sikap (berbasis KBC), Pengetahuan, dan Keterampilan.
+6. PENGAYAAN & REMEDIAL.
+7. LAMPIRAN: Lembar Kerja Peserta Didik (LKPD) yang menuntut *Higher Order Thinking Skills* (HOTS), menarik, dan siap cetak.
 
 Aturan tambahan dan Format HTML:
 - WAJIB gunakan struktur HTML yang semantik dan RAPI. JANGAN menumpuk teks tanpa jarak.
@@ -163,10 +164,10 @@ Aturan tambahan dan Format HTML:
             <BookOpen className="w-8 h-8 text-blue-600" />
           </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-            <span className="text-blue-600">AI Generator</span> Modul Ajar
+            <span className="text-blue-600">AI Generator</span> Modul Ajar KMA 1503
           </h1>
           <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
-            Susun Modul Ajar (RPP) Kurikulum Merdeka secara praktis dan otomatis.
+            Susun Modul Ajar Kurikulum Merdeka (Deep Learning & Panca Cinta) otomatis sesuai panduan KMA 1503.
           </p>
         </div>
       </section>
@@ -365,7 +366,7 @@ Aturan tambahan dan Format HTML:
                   {/* Kop Surat Modul Ajar */}
                   <div className="text-center mb-8 pb-4 border-b-2 border-black">
                     <h1 className="text-xl sm:text-2xl font-extrabold uppercase tracking-widest text-slate-900 print:text-black">MODUL AJAR KURIKULUM MERDEKA</h1>
-                    <h2 className="text-md sm:text-lg font-bold uppercase tracking-widest text-slate-800 print:text-black mt-1">MADRASAH IBTIDAIYAH</h2>
+                    <h2 className="text-md sm:text-lg font-bold uppercase tracking-widest text-slate-800 print:text-black mt-1">KMA 1503: KBC & DEEP LEARNING (MI)</h2>
                   </div>
 
                   <div 
