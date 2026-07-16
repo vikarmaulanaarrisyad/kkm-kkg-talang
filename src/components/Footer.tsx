@@ -36,7 +36,7 @@ export default function Footer({ siteName = "KKM & KKG MI TALANG" }: { siteName?
         </div>
         <div className="mt-8 pt-8 border-t border-slate-800 text-center text-sm text-slate-500 flex flex-col md:flex-row justify-between items-center">
           <p>&copy; {new Date().getFullYear()} {siteName}. Hak Cipta Dilindungi.</p>
-          <p className="mt-2 md:mt-0">Dikelola oleh Tim KKM & KKG</p>
+          <p className="mt-2 md:mt-0">Developer By Vikar Maulana Arrisyad</p>
         </div>
       </div>
     </footer>
