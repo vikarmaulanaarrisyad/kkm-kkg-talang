@@ -73,6 +73,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
                     <Link href="/aplikasi/generator-raport" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
                       Generator Narasi Raport
                     </Link>
+                    <Link href="/aplikasi/asisten-arab" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                      Asisten Bahasa Arab
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -138,6 +141,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             </Link>
             <Link href="/aplikasi/generator-raport" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
               Generator Narasi Raport
+            </Link>
+            <Link href="/aplikasi/asisten-arab" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-4 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
+              Asisten Bahasa Arab
             </Link>
           </div>
 
