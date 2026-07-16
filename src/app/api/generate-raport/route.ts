@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: Request) {
   try {
-    const { namaSiswa, nilaiRata, predikat, kelebihan, kelemahan, gayaBahasa } = await req.json();
+    const { namaSiswa, nilaiRata, predikat, kelebihan, kelemahan, gayaBahasa, panjangNarasi } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
@@ -29,6 +29,7 @@ export async function POST(req: Request) {
 - Kelebihan / Pencapaian: ${kelebihan}
 - Area yang Perlu Ditingkatkan / Kelemahan: ${kelemahan || 'Tidak ada catatan khusus'}
 - Gaya Bahasa: ${gayaBahasa}
+- Panjang Narasi: ${panjangNarasi}
 
 Aturan Penulisan:
 1. Posisikan diri Anda sebagai Guru Wali Kelas yang sedang menulis catatan di raport.

@@ -16,7 +16,8 @@ export default function GeneratorRaportPage() {
     predikat: "Baik",
     kelebihan: "",
     kelemahan: "",
-    gayaBahasa: "Memotivasi & Menginspirasi"
+    gayaBahasa: "Memotivasi & Menginspirasi",
+    panjangNarasi: "Singkat (1 Paragraf)"
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -161,19 +162,35 @@ export default function GeneratorRaportPage() {
                   ></textarea>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1">Gaya Bahasa Narasi</label>
-                  <select 
-                    name="gayaBahasa" 
-                    value={formData.gayaBahasa} 
-                    onChange={handleChange}
-                    className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white"
-                  >
-                    <option value="Memotivasi & Menginspirasi">Memotivasi & Menginspirasi</option>
-                    <option value="Formal & Profesional">Formal & Profesional</option>
-                    <option value="Hangat & Penuh Empati">Hangat & Penuh Empati</option>
-                    <option value="Fokus pada Akademik">Fokus pada Akademik</option>
-                  </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Gaya Bahasa Narasi</label>
+                    <select 
+                      name="gayaBahasa" 
+                      value={formData.gayaBahasa} 
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white"
+                    >
+                      <option value="Memotivasi & Menginspirasi">Memotivasi & Menginspirasi</option>
+                      <option value="Formal & Profesional">Formal & Profesional</option>
+                      <option value="Hangat & Penuh Empati">Hangat & Penuh Empati</option>
+                      <option value="Fokus pada Akademik">Fokus pada Akademik</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">Panjang Narasi</label>
+                    <select 
+                      name="panjangNarasi" 
+                      value={formData.panjangNarasi} 
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-slate-300 px-4 py-2.5 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-white"
+                    >
+                      <option value="Sangat Singkat (Maksimal 2 kalimat, ringkas)">Sangat Singkat (Max 2 kalimat)</option>
+                      <option value="Singkat (1 Paragraf, padat jelas)">Singkat (1 Paragraf)</option>
+                      <option value="Sedang (2 Paragraf)">Sedang (2 Paragraf)</option>
+                      <option value="Panjang (Lebih detail)">Panjang</option>
+                    </select>
+                  </div>
                 </div>
 
                 <button 
