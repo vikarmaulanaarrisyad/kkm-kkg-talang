@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFormDraft } from "@/hooks/useFormDraft";
 import {
   Plus, Users, Pencil, Trash2, Search,
   UserCircle, Fingerprint, CalendarDays, Phone, Mail,
@@ -107,7 +108,7 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   loading: boolean;
   masterData: any[];
 }) {
-  const [form, setForm] = useState({ ...EMPTY_FORM, ...(initial || {}) });
+  const { form, setForm, clearDraft } = useFormDraft("draft_guru", { ...EMPTY_FORM, ...(initial || {}) }, !!initial);
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [key]: e.target.value }));
   const setSelect = (key: string) => (v: string | null) => setForm(f => ({ ...f, [key]: v || "" }));
 
@@ -118,7 +119,11 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   const selectClass = "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 bg-gray-50 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all";
 
   return (
-    <form onSubmit={async e => { e.preventDefault(); await onSave(form); }} className="space-y-6">
+    <form onSubmit={async e => { 
+      e.preventDefault(); 
+      const success = await onSave(form); 
+      if (success !== false) clearDraft();
+    }} className="space-y-6">
 
       {/* Identitas */}
       <FormSection icon={UserCircle} title="Identitas Guru" subtitle="Data pribadi dan nomor identitas" color="bg-gradient-to-r from-emerald-600 to-emerald-500">
@@ -277,13 +282,14 @@ export default function MadrasahGuruPage() {
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { Swal.fire("Gagal", data.error, "error"); return; }
+      if (!res.ok) { Swal.fire("Gagal", data.error, "error"); return false; }
       
       await fetchData(); // Await fetch data so table updates before showing success
       
       Swal.fire("Berhasil", `Data guru berhasil ${isEdit ? "diperbarui" : "ditambahkan"}`, "success");
       setMode("list");
       setSelected(null);
+      return true;
     } finally {
       setSaving(false);
     }

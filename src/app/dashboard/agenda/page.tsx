@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useFormDraft } from "@/hooks/useFormDraft";
 import { Plus, Trash2, Pencil, Calendar, Clock, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,7 @@ export default function AdminAgendaPage() {
   const [mode, setMode] = useState<"list" | "form">("list");
   const [selected, setSelected] = useState<Agenda | null>(null);
   const [search, setSearch] = useState("");
-  const [form, setForm] = useState(EMPTY_FORM);
+  const { form, setForm, clearDraft } = useFormDraft("draft_agenda", EMPTY_FORM, !!selected);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -70,6 +71,7 @@ export default function AdminAgendaPage() {
       Swal.fire("Berhasil", `Agenda berhasil ${isEdit ? "diperbarui" : "ditambahkan"}`, "success");
       setMode("list");
       setSelected(null);
+      clearDraft();
       fetchData();
     } catch (error: any) {
       Swal.fire("Gagal", error.message, "error");

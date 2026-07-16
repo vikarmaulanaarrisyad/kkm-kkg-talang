@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFormDraft } from "@/hooks/useFormDraft";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -30,10 +31,12 @@ export default function TambahBeritaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [status, setStatus] = useState("Draft");
-  const [category, setCategory] = useState("Umum");
+  const { form, setForm, clearDraft } = useFormDraft("draft_berita", {
+    title: "",
+    content: "",
+    status: "Draft",
+    category: "Umum",
+  });
   const [categories, setCategories] = useState<any[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -44,7 +47,7 @@ export default function TambahBeritaPage() {
       .then(json => {
         if (json.data && json.data.length > 0) {
           setCategories(json.data);
-          setCategory(json.data[0].name);
+          setForm(p => ({ ...p, category: json.data[0].name }));
         }
       })
       .catch(console.error);
@@ -65,7 +68,7 @@ export default function TambahBeritaPage() {
 
   const handleSubmit = async (e: React.FormEvent, isDraft: boolean = false) => {
     e.preventDefault();
-    if (!title || !content) {
+    if (!form.title || !form.content) {
       Swal.fire('Peringatan!', 'Judul dan isi berita wajib diisi.', 'warning');
       setError("Judul dan isi berita wajib diisi.");
       return;
@@ -85,13 +88,13 @@ export default function TambahBeritaPage() {
       });
 
       const finalStatus = isDraft ? "Draft" : "Published";
-      setStatus(finalStatus);
+      setForm(p => ({ ...p, status: finalStatus }));
 
       const formData = new FormData();
-      formData.append("title", title);
-      formData.append("content", content);
+      formData.append("title", form.title);
+      formData.append("content", form.content);
       formData.append("status", finalStatus);
-      formData.append("category", category);
+      formData.append("category", form.category);
       if (image) {
         formData.append("image", image);
       }
@@ -117,6 +120,7 @@ export default function TambahBeritaPage() {
       }
 
       await Swal.fire('Berhasil!', 'Berita berhasil disimpan.', 'success');
+      clearDraft();
       router.push("/dashboard/berita");
       router.refresh();
     } catch (err: any) {
@@ -167,8 +171,8 @@ export default function TambahBeritaPage() {
                 <Label htmlFor="title" className="text-sm font-bold">Judul Berita <span className="text-destructive">*</span></Label>
                 <Input 
                   id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={form.title}
+                  onChange={(e) => setForm(p => ({ ...p, title: e.target.value }))}
                   placeholder="Contoh: Peringatan Hari Santri Nasional 2026..."
                   className="h-12 px-4 rounded-xl border-border/50 bg-background focus-visible:ring-primary text-base font-medium transition-all"
                   disabled={loading}
@@ -182,8 +186,8 @@ export default function TambahBeritaPage() {
                 <div className="rounded-xl border border-border/50 overflow-hidden bg-background focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all shadow-sm">
                   <Textarea 
                     id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    value={form.content}
+                    onChange={(e) => setForm(p => ({ ...p, content: e.target.value }))}
                     placeholder="Tulis paragraf lengkap dari berita Anda..."
                     className="min-h-[400px] border-0 focus-visible:ring-0 rounded-none px-4 py-4 resize-y text-base leading-relaxed bg-transparent"
                     disabled={loading}
@@ -208,7 +212,7 @@ export default function TambahBeritaPage() {
               
               <div className="space-y-3">
                 <Label className="text-sm font-bold block">Kategori</Label>
-                <Select value={category} onValueChange={(val) => setCategory(val || "")} disabled={loading}>
+                <Select value={form.category} onValueChange={(val) => setForm(p => ({ ...p, category: val || "" }))} disabled={loading}>
                   <SelectTrigger className="h-12 rounded-xl bg-background border-border/50">
                     <SelectValue placeholder="Pilih Kategori" />
                   </SelectTrigger>
@@ -252,21 +256,21 @@ export default function TambahBeritaPage() {
                 <Label className="text-sm font-bold block">Status Publikasi</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div 
-                    onClick={() => !loading && setStatus("Draft")}
-                    className={`flex items-center justify-center p-3.5 rounded-xl border-2 cursor-pointer transition-all ${status === "Draft" ? "border-amber-500 bg-amber-500/10" : "border-border/50 bg-background hover:bg-muted/50"} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => !loading && setForm(p => ({ ...p, status: "Draft" }))}
+                    className={`flex items-center justify-center p-3.5 rounded-xl border-2 cursor-pointer transition-all ${form.status === "Draft" ? "border-amber-500 bg-amber-500/10" : "border-border/50 bg-background hover:bg-muted/50"} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${status === "Draft" ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-muted-foreground/30"}`}></div>
-                      <span className={`font-bold text-sm ${status === "Draft" ? "text-amber-700 dark:text-amber-500" : "text-muted-foreground"}`}>Draft</span>
+                      <div className={`w-3 h-3 rounded-full ${form.status === "Draft" ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.6)]" : "bg-muted-foreground/30"}`}></div>
+                      <span className={`font-bold text-sm ${form.status === "Draft" ? "text-amber-700 dark:text-amber-500" : "text-muted-foreground"}`}>Draft</span>
                     </div>
                   </div>
                   <div 
-                    onClick={() => !loading && setStatus("Published")}
-                    className={`flex items-center justify-center p-3.5 rounded-xl border-2 cursor-pointer transition-all ${status === "Published" ? "border-emerald-500 bg-emerald-500/10" : "border-border/50 bg-background hover:bg-muted/50"} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => !loading && setForm(p => ({ ...p, status: "Published" }))}
+                    className={`flex items-center justify-center p-3.5 rounded-xl border-2 cursor-pointer transition-all ${form.status === "Published" ? "border-emerald-500 bg-emerald-500/10" : "border-border/50 bg-background hover:bg-muted/50"} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${status === "Published" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" : "bg-muted-foreground/30"}`}></div>
-                      <span className={`font-bold text-sm ${status === "Published" ? "text-emerald-700 dark:text-emerald-500" : "text-muted-foreground"}`}>Published</span>
+                      <div className={`w-3 h-3 rounded-full ${form.status === "Published" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" : "bg-muted-foreground/30"}`}></div>
+                      <span className={`font-bold text-sm ${form.status === "Published" ? "text-emerald-700 dark:text-emerald-500" : "text-muted-foreground"}`}>Published</span>
                     </div>
                   </div>
                 </div>
@@ -281,7 +285,7 @@ export default function TambahBeritaPage() {
                 disabled={loading}
                 className="w-full h-12 rounded-xl font-bold border-border/60 bg-white hover:bg-muted transition-all"
               >
-                {loading && status === "Draft" ? "Menyimpan Draft..." : "Simpan Draft"}
+                {loading && form.status === "Draft" ? "Menyimpan Draft..." : "Simpan Draft"}
               </Button>
               <Button 
                 type="button"
@@ -289,7 +293,7 @@ export default function TambahBeritaPage() {
                 disabled={loading}
                 className="w-full h-12 rounded-xl font-bold shadow-md hover:shadow-lg transition-all bg-primary hover:bg-primary/90 text-primary-foreground"
               >
-                {loading && status === "Published" ? (
+                {loading && form.status === "Published" ? (
                   "Menyimpan..."
                 ) : (
                   <>

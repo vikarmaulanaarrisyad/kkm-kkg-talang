@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFormDraft } from "@/hooks/useFormDraft";
 import {
   Plus, Users, Pencil, Trash2, Search,
   Save, ArrowLeft, GraduationCap, Calendar, BarChart3
@@ -46,8 +47,8 @@ export default function RombelPage() {
   
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [form, setForm] = useState(EMPTY_FORM);
   const [editId, setEditId] = useState("");
+  const { form, setForm, clearDraft } = useFormDraft("draft_rombel", EMPTY_FORM, !!editId);
   const [search, setSearch] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -136,6 +137,7 @@ export default function RombelPage() {
       await fetchData(); // Await fetch data to ensure table updates before success message
       setIsEditing(false);
       setForm(EMPTY_FORM);
+      clearDraft();
       
       Swal.fire("Berhasil", "Data rombel berhasil disimpan", "success");
     } catch (error: any) {

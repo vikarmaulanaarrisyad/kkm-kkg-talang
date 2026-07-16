@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useFormDraft } from "@/hooks/useFormDraft";
 import {
   FileSignature, Plus, Search, Trash2, Eye, Loader2,
   FileText, Mail, ClipboardList, Download, X, Users, ChevronDown
@@ -38,13 +39,13 @@ export default function SuratPage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedSurat, setSelectedSurat] = useState<Surat | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
+  const { form, setForm, clearDraft: clearFormDraft } = useFormDraft("draft_surat_form", {
     judul: "", jenis: JENIS_OPTIONS[0], isi: "", penerima: "all"
   });
-  const [template, setTemplate] = useState({
+  const { form: template, setForm: setTemplate, clearDraft: clearTemplateDraft } = useFormDraft("draft_surat_template", {
     tanggal: "", waktu: "", tempat: "", acara: ""
   });
-  const [workshopTemplate, setWorkshopTemplate] = useState({
+  const { form: workshopTemplate, setForm: setWorkshopTemplate, clearDraft: clearWorkshopTemplateDraft } = useFormDraft("draft_surat_workshop", {
     tanggal: "", waktu: "", tempat: "", tema: "", narasumber: "", peserta: "Guru Kelas MI se-Kecamatan Talang", dresscode: "Batik/Seragam Dinas"
   });
   const [fileInput, setFileInput] = useState<File | null>(null);
@@ -154,9 +155,9 @@ export default function SuratPage() {
 
       Swal.fire("Berhasil! ✉️", "Surat berhasil dibuat, dan Kegiatan + QR Absensi otomatis ditambahkan", "success");
       setShowModal(false);
-      setForm({ judul: "", jenis: JENIS_OPTIONS[0], isi: "", penerima: "all" });
-      setTemplate({ tanggal: "", waktu: "", tempat: "", acara: "" });
-      setWorkshopTemplate({ tanggal: "", waktu: "", tempat: "", tema: "", narasumber: "", peserta: "Guru Kelas MI se-Kecamatan Talang", dresscode: "Batik/Seragam Dinas" });
+      clearFormDraft();
+      clearTemplateDraft();
+      clearWorkshopTemplateDraft();
       setFileInput(null);
       fetchData();
     } catch (err: any) {
