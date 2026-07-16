@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookOpen, LogIn, Menu, UserPlus } from "lucide-react";
+import { BookOpen, LogIn, Menu, UserPlus, Grid } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?: string }) {
@@ -16,6 +16,20 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const aplikasiLinks = [
+    { href: "/aplikasi/generator-modul-ajar", label: "Generator Modul Ajar" },
+    { href: "/aplikasi/generator-jurnal", label: "Generator Jurnal Mengajar" },
+    { href: "/aplikasi/atp", label: "Generator ATP" },
+    { href: "/aplikasi/generator-soal", label: "Generator Soal MI" },
+    { href: "/aplikasi/generator-raport", label: "Generator Narasi Raport" },
+    { href: "/aplikasi/asisten-arab", label: "Asisten Bahasa Arab" },
+    { href: "/aplikasi/asisten-inggris", label: "Asisten Bahasa Inggris" },
+    { href: "/aplikasi/analis-gaya-belajar", label: "Analis Gaya Belajar" },
+    { href: "/aplikasi/generator-kbc", label: "Generator Panca Cinta KBC" },
+    { href: "/aplikasi/generator-pemantik", label: "Pembuat Pemantik Deep Learning" },
+    { href: "/aplikasi/generator-poster", label: "Generator Prompt Poster" }
+  ];
 
   return (
     <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm text-slate-700" : "bg-transparent text-slate-700"
@@ -51,7 +65,7 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
               Unduhan
             </Link>
 
-            {/* Aplikasi Dropdown Desktop */}
+            {/* Aplikasi Dropdown Desktop (Mega Menu) */}
             <div className="relative group h-full flex items-center">
               <button className="flex items-center gap-1 text-slate-600 hover:text-emerald-600 font-semibold transition-colors focus:outline-none py-2">
                 Aplikasi
@@ -59,46 +73,27 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div className="absolute top-full left-0 pt-1 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden transform origin-top scale-95 group-hover:scale-100">
-                  <div className="py-2">
-                    <Link href="/aplikasi/generator-soal" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator Soal MI
-                    </Link>
-                    <Link href="/aplikasi/generator-modul-ajar" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator Modul Ajar
-                    </Link>
-                    <Link href="/aplikasi/atp" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator ATP
-                    </Link>
-                    <Link href="/aplikasi/generator-raport" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator Narasi Raport
-                    </Link>
-                    <Link href="/aplikasi/asisten-arab" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Asisten Bahasa Arab
-                    </Link>
-                    <Link href="/aplikasi/asisten-inggris" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Asisten Bahasa Inggris
-                    </Link>
-                    <Link href="/aplikasi/analis-gaya-belajar" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Analis Gaya Belajar
-                    </Link>
-                    <Link href="/aplikasi/generator-kbc" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator Panca Cinta KBC
-                    </Link>
-                    <Link href="/aplikasi/generator-pemantik" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Pembuat Pemantik Deep Learning
-                    </Link>
-                    <Link href="/aplikasi/generator-poster" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator Prompt Poster
-                    </Link>
-                    <Link href="/aplikasi/generator-jurnal" className="block px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
-                      Generator Jurnal Mengajar
-                    </Link>
+              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-1 w-[550px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-white border border-slate-100 shadow-xl rounded-2xl overflow-hidden transform origin-top scale-95 group-hover:scale-100 p-4">
+                  <div className="flex items-center gap-2 mb-3 px-2">
+                    <Grid className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pilih Aplikasi Guru</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+                    {aplikasiLinks.map((app, idx) => (
+                      <Link 
+                        key={idx} 
+                        href={app.href} 
+                        className="block px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors border border-transparent hover:border-emerald-100"
+                      >
+                        {app.label}
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
+            
             <Link href="/kontak" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Hubungi Kami
             </Link>
@@ -127,7 +122,7 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden bg-white px-4 pt-4 pb-6 space-y-2 border-b border-slate-100 shadow-xl absolute w-full left-0 top-full">
+        <div className="md:hidden bg-white px-4 pt-4 pb-6 space-y-2 border-b border-slate-100 shadow-xl absolute w-full left-0 top-full max-h-[85vh] overflow-y-auto">
           <Link href="/" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Beranda
           </Link>
@@ -147,54 +142,34 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             Hubungi Kami
           </Link>
 
+          {/* Aplikasi Dropdown Mobile */}
           <div className="pt-2 pb-1 border-t border-slate-50 mt-2">
             <button 
               onClick={() => setIsAplikasiOpen(!isAplikasiOpen)}
               className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg focus:outline-none"
             >
-              <span className="text-xs font-bold text-emerald-600/70 uppercase tracking-wider">Aplikasi</span>
+              <span className="text-xs font-bold text-emerald-600/70 uppercase tracking-wider">Aplikasi Guru</span>
               <svg className={`w-5 h-5 transition-transform duration-300 ${isAplikasiOpen ? "rotate-180 text-emerald-600" : "text-slate-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAplikasiOpen ? "max-h-[500px] mt-2 opacity-100" : "max-h-0 opacity-0"}`}>
-              <Link href="/aplikasi/generator-soal" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator Soal MI
-              </Link>
-              <Link href="/aplikasi/generator-modul-ajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator Modul Ajar
-              </Link>
-              <Link href="/aplikasi/atp" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator ATP
-              </Link>
-              <Link href="/aplikasi/generator-raport" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator Narasi Raport
-              </Link>
-              <Link href="/aplikasi/asisten-arab" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Asisten Bahasa Arab
-              </Link>
-              <Link href="/aplikasi/asisten-inggris" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Asisten Bahasa Inggris
-              </Link>
-              <Link href="/aplikasi/analis-gaya-belajar" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Analis Gaya Belajar
-              </Link>
-              <Link href="/aplikasi/generator-kbc" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator Panca Cinta KBC
-              </Link>
-              <Link href="/aplikasi/generator-pemantik" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Pembuat Pemantik Deep Learning
-              </Link>
-              <Link href="/aplikasi/generator-poster" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator Prompt Poster
-              </Link>
-              <Link href="/aplikasi/generator-jurnal" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 pl-6 border-l-2 border-transparent hover:border-emerald-500 transition-colors">
-                Generator Jurnal Mengajar
-              </Link>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isAplikasiOpen ? "max-h-[1000px] mt-2 opacity-100" : "max-h-0 opacity-0"}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 pl-4 pr-2">
+                {aplikasiLinks.map((app, idx) => (
+                  <Link 
+                    key={idx}
+                    href={app.href} 
+                    onClick={() => setIsOpen(false)} 
+                    className="block px-3 py-2.5 rounded-lg text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 border-l-2 border-slate-100 hover:border-emerald-500 transition-colors"
+                  >
+                    {app.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 mt-4 w-full">
+          <div className="flex items-center gap-3 mt-6 w-full pt-4 border-t border-slate-100">
             <Link href="/register" onClick={() => setIsOpen(false)} className="flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-base font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 shadow-sm transition-all">
               <UserPlus className="w-4 h-4" />
               Register
