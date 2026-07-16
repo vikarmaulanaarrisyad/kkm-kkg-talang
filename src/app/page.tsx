@@ -7,6 +7,7 @@ import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
 import TestimonialCarousel from "@/components/landing/TestimonialCarousel";
+import PartnerLogos from "@/components/landing/PartnerLogos";
 
 async function getCategories() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -610,6 +611,13 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* 
+        ========================================================
+        PARTNER LOGOS SECTION
+        ========================================================
+      */}
+      <PartnerLogos />
     </div>
   );
 }
