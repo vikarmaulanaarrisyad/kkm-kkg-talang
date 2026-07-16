@@ -114,14 +114,14 @@ Style: ${styleDescription}. ${orientation}`;
             <form onSubmit={generatePrompt} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Nama Kegiatan / Acara <span className="text-red-500">*</span></label>
-                <input 
-                  type="text" 
+                <textarea 
                   name="namaKegiatan"
                   placeholder="Contoh: Peringatan Maulid Nabi, Lomba 17 Agustus..."
                   value={formData.namaKegiatan} 
                   onChange={handleChange}
                   required
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white"
+                  rows={2}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white resize-none"
                 />
               </div>
 
@@ -169,13 +169,13 @@ Style: ${styleDescription}. ${orientation}`;
 
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1">Fokus Objek (Opsional)</label>
-                <input 
-                  type="text" 
+                <textarea 
                   name="objekUtama"
                   placeholder="Contoh: Masjid besar, logo Kemenag, anak-anak madrasah membawa bendera..."
                   value={formData.objekUtama} 
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white"
+                  rows={3}
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition-all bg-slate-50 focus:bg-white resize-none"
                 />
               </div>
 
