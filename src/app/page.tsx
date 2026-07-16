@@ -1,7 +1,7 @@
 export const revalidate = 60;
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature, Brain, Heart, Lightbulb, Sparkles, Map, Languages } from "lucide-react";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName, getAllSettings } from "@/lib/settings";
@@ -291,6 +291,126 @@ export default async function Home() {
                 Akses cepat dan mudah ke berbagai informasi penting, pengumuman, dan materi pembelajaran terkini.
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 
+        ========================================================
+        AI TOOLS SHOWCASE SECTION
+        ========================================================
+      */}
+      <section className="w-full pt-32 pb-16 px-4 relative overflow-hidden bg-slate-50 border-t border-slate-100">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-800 text-sm font-bold mb-4 shadow-sm">
+              <Sparkles className="w-4 h-4 text-indigo-600" /> Senjata Rahasia Guru
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">Alat AI Cerdas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Terintegrasi</span></h2>
+            <p className="text-lg text-slate-600 leading-relaxed">
+              Tingkatkan produktivitas Anda dengan asisten kecerdasan buatan (AI) yang kami rancang khusus untuk kebutuhan kurikulum madrasah.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1 */}
+            <Link href="/aplikasi/generator-modul-ajar" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-blue-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <BookOpen className="w-7 h-7 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">Modul Ajar KMA 1503</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Susun RPP / Modul Ajar lengkap dengan Panca Cinta secara otomatis.</p>
+              <div className="flex items-center text-sm font-bold text-blue-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 2 */}
+            <Link href="/aplikasi/generator-soal" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-teal-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <FileText className="w-7 h-7 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-teal-600 transition-colors">Generator Soal MI</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Buat soal HOTS pilihan ganda, isian, dan esai dalam hitungan detik.</p>
+              <div className="flex items-center text-sm font-bold text-teal-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 3 */}
+            <Link href="/aplikasi/generator-kbc" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-rose-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Heart className="w-7 h-7 text-rose-500 fill-rose-500/20" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-rose-600 transition-colors">Skenario Panca Cinta</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Integrasikan 5 nilai kasih sayang (KBC) ke dalam topik materi Anda.</p>
+              <div className="flex items-center text-sm font-bold text-rose-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 4 */}
+            <Link href="/aplikasi/generator-pemantik" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-violet-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Lightbulb className="w-7 h-7 text-violet-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-violet-600 transition-colors">Pemantik Deep Learning</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Hasilkan studi kasus dan pertanyaan kritis untuk diskusi kelas aktif.</p>
+              <div className="flex items-center text-sm font-bold text-violet-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 5 */}
+            <Link href="/aplikasi/analis-gaya-belajar" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-emerald-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Brain className="w-7 h-7 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-emerald-600 transition-colors">Analis Gaya Belajar</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Identifikasi gaya belajar anak dari perilakunya dan temukan strategi mengajar.</p>
+              <div className="flex items-center text-sm font-bold text-emerald-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+            
+            {/* Card 6 */}
+            <Link href="/aplikasi/generator-raport" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-amber-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <FileSignature className="w-7 h-7 text-amber-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-amber-600 transition-colors">Narasi Raport</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Buat narasi perkembangan siswa yang menyentuh hati secara otomatis.</p>
+              <div className="flex items-center text-sm font-bold text-amber-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
+            {/* Card 7 */}
+            <Link href="/aplikasi/asisten-arab" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-indigo-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Languages className="w-7 h-7 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-indigo-600 transition-colors">Asisten B. Arab</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Terjemahkan dengan Harakat dan panduan baca latin yang tepat.</p>
+              <div className="flex items-center text-sm font-bold text-indigo-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+            
+            {/* Card 8 */}
+            <Link href="/aplikasi/atp" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-orange-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                <Map className="w-7 h-7 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-orange-600 transition-colors">Generator ATP</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Susun Alur Tujuan Pembelajaran dengan runtut dan terstruktur.</p>
+              <div className="flex items-center text-sm font-bold text-orange-600 mt-auto">
+                Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
+
           </div>
         </div>
       </section>
