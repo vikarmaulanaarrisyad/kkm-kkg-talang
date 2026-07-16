@@ -2,38 +2,73 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { User, MessageCircle, AlertCircle } from "lucide-react";
+import { User, MessageCircle, AlertCircle, Loader2 } from "lucide-react";
 
-export default function LupaPasswordForm({ adminPhone }: { adminPhone: string }) {
+export default function LupaPasswordForm() {
   const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username.trim()) return;
+    
+    setLoading(true);
+    setError("");
 
-    // Bersihkan nomor telepon dari karakter non-numerik, kecuali '+'
-    let phone = adminPhone.replace(/[^\d+]/g, '');
-    if (phone.startsWith('0')) {
-      phone = '62' + phone.substring(1);
+    try {
+      const res = await fetch("/api/check-user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal memverifikasi pengguna");
+      }
+
+      if (!data.exists) {
+        setError("Username / Identitas tidak ditemukan di sistem kami.");
+        setLoading(false);
+        return;
+      }
+
+      // Gunakan nomor admin dari API (Sheet Users), atau fallback default
+      const rawPhone = data.adminPhone || "+6281234567890";
+
+      // Bersihkan nomor telepon dari karakter non-numerik, kecuali '+'
+      let phone = rawPhone.replace(/[^\d+]/g, '');
+      if (phone.startsWith('0')) {
+        phone = '62' + phone.substring(1);
+      }
+      
+      // Pesan template WhatsApp
+      const message = `Halo Admin KKM/KKG, saya mengalami kendala login dan ingin mereset password saya.\n\n*Username / Identitas saya:* ${username}\n\nMohon bantuannya untuk mereset akun tersebut. Terima kasih.`;
+      
+      const encodedMessage = encodeURIComponent(message);
+      const waUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
+      
+      // Buka WhatsApp di tab baru
+      window.open(waUrl, '_blank');
+    } catch (err: any) {
+      setError(err.message || "Terjadi kesalahan jaringan.");
+    } finally {
+      setLoading(false);
     }
-    
-    // Pesan template WhatsApp
-    const message = `Halo Admin KKM/KKG, saya mengalami kendala login dan ingin mereset password saya. 
-
-*Username / Identitas saya:* ${username}
-
-Mohon bantuannya untuk mereset akun tersebut. Terima kasih.`;
-    
-    const encodedMessage = encodeURIComponent(message);
-    const waUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
-    
-    // Buka WhatsApp di tab baru
-    window.open(waUrl, '_blank');
   };
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
       
+      {error && (
+        <div className="bg-red-50 text-red-700 p-4 rounded-xl text-sm font-medium flex gap-3 border border-red-100 animate-in fade-in slide-in-from-top-2">
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <p className="leading-relaxed">{error}</p>
+        </div>
+      )}
+
       <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-sm font-medium flex gap-3 border border-amber-100">
         <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
         <p className="leading-relaxed">
@@ -67,11 +102,20 @@ Mohon bantuannya untuk mereset akun tersebut. Terima kasih.`;
       <div className="pt-2">
         <button
           type="submit"
-          disabled={!username.trim()}
+          disabled={!username.trim() || loading}
           className="group relative w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg"
         >
-          <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
-          Hubungi Admin (WhatsApp)
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Memverifikasi...
+            </>
+          ) : (
+            <>
+              <MessageCircle className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Hubungi Admin (WhatsApp)
+            </>
+          )}
         </button>
       </div>
 

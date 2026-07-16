@@ -8,7 +8,7 @@ const HEADERS = [
   "id", "madrasah_id", "nama", "gelar_depan", "gelar_belakang", "nuptk", "peg_id", "nip",
   "tempat_lahir", "tanggal_lahir", "jenis_kelamin", "jabatan",
   "status_kepegawaian", "pendidikan_terakhir", "bidang_studi",
-  "no_hp", "email", "created_at"
+  "no_hp", "email", "created_at", "password_hash"
 ];
 
 export async function GET(req: NextRequest) {

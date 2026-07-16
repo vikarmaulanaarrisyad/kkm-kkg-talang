@@ -76,7 +76,7 @@ export default async function LupaPasswordPage() {
             </p>
           </div>
 
-          <LupaPasswordForm adminPhone={kontak.telepon} />
+          <LupaPasswordForm />
 
         </div>
       </div>
