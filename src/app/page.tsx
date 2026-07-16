@@ -9,6 +9,7 @@ import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
 import TestimonialCarousel from "@/components/landing/TestimonialCarousel";
 import PartnerLogos from "@/components/landing/PartnerLogos";
 import FAQSection from "@/components/landing/FAQSection";
+import StatistikSection from "@/components/landing/StatistikSection";
 
 async function getCategories() {
   const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
@@ -124,12 +125,55 @@ async function getUpcomingAgendas() {
       status: r.get("status")
     }));
 
-    const upcoming = data.filter(a => a.status !== "Completed" && new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)));
+    const upcoming = data.filter(a => a.status !== "Completed" && a.status !== "Selesai" && new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)));
     upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     return upcoming.slice(0, 4); // Ambil 4 terdekat
   } catch (error) {
     console.error("Gagal mengambil agenda", error);
     return [];
+  }
+}
+
+async function getTotalMadrasah() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return 0;
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Madrasah", ["id", "status"]);
+    const rows = await sheet.getRows();
+    const active = rows.filter(r => r.get("status") === "Active" || r.get("status") === "Aktif").length;
+    return active > 0 ? active : rows.length;
+  } catch (error) {
+    return 0;
+  }
+}
+
+async function getTotalSiswa() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return 0;
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Rombel", ["id", "siswa_laki", "siswa_perempuan"]);
+    const rows = await sheet.getRows();
+    let total = 0;
+    rows.forEach(r => {
+      const l = parseInt(r.get("siswa_laki") || "0", 10);
+      const p = parseInt(r.get("siswa_perempuan") || "0", 10);
+      total += (!isNaN(l) ? l : 0) + (!isNaN(p) ? p : 0);
+    });
+    return total;
+  } catch (error) {
+    return 0;
+  }
+}
+
+async function getKegiatanSelesai() {
+  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
+  if (!spreadsheetId) return 0;
+  try {
+    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", ["id", "status"]);
+    const rows = await sheet.getRows();
+    return rows.filter(r => r.get("status") === "Completed" || r.get("status") === "Selesai").length;
+  } catch (error) {
+    return 0;
   }
 }
 
@@ -157,7 +201,11 @@ async function getTestimonials() {
 }
 
 export default async function Home() {
-  const [latestNews, categories, siteName, upcomingAgendas, unduhanData, profilSettings, pengurusData, totalGuru, testimonialsData] = await Promise.all([
+  const [
+    latestNews, categories, siteName, upcomingAgendas, unduhanData, 
+    profilSettings, pengurusData, totalGuru, testimonialsData,
+    totalMadrasah, totalSiswa, totalKegiatanSelesai
+  ] = await Promise.all([
     getLatestNews(),
     getCategories(),
     getCachedSiteName(),
@@ -167,6 +215,9 @@ export default async function Home() {
     getPengurus(),
     getTotalGuru(),
     getTestimonials(),
+    getTotalMadrasah(),
+    getTotalSiswa(),
+    getKegiatanSelesai(),
   ]);
 
   // Strip HTML from content for snippet
@@ -324,10 +375,22 @@ export default async function Home() {
 
       {/* 
         ========================================================
+        STATISTIK SECTION
+        ========================================================
+      */}
+      <StatistikSection 
+        totalGuru={totalGuru} 
+        totalMadrasah={totalMadrasah}
+        totalSiswa={totalSiswa}
+        totalKegiatanSelesai={totalKegiatanSelesai}
+      />
+
+      {/* 
+        ========================================================
         AI TOOLS SHOWCASE SECTION
         ========================================================
       */}
-      <section className="w-full pt-32 pb-16 px-4 relative overflow-hidden bg-slate-50 border-t border-slate-100">
+      <section className="w-full pt-20 pb-16 px-4 relative overflow-hidden bg-slate-50 border-t border-slate-100">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
         
         <div className="max-w-7xl mx-auto relative z-10">
