@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+export const dynamic = 'force-dynamic';
 
 const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
 const MASTER_COLUMNS = ["id", "kategori", "nama_nilai", "created_at"];

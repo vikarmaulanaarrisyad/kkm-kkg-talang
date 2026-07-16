@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -88,6 +88,7 @@ export default async function DashboardLayout({
                     badge={pendingCount > 0 ? <span className="ml-auto bg-amber-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">{pendingCount}</span> : null}
                   />
                   <SidebarNavItem href="/dashboard/guru" icon={<Users />} title="Data Guru" />
+                  <SidebarNavItem href="/dashboard/users" icon={<KeyRound />} title="Manajemen Akun" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

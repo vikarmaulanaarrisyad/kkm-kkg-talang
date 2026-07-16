@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, LayoutDashboard, Users, GraduationCap, Mail, Calendar } from "lucide-react";
+import { BookOpen, LayoutDashboard, Users, GraduationCap, Mail, Calendar, KeyRound } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
 import MobileSidebar from "@/components/madrasah/MobileSidebar";
 import { getCachedSiteName, getCachedUnreadSuratCount } from "@/lib/settings";
@@ -51,6 +51,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400 px-2 mb-4">Menu Utama</p>
           <MadrasahNavItem href="/madrasah" icon={<LayoutDashboard />} title="Dashboard" exact />
           <MadrasahNavItem href="/madrasah/guru" icon={<Users />} title="Data Guru" />
+          <MadrasahNavItem href="/madrasah/users" icon={<KeyRound />} title="Manajemen Akun" />
           <MadrasahNavItem href="/madrasah/rombel" icon={<GraduationCap />} title="Data Rombel & Siswa" />
           <MadrasahNavItem 
             href="/madrasah/surat" 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, BookOpen, LayoutDashboard, Users, GraduationCap } from "lucide-react";
+import { Menu, BookOpen, LayoutDashboard, Users, GraduationCap, KeyRound } from "lucide-react";
 import Link from "next/link";
 import LogoutButton from "@/app/dashboard/logout-button";
 
@@ -33,6 +33,10 @@ export default function MadrasahMobileSidebar({ madrasahName, siteName }: { madr
           <Link href="/madrasah/guru" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all">
             <Users className="w-4 h-4 text-amber-400" />
             Data Guru
+          </Link>
+          <Link href="/madrasah/users" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all">
+            <KeyRound className="w-4 h-4 text-amber-400" />
+            Manajemen Akun
           </Link>
           <Link href="/madrasah/rombel" className="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold hover:bg-emerald-800 hover:text-white transition-all">
             <GraduationCap className="w-4 h-4 text-amber-400" />
