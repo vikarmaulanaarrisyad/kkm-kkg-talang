@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BookOpen, LogOut, LayoutDashboard, ScanLine } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
+import ChatbotKMA from "@/components/guru/ChatbotKMA";
 
 export default async function GuruLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -42,6 +43,9 @@ export default async function GuruLayout({ children }: { children: React.ReactNo
           </div>
         </div>
       </nav>
+
+      {/* Floating AI Chatbot */}
+      <ChatbotKMA />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { LogIn, User, Lock, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginForm() {
@@ -79,9 +80,9 @@ export default function LoginForm() {
             <label htmlFor="password" className="block text-sm font-bold text-slate-700">
               Password
             </label>
-            <a href="#" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+            <Link href="/lupa-password" className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
               Lupa Password?
-            </a>
+            </Link>
           </div>
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-emerald-500 transition-colors">

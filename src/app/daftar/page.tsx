@@ -1,244 +1,91 @@
-"use client";
-
-import { useState } from "react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import RegisterForm from "./RegisterForm";
 import Link from "next/link";
-import { BookOpen, CheckCircle, Eye, EyeOff, School, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ArrowLeft, BookOpen, GraduationCap, Users } from "lucide-react";
+import { getCachedSiteName } from "@/lib/settings";
 
-type Step = "form" | "success";
+export default async function RegisterPage() {
+  const session = await getServerSession(authOptions);
 
-export default function RegisterPage() {
-  const [step, setStep] = useState<Step>("form");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPwd, setShowPwd] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-
-  const [form, setForm] = useState({
-    nama: "",
-    nsm: "",
-    npsn: "",
-    kecamatan: "",
-    alamat: "",
-    username: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm(f => ({ ...f, [key]: e.target.value }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    if (form.password !== form.confirmPassword) {
-      setError("Konfirmasi password tidak cocok.");
-      return;
-    }
-    if (form.password.length < 6) {
-      setError("Password minimal 6 karakter.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/madrasah", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nama: form.nama,
-          nsm: form.nsm,
-          npsn: form.npsn,
-          kecamatan: form.kecamatan,
-          alamat: form.alamat,
-          username: form.username,
-          password: form.password,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Terjadi kesalahan. Silakan coba lagi.");
-        return;
-      }
-      setStep("success");
-    } catch {
-      setError("Terjadi kesalahan jaringan. Silakan coba lagi.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (step === "success") {
-    return (
-      <div className="flex-grow flex items-center justify-center bg-gradient-to-br from-madrasah-50 to-white py-12 px-4">
-        <div className="max-w-md w-full text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-            <CheckCircle className="w-10 h-10 text-emerald-600" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-extrabold text-madrasah-900">Pendaftaran Berhasil!</h2>
-            <p className="mt-3 text-madrasah-600 leading-relaxed">
-              Pendaftaran <strong>{form.nama}</strong> telah diterima dan sedang menunggu verifikasi dari Admin KKM & KKG.
-            </p>
-          </div>
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-left space-y-2">
-            <p className="text-sm font-bold text-amber-800">📋 Apa selanjutnya?</p>
-            <ul className="text-sm text-amber-700 space-y-1 list-disc list-inside">
-              <li>Admin KKM & KKG akan meninjau pendaftaran Anda</li>
-              <li>Setelah diaktivasi, Anda bisa login menggunakan username yang didaftarkan</li>
-              <li>Hubungi pengurus KKM & KKG jika butuh info lebih lanjut</li>
-            </ul>
-          </div>
-          <div className="flex flex-col gap-3">
-            <Link
-              href="/login"
-              className="w-full inline-flex items-center justify-center px-6 py-3 bg-madrasah-800 text-white rounded-xl font-bold hover:bg-madrasah-700 transition-all"
-            >
-              Cek Status Login
-            </Link>
-            <Link href="/" className="text-sm text-madrasah-500 hover:text-madrasah-700 transition-colors">
-              ← Kembali ke Beranda
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+  if (session) {
+    redirect("/dashboard");
   }
 
+  const siteName = await getCachedSiteName();
+
   return (
-    <div className="flex-grow flex items-center justify-center bg-gradient-to-br from-madrasah-50 to-white py-12 px-4">
-      <div className="max-w-xl w-full space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {/* Header */}
-        <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-madrasah-800 rounded-2xl mb-4 shadow-lg">
-            <School className="w-8 h-8 text-white" />
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-slate-50 font-sans selection:bg-emerald-500 selection:text-white">
+      {/* LEFT SIDE: Branding / Visual (Hidden on small mobile, turns into header on tablet) */}
+      <div className="relative w-full md:w-5/12 lg:w-1/2 bg-emerald-700 flex flex-col justify-between p-8 md:p-12 lg:p-16 overflow-hidden min-h-[300px] md:min-h-screen">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-0 right-0 -translate-y-1/3 translate-x-1/3 w-[500px] h-[500px] bg-emerald-600 rounded-full blur-3xl opacity-60"></div>
+        <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3 w-[400px] h-[400px] bg-emerald-800 rounded-full blur-3xl opacity-60"></div>
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+
+        {/* Content Top */}
+        <div className="relative z-10 flex items-center justify-between">
+          <Link href="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors group">
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium text-sm">Kembali ke Beranda</span>
+          </Link>
+        </div>
+
+        {/* Content Middle */}
+        <div className="relative z-10 mt-12 md:mt-0 flex-grow flex flex-col justify-center">
+          <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center justify-center mb-8 shadow-2xl">
+            <GraduationCap className="w-8 h-8 text-emerald-100" />
           </div>
-          <h1 className="text-3xl font-extrabold text-madrasah-900">Daftar Madrasah</h1>
-          <p className="mt-2 text-madrasah-600 text-sm">
-            Daftarkan madrasah Anda ke sistem KKM & KKG Kecamatan Talang
+          <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight tracking-tight mb-6">
+            Daftar Anggota <span className="text-emerald-200">Baru</span>
+          </h1>
+          <p className="text-lg text-emerald-100/90 max-w-md leading-relaxed font-medium">
+            Bergabunglah dengan ekosistem {siteName}. Kelola data guru, absensi kegiatan, dan ciptakan karya pembelajaran inovatif bersama.
+          </p>
+
+          <div className="mt-12 space-y-4 hidden lg:block">
+            <div className="flex items-center gap-4 text-emerald-50 bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/10">
+              <Users className="w-6 h-6 text-emerald-200 shrink-0" />
+              <span className="font-medium">Komunitas Pendidik Profesional</span>
+            </div>
+            <div className="flex items-center gap-4 text-emerald-50 bg-white/5 backdrop-blur-sm p-4 rounded-2xl border border-white/10">
+              <BookOpen className="w-6 h-6 text-emerald-200 shrink-0" />
+              <span className="font-medium">Peningkatan Kompetensi Berkelanjutan</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Bottom */}
+        <div className="relative z-10 mt-8 hidden md:block">
+          <p className="text-emerald-200/60 text-sm font-medium">
+            &copy; {new Date().getFullYear()} {siteName}. Hak Cipta Dilindungi.
           </p>
         </div>
+      </div>
 
-        <div className="bg-white rounded-3xl shadow-xl border border-madrasah-100 p-8 space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl font-medium">
-              {error}
-            </div>
-          )}
+      {/* RIGHT SIDE: Form Area */}
+      <div className="w-full md:w-7/12 lg:w-1/2 flex items-center justify-center p-6 sm:p-8 md:p-12 lg:p-16 relative z-20 -mt-10 md:mt-0">
+        <div className="w-full max-w-xl bg-white rounded-3xl md:rounded-none md:bg-transparent shadow-2xl md:shadow-none p-8 sm:p-10 md:p-0 border border-slate-100 md:border-none relative z-30 max-h-screen overflow-y-auto no-scrollbar py-12">
+          
+          <div className="mb-10 text-center md:text-left mt-8 md:mt-0">
+            <h2 className="text-3xl font-extrabold text-slate-800 tracking-tight">Daftar Madrasah</h2>
+            <p className="text-slate-500 mt-3 text-sm sm:text-base">
+              Lengkapi formulir di bawah ini untuk mendaftarkan institusi Anda ke dalam sistem KKM & KKG.
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Data Madrasah */}
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-madrasah-400 mb-3 pb-2 border-b border-madrasah-100">
-                Data Madrasah
-              </h3>
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="nama">Nama Madrasah <span className="text-red-500">*</span></Label>
-                  <Input id="nama" value={form.nama} onChange={set("nama")} placeholder="MI Nurul Huda Talang" required className="h-11 rounded-xl" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="nsm">NSM</Label>
-                    <Input id="nsm" value={form.nsm} onChange={set("nsm")} placeholder="111232000000" maxLength={12} className="h-11 rounded-xl" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="npsn">NPSN</Label>
-                    <Input id="npsn" value={form.npsn} onChange={set("npsn")} placeholder="60712345" maxLength={8} className="h-11 rounded-xl" />
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="kecamatan">Kecamatan</Label>
-                  <Input id="kecamatan" value={form.kecamatan} onChange={set("kecamatan")} placeholder="Talang" className="h-11 rounded-xl" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="alamat">Alamat</Label>
-                  <Input id="alamat" value={form.alamat} onChange={set("alamat")} placeholder="Jl. Raya No. 1, Desa ..." className="h-11 rounded-xl" />
-                </div>
-              </div>
-            </div>
+          <RegisterForm />
 
-            {/* Akun Login */}
-            <div>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-madrasah-400 mb-3 pb-2 border-b border-madrasah-100">
-                Akun Login
-              </h3>
-              <div className="space-y-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="username">Username <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="username"
-                    value={form.username}
-                    onChange={set("username")}
-                    placeholder="mi-nurul-huda (tanpa spasi)"
-                    required
-                    pattern="[a-z0-9\-_]+"
-                    title="Hanya huruf kecil, angka, tanda hubung, dan underscore"
-                    className="h-11 rounded-xl"
-                  />
-                  <p className="text-xs text-muted-foreground">Hanya huruf kecil, angka, - dan _</p>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPwd ? "text" : "password"}
-                      value={form.password}
-                      onChange={set("password")}
-                      placeholder="Minimal 6 karakter"
-                      required
-                      minLength={6}
-                      className="h-11 rounded-xl pr-10"
-                    />
-                    <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
-                      {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="confirmPassword">Konfirmasi Password <span className="text-red-500">*</span></Label>
-                  <div className="relative">
-                    <Input
-                      id="confirmPassword"
-                      type={showConfirm ? "text" : "password"}
-                      value={form.confirmPassword}
-                      onChange={set("confirmPassword")}
-                      placeholder="Ulangi password"
-                      required
-                      className="h-11 rounded-xl pr-10"
-                    />
-                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
-                      {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Button type="submit" disabled={loading} className="w-full h-12 rounded-xl text-base font-bold">
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Mendaftarkan...
-                </span>
-              ) : "Daftar Sekarang"}
-            </Button>
-          </form>
-
-          <div className="text-center text-sm text-muted-foreground">
-            Sudah punya akun?{" "}
-            <Link href="/login" className="text-madrasah-700 font-bold hover:underline">Login di sini</Link>
+          <div className="mt-10 text-center md:text-left pb-10 md:pb-0">
+            <p className="text-sm text-slate-500 font-medium">
+              Sudah punya akun?{" "}
+              <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-bold underline decoration-2 underline-offset-4 transition-colors">
+                Login Sekarang
+              </Link>
+            </p>
           </div>
         </div>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Setelah mendaftar, akun Anda akan diverifikasi oleh Admin KKM & KKG sebelum dapat digunakan.
-        </p>
       </div>
     </div>
   );

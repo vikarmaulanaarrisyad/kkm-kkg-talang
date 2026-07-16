@@ -11,7 +11,8 @@ export default function LayoutWrapper({ children, siteName }: { children: React.
                         !pathname?.startsWith("/madrasah") && 
                         !pathname?.startsWith("/guru") && 
                         !pathname?.startsWith("/login") && 
-                        !pathname?.startsWith("/daftar");
+                        !pathname?.startsWith("/daftar") &&
+                        !pathname?.startsWith("/lupa-password");
 
   return (
     <>
