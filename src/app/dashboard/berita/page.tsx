@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { Plus, Pencil, Trash2, Search, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ExternalLink, Image as ImageIcon, ChevronLeft, ChevronRight, RefreshCw, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,7 +15,6 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -35,31 +34,50 @@ interface Berita {
   category?: string;
 }
 
+type Meta = {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 export default function BeritaPage() {
   const [data, setData] = useState<Berita[]>([]);
+  const [meta, setMeta] = useState<Meta>({ total: 0, page: 1, limit: 10, totalPages: 1 });
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
+  // Debounce search
   useEffect(() => {
-    fetchBerita();
-  }, []);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1); // Reset page on new search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  const fetchBerita = async () => {
+  const fetchData = useCallback(async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await fetch("/api/berita");
+      const res = await fetch(`/api/berita?search=${encodeURIComponent(debouncedSearch)}&page=${page}&limit=10`);
+      const json = await res.json();
       if (res.ok) {
-        const json = await res.json();
         setData(json.data || []);
+        if (json.meta) setMeta(json.meta);
       }
     } catch (error) {
       console.error("Gagal mengambil data berita", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearch, page]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
@@ -89,8 +107,8 @@ export default function BeritaPage() {
       const json = await res.json();
       
       if (res.ok) {
-        setData(data.filter(item => item.id !== id));
         Swal.fire('Terhapus!', 'Berita berhasil dihapus.', 'success');
+        fetchData();
       } else {
         Swal.fire('Gagal!', json.error || "Gagal menghapus berita", 'error');
       }
@@ -100,16 +118,6 @@ export default function BeritaPage() {
     }
   };
 
-  const filteredData = data.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -117,27 +125,32 @@ export default function BeritaPage() {
           <h1 className="text-3xl font-bold tracking-tight">Kelola Berita</h1>
           <p className="text-muted-foreground mt-1">Daftar semua berita dan informasi KKM.</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-white" render={<Link href="/dashboard/berita/tambah" />}>
-          <Plus className="w-4 h-4 mr-2" />
-          Berita Baru
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={fetchData} className="gap-2">
+            <RefreshCw className="w-4 h-4" /> <span className="hidden sm:inline">Refresh</span>
+          </Button>
+          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2" render={<Link href="/dashboard/berita/tambah" />}>
+            <Plus className="w-4 h-4" />
+            Berita Baru
+          </Button>
+        </div>
       </div>
 
-      <Card className="shadow-sm border-border/50">
-        <CardHeader className="pb-3 border-b border-border/50">
+      <Card className="shadow-sm border-border/50 overflow-hidden">
+        <CardHeader className="pb-4 border-b border-border/50 bg-muted/10">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle>Daftar Berita</CardTitle>
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-lg flex items-center gap-2">
+              <FileText className="w-5 h-5 text-emerald-600" />
+              Daftar Publikasi
+            </CardTitle>
+            <div className="relative w-full sm:w-72">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Cari judul..."
-                className="pl-9 h-9 bg-muted/50 border-transparent focus:border-primary focus:bg-background transition-colors"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setCurrentPage(1);
-                }}
+                placeholder="Cari judul berita..."
+                className="pl-9 h-10 bg-white border-border/50 focus:border-primary focus:bg-background transition-colors"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </div>
@@ -153,38 +166,41 @@ export default function BeritaPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Penulis</TableHead>
                 <TableHead>Tanggal</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
+                <TableHead className="text-right pr-6">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
-                    <TableCell><Skeleton className="h-5 w-8 mx-auto" /></TableCell>
+                    <TableCell><Skeleton className="h-4 w-8 mx-auto" /></TableCell>
                     <TableCell><Skeleton className="h-10 w-16 rounded-md mx-auto" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-full max-w-[250px]" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
+                    <TableCell className="text-right pr-6"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
                   </TableRow>
                 ))
-              ) : paginatedData.length === 0 ? (
+              ) : data.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-32 text-center text-muted-foreground">
-                    Tidak ada berita ditemukan.
+                  <TableCell colSpan={8} className="h-48 text-center">
+                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                      <FileText className="w-10 h-10 mb-3 opacity-20" />
+                      <p>Tidak ada berita ditemukan.</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedData.map((item, index) => (
-                  <TableRow key={item.id} className="hover:bg-muted/30 transition-colors">
+                data.map((item, index) => (
+                  <TableRow key={item.id} className="hover:bg-muted/30 transition-colors group">
                     <TableCell className="text-center font-medium text-muted-foreground">
-                      {(currentPage - 1) * itemsPerPage + index + 1}
+                      {(meta.page - 1) * meta.limit + index + 1}
                     </TableCell>
                     <TableCell className="text-center">
                       {item.image_url ? (
-                        <div className="w-16 h-10 rounded-md overflow-hidden border border-border/50 mx-auto">
+                        <div className="w-16 h-10 rounded-md overflow-hidden border border-border/50 mx-auto shadow-sm">
                           <img src={item.image_url} alt="Cover" className="w-full h-full object-cover" />
                         </div>
                       ) : (
@@ -195,15 +211,15 @@ export default function BeritaPage() {
                     </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex flex-col">
-                        <span>{item.title}</span>
-                        <span className="text-xs text-muted-foreground font-normal mt-0.5">/{item.slug}</span>
+                        <span className="text-foreground">{item.title}</span>
+                        <span className="text-xs text-muted-foreground font-normal mt-0.5 truncate max-w-[250px]">/{item.slug}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline" className="bg-muted text-muted-foreground">{item.category || "Umum"}</Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={item.status === "Published" ? "default" : "secondary"} className={item.status === "Published" ? "bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25 border-none" : ""}>
+                      <Badge variant={item.status === "Published" ? "default" : "secondary"} className={item.status === "Published" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"}>
                         {item.status}
                       </Badge>
                     </TableCell>
@@ -211,15 +227,15 @@ export default function BeritaPage() {
                     <TableCell className="text-muted-foreground text-sm">
                       {new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
+                    <TableCell className="text-right pr-6">
+                      <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" title="Edit" render={<Link href={`/dashboard/berita/edit/${item.id}`} />}>
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" title="Hapus" onClick={() => handleDelete(item.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Lihat Publikasi">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Lihat Publikasi" render={<Link href={`/berita/${item.slug}`} target="_blank" />}>
                           <ExternalLink className="h-4 w-4" />
                         </Button>
                       </div>
@@ -230,37 +246,30 @@ export default function BeritaPage() {
             </TableBody>
           </Table>
           
-          {totalPages > 1 && (
+          {meta.totalPages > 1 && (
             <div className="border-t border-border/50 p-4 flex items-center justify-between bg-muted/10">
               <span className="text-sm text-muted-foreground">
-                Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} berita
+                Menampilkan {(meta.page - 1) * meta.limit + 1} - {Math.min(meta.page * meta.limit, meta.total)} dari {meta.total} berita
               </span>
               <div className="flex gap-1">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
+                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1} className="h-8 w-8 p-0">
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <Button
-                    key={i}
-                    variant={currentPage === i + 1 ? "default" : "outline"}
-                    size="sm"
-                    className="w-8 h-8 p-0"
-                    onClick={() => setCurrentPage(i + 1)}
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
+                {Array.from({ length: meta.totalPages }).map((_, i) => {
+                  const p = i + 1;
+                  if (meta.totalPages > 5) {
+                    if (p !== 1 && p !== meta.totalPages && Math.abs(page - p) > 1) {
+                      if (p === 2 || p === meta.totalPages - 1) return <span key={p} className="px-2">...</span>;
+                      return null;
+                    }
+                  }
+                  return (
+                    <Button key={p} variant={page === p ? "default" : "outline"} size="sm" className="h-8 w-8 p-0" onClick={() => setPage(p)}>
+                      {p}
+                    </Button>
+                  );
+                })}
+                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(p + 1, meta.totalPages))} disabled={page === meta.totalPages} className="h-8 w-8 p-0">
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>

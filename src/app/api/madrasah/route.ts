@@ -12,14 +12,44 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const statusFilter = new URL(req.url).searchParams.get("status");
+    const url = new URL(req.url);
+    const statusFilter = url.searchParams.get("status");
+    const search = url.searchParams.get("search") || "";
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
 
-    const data = await prisma.madrasah.findMany({
-      where: statusFilter ? { status: statusFilter } : undefined,
-      orderBy: { created_at: "desc" }
+    const where: any = {};
+    if (statusFilter && statusFilter !== "all") {
+      where.status = statusFilter;
+    }
+    if (search) {
+      where.OR = [
+        { nama: { contains: search, mode: 'insensitive' } },
+        { nsm: { contains: search, mode: 'insensitive' } },
+        { username: { contains: search, mode: 'insensitive' } }
+      ];
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.madrasah.findMany({
+        where,
+        orderBy: { created_at: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.madrasah.count({ where })
+    ]);
+
+    return NextResponse.json({
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
     });
-
-    return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

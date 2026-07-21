@@ -6,13 +6,42 @@ import { uploadToDrive } from "@/lib/google-drive";
 import { addActivityLog } from "@/lib/activity-log";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const data = await prisma.berita.findMany({
-      orderBy: { created_at: "desc" }
-    });
+    const url = new URL(req.url);
+    const search = url.searchParams.get("search") || "";
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const skip = (page - 1) * limit;
+    
+    // Check if this is a request without pagination (for backwards compatibility if needed)
+    // Actually, let's just make it paginated by default.
+    // If a request wants all, they can send limit=1000
 
-    return NextResponse.json({ data });
+    const where: any = {};
+    if (search) {
+      where.title = { contains: search, mode: 'insensitive' };
+    }
+
+    const [data, total] = await Promise.all([
+      prisma.berita.findMany({
+        where,
+        orderBy: { created_at: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.berita.count({ where })
+    ]);
+
+    return NextResponse.json({
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error: any) {
     console.error("Error fetching berita:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
