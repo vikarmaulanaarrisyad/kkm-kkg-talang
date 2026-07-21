@@ -76,10 +76,8 @@ export default async function DashboardPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
         <div className="flex items-center space-x-2">
-          <Button variant="outline" asChild>
-            <Link href="/dashboard/berita/tambah">
-              Tulis Berita
-            </Link>
+          <Button variant="outline" render={<Link href="/dashboard/berita/tambah" />}>
+            Tulis Berita
           </Button>
           <Button className="bg-primary text-primary-foreground gap-2">
             <Download className="w-4 h-4" />
