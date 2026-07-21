@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive, deleteFromDrive, extractDriveFileId } from "@/lib/google-drive";
 import { addActivityLog } from "@/lib/activity-log";
-
-const SHEET_TITLE = "Pengurus";
-const HEADERS = ['id', 'name', 'role', 'image_url', 'order', 'created_at'];
+import prisma from "@/lib/prisma";
 
 function extractPublicId(url: string) {
   try {
@@ -31,20 +28,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-    
-    const row = rows.find(r => r.get('id') === id);
-    if (!row) {
+    const existing = await prisma.pengurus.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: "Pengurus tidak ditemukan" }, { status: 404 });
     }
 
-    const imageUrl = row.get('image_url');
+    const imageUrl = existing.image_url;
     if (imageUrl) {
       try {
         if (imageUrl.includes("drive.google.com")) {
@@ -59,10 +48,9 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       }
     }
 
-    const name = row.get('name');
-    await row.delete();
+    await prisma.pengurus.delete({ where: { id } });
 
-    await addActivityLog("Menghapus pengurus: " + name, session.user?.name || "Admin");
+    await addActivityLog("Menghapus pengurus: " + existing.name, session.user?.name || "Admin");
 
     return NextResponse.json({ success: true, message: "Pengurus berhasil dihapus" });
   } catch (error: any) {
@@ -78,31 +66,19 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
+    const existing = await prisma.pengurus.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ error: "Pengurus tidak ditemukan" }, { status: 404 });
     }
 
     const formData = await req.formData();
     const name = formData.get('name') as string;
     const role = formData.get('role') as string;
-    const order = formData.get('order') as string;
+    const orderStr = formData.get('order') as string;
     const imageFile = formData.get('image') as File | null;
     const removeImage = formData.get('remove_image') as string;
 
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-    
-    const row = rows.find(r => r.get('id') === id);
-    if (!row) {
-      return NextResponse.json({ error: "Pengurus tidak ditemukan" }, { status: 404 });
-    }
-
-    if (name) row.set('name', name);
-    if (role) row.set('role', role);
-    if (order !== null && order !== undefined) row.set('order', order);
-
-    let currentImageUrl = row.get('image_url');
+    let currentImageUrl = existing.image_url || "";
 
     if (currentImageUrl && (imageFile || removeImage === "true")) {
       try {
@@ -123,7 +99,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     if (imageFile && imageFile.size > 0) {
-      // Get Storage Provider setting (use cache)
       let storageProvider = "cloudinary";
       try {
         const { getCachedStorageProvider } = await import("@/lib/settings");
@@ -158,13 +133,17 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
-    if (imageFile || removeImage === "true") {
-      row.set('image_url', currentImageUrl);
-    }
+    await prisma.pengurus.update({
+      where: { id },
+      data: {
+        name: name || existing.name,
+        role: role || existing.role,
+        order: orderStr ? parseInt(orderStr, 10) : existing.order,
+        image_url: currentImageUrl || null,
+      }
+    });
 
-    await row.save();
-
-    await addActivityLog("Memperbarui data pengurus: " + (name || row.get('name')), session.user?.name || "Admin");
+    await addActivityLog("Memperbarui data pengurus: " + (name || existing.name), session.user?.name || "Admin");
 
     return NextResponse.json({ success: true, message: "Pengurus berhasil diperbarui" });
   } catch (error: any) {

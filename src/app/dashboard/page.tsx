@@ -10,14 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 import { getCachedSiteName, getCachedTahunAjaran, getAllSettings } from "@/lib/settings";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import { getActivityLogs } from "@/lib/activity-log";
+import prisma from "@/lib/prisma";
 
 export default async function DashboardPage() {
   const siteName = await getCachedSiteName();
   const tahunAjaran = await getCachedTahunAjaran();
 
-  // Fetch real berita stats from database
   let totalBerita = 0;
   let publishedBerita = 0;
   let draftBerita = 0;
@@ -26,41 +25,40 @@ export default async function DashboardPage() {
   let totalSiswa = 0;
 
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (spreadsheetId) {
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Berita", ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category']);
-      const rows = await sheet.getRows();
-      totalBerita = rows.length;
-      publishedBerita = rows.filter(r => r.get('status') === 'Published').length;
-      draftBerita = rows.filter(r => r.get('status') === 'Draft').length;
+    const beritaStats = await prisma.berita.groupBy({
+      by: ['status'],
+      _count: true
+    });
+    
+    totalBerita = beritaStats.reduce((acc: number, curr: any) => acc + curr._count, 0);
+    publishedBerita = beritaStats.find((s: any) => s.status === 'Published')?._count || 0;
+    draftBerita = beritaStats.find((s: any) => s.status === 'Draft')?._count || 0;
 
-      // Count articles added this month
-      const now = new Date();
-      thisMonthBerita = rows.filter(r => {
-        const created = new Date(r.get('created_at'));
-        return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth();
-      }).length;
-
-      // Fetch visitor count from Settings (use cache)
-      const allSettings = await getAllSettings();
-      totalVisitors = parseInt(allSettings.visitor_count || "0", 10);
-      
-      // Fetch total Siswa
-      if (tahunAjaran) {
-        const rombelSheet = await getOrCreateGoogleSheet(spreadsheetId, "Rombel", ["id", "madrasah_id", "tahun_ajaran", "nama_rombel", "siswa_laki", "siswa_perempuan", "wali_kelas_id"]);
-        const rombelRows = await rombelSheet.getRows();
-        const activeRombel = rombelRows.filter((r: any) => r.get("tahun_ajaran") === tahunAjaran);
-        totalSiswa = activeRombel.reduce((acc, curr) => acc + parseInt(curr.get("siswa_laki") || "0", 10) + parseInt(curr.get("siswa_perempuan") || "0", 10), 0);
+    const now = new Date();
+    thisMonthBerita = await prisma.berita.count({
+      where: {
+        created_at: {
+          gte: new Date(now.getFullYear(), now.getMonth(), 1)
+        }
       }
+    });
+
+    const allSettings = await getAllSettings();
+    totalVisitors = parseInt(allSettings.visitor_count || "0", 10);
+    
+    if (tahunAjaran) {
+      const rombelRows = await prisma.rombel.findMany({
+        where: { tahun_ajaran: tahunAjaran },
+        select: { siswa_laki: true, siswa_perempuan: true }
+      });
+      totalSiswa = rombelRows.reduce((acc: number, curr: any) => acc + parseInt(curr.siswa_laki || "0", 10) + parseInt(curr.siswa_perempuan || "0", 10), 0);
     }
   } catch (e) {
     console.error("Failed to fetch dashboard stats:", e);
   }
 
-  // Fetch real activity logs
   const activityLogs = await getActivityLogs(5);
 
-  // Helper to format relative time
   function formatRelativeTime(isoString: string): string {
     const diff = Date.now() - new Date(isoString).getTime();
     const mins = Math.floor(diff / 60000);
@@ -103,7 +101,6 @@ export default async function DashboardPage() {
             </div>
           </div>
           
-          {/* Aesthetic 3D Background Elements */}
           <div className="absolute -right-20 -top-20 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none group-hover:bg-white/20 transition-all duration-700"></div>
           <div className="absolute right-10 bottom-10 w-48 h-48 bg-yellow-300/20 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform duration-1000 ease-out"></div>
         </div>
@@ -197,7 +194,7 @@ export default async function DashboardPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-white/20">
                 <p className="text-xs text-muted-foreground font-medium mb-1">Koneksi Database</p>
-                <p className="text-sm font-bold text-foreground">Google Sheets API <span className="text-emerald-500">✓</span></p>
+                <p className="text-sm font-bold text-foreground">PostgreSQL <span className="text-emerald-500">✓</span></p>
               </div>
               <div className="bg-white/50 dark:bg-black/20 p-4 rounded-2xl border border-white/20">
                 <p className="text-xs text-muted-foreground font-medium mb-1">Image Storage</p>

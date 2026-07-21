@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
-
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
-const AGENDA_COLUMNS = ["id", "title", "date", "time", "location", "description", "status", "created_at"];
+import prisma from "@/lib/prisma";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -16,25 +13,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const body = await req.json();
 
-    if (!SPREADSHEET_ID) throw new Error("Missing SPREADSHEET_ID");
-    
-    const sheet = await getOrCreateGoogleSheet(SPREADSHEET_ID, "Agenda", AGENDA_COLUMNS);
-    const rows = await sheet.getRows();
-    
-    const rowIndex = rows.findIndex(r => r.get("id") === id);
-    if (rowIndex === -1) {
+    const existing = await prisma.agenda.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: "Agenda tidak ditemukan" }, { status: 404 });
     }
 
-    const row = rows[rowIndex];
-    if (body.title) row.set("title", body.title);
-    if (body.date) row.set("date", body.date);
-    if (body.time !== undefined) row.set("time", body.time);
-    if (body.location !== undefined) row.set("location", body.location);
-    if (body.description !== undefined) row.set("description", body.description);
-    if (body.status) row.set("status", body.status);
-
-    await row.save();
+    await prisma.agenda.update({
+      where: { id },
+      data: {
+        title: body.title !== undefined ? body.title : undefined,
+        date: body.date !== undefined ? body.date : undefined,
+        time: body.time !== undefined ? body.time : undefined,
+        location: body.location !== undefined ? body.location : undefined,
+        status: body.status !== undefined ? body.status : undefined,
+      }
+    });
 
     return NextResponse.json({ message: "Agenda berhasil diupdate" });
   } catch (error: any) {
@@ -51,17 +44,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params;
 
-    if (!SPREADSHEET_ID) throw new Error("Missing SPREADSHEET_ID");
-    
-    const sheet = await getOrCreateGoogleSheet(SPREADSHEET_ID, "Agenda", AGENDA_COLUMNS);
-    const rows = await sheet.getRows();
-    
-    const rowIndex = rows.findIndex(r => r.get("id") === id);
-    if (rowIndex === -1) {
+    const existing = await prisma.agenda.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: "Agenda tidak ditemukan" }, { status: 404 });
     }
 
-    await rows[rowIndex].delete();
+    await prisma.agenda.delete({ where: { id } });
 
     return NextResponse.json({ message: "Agenda berhasil dihapus" });
   } catch (error: any) {

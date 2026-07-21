@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -9,52 +9,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Username wajib diisi" }, { status: 400 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Konfigurasi server tidak valid" }, { status: 500 });
-    }
-
     let found = false;
     let role = "";
     let adminPhone = "";
 
-    // 1. Cek tabel Admin (sekaligus ambil nomor WA admin pertama)
-    const adminSheet = await getOrCreateGoogleSheet(spreadsheetId, "Users");
-    const adminRows = await adminSheet.getRows();
-    
-    // Asumsikan Admin utama ada di baris pertama
-    if (adminRows.length > 0) {
-      adminPhone = adminRows[0].get("no_wa") || adminRows[0].get("whatsapp") || adminRows[0].get("telepon") || "+6281234567890";
+    // 1. Cek Admin
+    const adminUser = await prisma.user.findFirst();
+    if (adminUser) {
+      // Admin tidak ada no_wa di Prisma saat ini, kita bisa gunakan fallback
+      adminPhone = "+6281234567890";
     }
 
-    if (adminRows.some(row => row.get("username") === username)) {
+    const checkAdmin = await prisma.user.findUnique({ where: { username } });
+    if (checkAdmin) {
       found = true;
       role = "admin";
     }
 
-    // 2. Cek tabel Madrasah
+    // 2. Cek Madrasah
     if (!found) {
-      const madrasahSheet = await getOrCreateGoogleSheet(spreadsheetId, "Madrasah", ["username"]);
-      const madrasahRows = await madrasahSheet.getRows();
-      if (madrasahRows.some(row => row.get("username") === username)) {
+      const checkMadrasah = await prisma.madrasah.findUnique({ where: { username } });
+      if (checkMadrasah) {
         found = true;
         role = "madrasah";
       }
     }
 
-    // 3. Cek tabel Guru
+    // 3. Cek Guru
     if (!found) {
-      const guruSheet = await getOrCreateGoogleSheet(spreadsheetId, "Guru", ["nip", "peg_id", "nuptk"]);
-      const guruRows = await guruSheet.getRows();
-      
-      const normalizeID = (val: any) => (val || "").toString().replace(/^'/, "").trim();
-      
-      if (guruRows.some(row => {
-        const valNip = normalizeID(row.get("nip"));
-        const valPegId = normalizeID(row.get("peg_id"));
-        const valNuptk = normalizeID(row.get("nuptk"));
-        return valNip === username || valPegId === username || valNuptk === username;
-      })) {
+      const checkGuru = await prisma.guru.findFirst({
+        where: {
+          OR: [
+            { nip: username },
+            { peg_id: username },
+            { nuptk: username },
+          ]
+        }
+      });
+      if (checkGuru) {
         found = true;
         role = "guru";
       }

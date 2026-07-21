@@ -1,29 +1,24 @@
 import Link from "next/link";
 import { ArrowRight, Calendar, Newspaper, ChevronLeft, ChevronRight } from "lucide-react";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import prisma from "@/lib/prisma";
 
 async function getAllNews() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
-  
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Berita", ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category']);
-    const rows = await sheet.getRows();
-    const data = rows
-      .map(r => ({
-        id: r.get('id'),
-        title: r.get('title'),
-        slug: r.get('slug'),
-        content: r.get('content') || '',
-        image_url: r.get('image_url'),
-        status: r.get('status'),
-        created_at: r.get('created_at'),
-        category: r.get('category')
-      }))
-      .filter(b => b.status === 'Published')
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const data = await prisma.berita.findMany({
+      where: { status: 'Published' },
+      orderBy: { created_at: 'desc' }
+    });
 
-    return data;
+    return data.map((r: any) => ({
+      id: r.id,
+      title: r.title,
+      slug: r.slug,
+      content: r.content || '',
+      image_url: r.image_url,
+      status: r.status,
+      created_at: r.created_at.toISOString(),
+      category: r.category
+    }));
   } catch (error) {
     console.error("Gagal mengambil berita", error);
     return [];

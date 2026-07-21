@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive, deleteFromDrive, extractDriveFileId } from "@/lib/google-drive";
-
-const SHEET_TITLE = "Settings";
-const HEADERS = ["key", "value"];
+import prisma from "@/lib/prisma";
 
 function extractPublicId(url: string) {
   try {
@@ -29,20 +26,12 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
+    const rows = await prisma.setting.findMany();
 
     const settings: Record<string, string> = {};
     rows.forEach(row => {
-      const key = row.get("key");
-      const value = row.get("value");
-      if (key) {
-        settings[key] = value || "";
+      if (row.key) {
+        settings[row.key] = row.value || "";
       }
     });
 
@@ -57,11 +46,6 @@ export async function PUT(req: NextRequest) {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
     }
 
     const formData = await req.formData();
@@ -81,17 +65,12 @@ export async function PUT(req: NextRequest) {
     const kontak_email = formData.get("kontak_email") as string;
     const kontak_telepon = formData.get("kontak_telepon") as string;
 
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
     const updateOrCreateRow = async (key: string, value: string) => {
-      const row = rows.find(r => r.get("key") === key);
-      if (row) {
-        row.assign({ value });
-        await row.save();
-      } else {
-        await sheet.addRow({ key, value });
-      }
+      await prisma.setting.upsert({
+        where: { key },
+        update: { value },
+        create: { key, value }
+      });
     };
 
     if (site_name !== null) await updateOrCreateRow("site_name", site_name);
@@ -108,13 +87,11 @@ export async function PUT(req: NextRequest) {
     if (kontak_email !== null) await updateOrCreateRow("kontak_email", kontak_email);
     if (kontak_telepon !== null) await updateOrCreateRow("kontak_telepon", kontak_telepon);
 
-    // Get current target provider for logo logic
-    const currentProviderRow = rows.find(r => r.get("key") === "storage_provider");
-    const targetProvider = storage_provider || (currentProviderRow ? currentProviderRow.get("value") : "cloudinary");
+    const providerSetting = await prisma.setting.findUnique({ where: { key: "storage_provider" } });
+    const targetProvider = storage_provider || (providerSetting ? providerSetting.value : "cloudinary");
 
-    // Handle Logo
-    const logoRow = rows.find(r => r.get("key") === "site_logo");
-    let currentLogo = logoRow ? logoRow.get("value") : "";
+    const logoSetting = await prisma.setting.findUnique({ where: { key: "site_logo" } });
+    let currentLogo = logoSetting ? logoSetting.value : "";
 
     if (currentLogo && (logoFile || removeLogo === "true")) {
       if (currentLogo.includes("drive.google.com")) {

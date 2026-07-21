@@ -1,38 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive } from "@/lib/google-drive";
 import { addActivityLog } from "@/lib/activity-log";
-
-const SHEET_TITLE = "Berita";
-const HEADERS = ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category'];
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
-    const data = rows.map(row => ({
-      id: row.get('id'),
-      title: row.get('title'),
-      slug: row.get('slug'),
-      content: row.get('content'),
-      image_url: row.get('image_url'),
-      author: row.get('author'),
-      status: row.get('status'),
-      created_at: row.get('created_at'),
-      category: row.get('category'),
-    }));
-
-    // Sort by created_at descending
-    data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const data = await prisma.berita.findMany({
+      orderBy: { created_at: "desc" }
+    });
 
     return NextResponse.json({ data });
   } catch (error: any) {
@@ -59,12 +37,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Judul dan konten wajib diisi" }, { status: 400 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    // Get Storage Provider setting (use cache)
     let storageProvider = "cloudinary";
     try {
       const { getCachedStorageProvider } = await import("@/lib/settings");
@@ -75,7 +47,6 @@ export async function POST(req: NextRequest) {
 
     let imageUrl = "";
 
-    // Upload image if exists
     if (imageFile && imageFile.size > 0) {
       const arrayBuffer = await imageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -104,23 +75,19 @@ export async function POST(req: NextRequest) {
     }
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    const id = Date.now().toString();
 
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    
-    await sheet.addRow({
-      id,
-      title,
-      slug,
-      content,
-      image_url: imageUrl,
-      author: session.user?.name || "Admin",
-      status,
-      created_at: new Date().toISOString(),
-      category
+    await prisma.berita.create({
+      data: {
+        title,
+        slug,
+        content,
+        image_url: imageUrl,
+        author: session.user?.name || "Admin",
+        status,
+        category
+      }
     });
 
-    // Log activity
     const user = session.user?.name || "Admin";
     await addActivityLog(
       status === "Published" ? "Berita Dipublikasikan" : "Berita Draft Disimpan",

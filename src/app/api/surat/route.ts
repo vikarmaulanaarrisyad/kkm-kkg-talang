@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
-
-const SURAT_HEADERS = ["id", "nomor_surat", "judul", "jenis", "isi", "file_url", "penerima", "created_at", "created_by"];
+import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,32 +10,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Surat", SURAT_HEADERS);
-    const rows = await sheet.getRows();
-
-    // Get read counts from SuratBaca
-    const bacaSheet = await getOrCreateGoogleSheet(spreadsheetId, "SuratBaca", ["id", "surat_id", "madrasah_id", "dibaca_at"]);
-    const bacaRows = await bacaSheet.getRows();
-
-    const data = rows.map(r => {
-      const suratId = r.get("id");
-      const dibacaCount = bacaRows.filter(b => b.get("surat_id") === suratId).length;
-      return {
-        id: suratId,
-        nomor_surat: r.get("nomor_surat") || "",
-        judul: r.get("judul"),
-        jenis: r.get("jenis"),
-        isi: r.get("isi"),
-        file_url: r.get("file_url"),
-        penerima: r.get("penerima"),
-        created_at: r.get("created_at"),
-        created_by: r.get("created_by"),
-        dibaca_count: dibacaCount,
-      };
+    const surats = await prisma.surat.findMany({
+      orderBy: { created_at: "desc" }
     });
 
-    data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const readCounts = await prisma.suratBaca.groupBy({
+      by: ['surat_id'],
+      _count: { surat_id: true }
+    });
+
+    const readCountMap = new Map(readCounts.map(rc => [rc.surat_id, rc._count.surat_id]));
+
+    const data = surats.map(s => ({
+      ...s,
+      dibaca_count: readCountMap.get(s.id) || 0,
+    }));
+
     return NextResponse.json(data);
   } catch (error: any) {
     console.error("GET /api/surat error:", error);
@@ -77,36 +65,41 @@ export async function POST(req: NextRequest) {
       file_url = uploadResult.secure_url;
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID!;
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Surat", SURAT_HEADERS);
-
     // Generate nomor surat otomatis: NNN/KKG-TALANG/BULAN_ROMAWI/TAHUN
     const ROMAN_MONTHS = ["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = ROMAN_MONTHS[now.getMonth()];
-    const existingRows = await sheet.getRows();
-    const sameYearCount = existingRows.filter(r => {
-      const d = r.get("created_at");
-      return d && new Date(d).getFullYear() === currentYear;
-    }).length;
+    
+    // Count existing this year
+    const startOfYear = new Date(currentYear, 0, 1);
+    const endOfYear = new Date(currentYear + 1, 0, 1);
+    
+    const sameYearCount = await prisma.surat.count({
+      where: {
+        created_at: {
+          gte: startOfYear,
+          lt: endOfYear
+        }
+      }
+    });
+
     const nomorUrut = String(sameYearCount + 1).padStart(3, "0");
     const nomorSurat = `${nomorUrut}/KKG-TALANG/${currentMonth}/${currentYear}`;
 
-    const newId = `surat-${Date.now()}`;
-    await sheet.addRow({
-      id: newId,
-      nomor_surat: nomorSurat,
-      judul,
-      jenis,
-      isi: isi || "",
-      file_url,
-      penerima,
-      created_at: now.toISOString(),
-      created_by: session.user?.name || "Admin",
+    const newSurat = await prisma.surat.create({
+      data: {
+        nomor_surat: nomorSurat,
+        judul,
+        jenis,
+        isi: isi || null,
+        file_url: file_url || null,
+        penerima,
+        created_by: session.user?.name || "Admin",
+      }
     });
 
-    return NextResponse.json({ message: "Surat berhasil dibuat", id: newId, nomor_surat: nomorSurat }, { status: 201 });
+    return NextResponse.json({ message: "Surat berhasil dibuat", id: newSurat.id, nomor_surat: nomorSurat }, { status: 201 });
   } catch (error: any) {
     console.error("POST /api/surat error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

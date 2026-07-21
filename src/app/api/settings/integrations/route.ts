@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
     }
 
     const integrations = {
-      googleSheets: {
+      database: {
         status: "disconnected",
         details: "Kredensial tidak ditemukan",
       },
@@ -26,19 +26,14 @@ export async function GET() {
       }
     };
 
-    // 1. Check Google Sheets
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    const serviceEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    if (spreadsheetId && serviceEmail) {
-      try {
-        await getOrCreateGoogleSheet(spreadsheetId, "Settings");
-        const maskedId = spreadsheetId.substring(0, 8) + "..." + spreadsheetId.substring(spreadsheetId.length - 8);
-        integrations.googleSheets.status = "connected";
-        integrations.googleSheets.details = `Terhubung ke ID: ${maskedId}`;
-      } catch (error: any) {
-        integrations.googleSheets.status = "error";
-        integrations.googleSheets.details = error.message || "Gagal menghubungi API Google Sheets";
-      }
+    // 1. Check Database (PostgreSQL)
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      integrations.database.status = "connected";
+      integrations.database.details = `Terhubung ke Database PostgreSQL`;
+    } catch (error: any) {
+      integrations.database.status = "error";
+      integrations.database.details = error.message || "Gagal menghubungi Database";
     }
 
     // 2. Check Cloudinary
@@ -56,8 +51,8 @@ export async function GET() {
     }
 
     // 3. Check Google Drive (Placeholder / Optional)
-    // Walaupun menggunakan service account yang sama dengan Sheets, biasanya butuh Folder ID khusus
     const driveFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+    const serviceEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     if (driveFolderId && serviceEmail) {
       integrations.googleDrive.status = "connected";
       integrations.googleDrive.details = `Terhubung ke Folder ID: ${driveFolderId.substring(0, 5)}...`;
@@ -66,7 +61,13 @@ export async function GET() {
       integrations.googleDrive.details = "Service Account tersedia, tapi Folder ID kosong";
     }
 
-    return NextResponse.json({ success: true, data: integrations });
+    // Map `database` back to `googleSheets` key in response to avoid breaking existing frontend that looks for `googleSheets`
+    const legacyResponse = {
+      ...integrations,
+      googleSheets: integrations.database
+    };
+
+    return NextResponse.json({ success: true, data: legacyResponse });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

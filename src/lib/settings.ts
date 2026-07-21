@@ -1,20 +1,14 @@
 import { unstable_cache } from 'next/cache';
-import { getOrCreateGoogleSheet } from './google-sheets';
+import prisma from './prisma';
 
 // ─── MASTER CACHE: Ambil SEMUA data Settings dalam SATU request ───────────────
-// Semua fungsi turunan di bawah menggunakan cache ini agar tidak membebani
-// Google Sheets API quota (error 429).
 const getAllSettings = unstable_cache(
   async (): Promise<Record<string, string>> => {
     try {
-      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return {};
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Settings", ["key", "value"]);
-      const rows = await sheet.getRows();
+      const rows = await prisma.setting.findMany();
       const result: Record<string, string> = {};
-      rows.forEach((row: any) => {
-        const key = row.get("key");
-        if (key) result[key] = row.get("value") || "";
+      rows.forEach(row => {
+        if (row.key) result[row.key] = row.value || "";
       });
       return result;
     } catch (e) {
@@ -67,11 +61,10 @@ export const getCachedKontakInfo = async () => {
 export const getCachedPendingMadrasahCount = unstable_cache(
   async (): Promise<number> => {
     try {
-      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return 0;
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Madrasah", ["id", "status"]);
-      const rows = await sheet.getRows();
-      return rows.filter((r: any) => r.get("status") === "pending").length;
+      const count = await prisma.madrasah.count({
+        where: { status: "pending" }
+      });
+      return count;
     } catch (e) {
       console.error("Failed to fetch pending madrasah:", e);
       return 0;
@@ -85,23 +78,25 @@ export const getCachedUnreadSuratCount = unstable_cache(
   async (madrasahId: string): Promise<number> => {
     try {
       if (!madrasahId) return 0;
-      const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-      if (!spreadsheetId) return 0;
-      const [suratSheet, bacaSheet] = await Promise.all([
-        getOrCreateGoogleSheet(spreadsheetId, "Surat", ["id", "penerima"]),
-        getOrCreateGoogleSheet(spreadsheetId, "SuratBaca", ["surat_id", "madrasah_id"])
-      ]);
-      const [suratRows, bacaRows] = await Promise.all([suratSheet.getRows(), bacaSheet.getRows()]);
       
-      const myBacaIds = new Set(
-        bacaRows.filter(b => b.get("madrasah_id") === madrasahId).map(b => b.get("surat_id"))
-      );
-      const mySurats = suratRows.filter(r => {
-        const penerima = r.get("penerima") || "all";
+      const [allSurats, readSurats] = await Promise.all([
+        prisma.surat.findMany({
+          select: { id: true, penerima: true }
+        }),
+        prisma.suratBaca.findMany({
+          where: { madrasah_id: madrasahId },
+          select: { surat_id: true }
+        })
+      ]);
+      
+      const readIds = new Set(readSurats.map(s => s.surat_id));
+      
+      const mySurats = allSurats.filter(s => {
+        const penerima = s.penerima || "all";
         return penerima === "all" || penerima === madrasahId || penerima.split(",").includes(madrasahId);
       });
 
-      return mySurats.filter(s => !myBacaIds.has(s.get("id"))).length;
+      return mySurats.filter(s => !readIds.has(s.id)).length;
     } catch (e) {
       console.error("Failed to fetch unread surat:", e);
       return 0;

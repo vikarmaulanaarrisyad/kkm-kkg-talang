@@ -1,29 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
-
-const SHEET_TITLE = "Unduhan";
-const HEADERS = ['id', 'title', 'url', 'icon_type', 'created_at'];
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
-    const data = rows.map(row => ({
-      id: row.get('id'),
-      title: row.get('title'),
-      url: row.get('url'),
-      icon_type: row.get('icon_type'),
-      created_at: row.get('created_at')
-    }));
-
-    // Sort by created_at descending if possible
-    data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    const data = await prisma.unduhan.findMany({
+      orderBy: { created_at: "desc" }
+    });
 
     return NextResponse.json({ data });
   } catch (error: any) {
@@ -41,20 +25,12 @@ export async function POST(req: NextRequest) {
 
     if (!title || !url) return NextResponse.json({ error: "Judul dan URL wajib diisi" }, { status: 400 });
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    
-    const id = Date.now().toString();
-    const created_at = new Date().toISOString();
-
-    await sheet.addRow({
-      id,
-      title,
-      url,
-      icon_type: icon_type || 'default',
-      created_at
+    await prisma.unduhan.create({
+      data: {
+        title,
+        url,
+        icon_type: icon_type || 'default'
+      }
     });
 
     return NextResponse.json({ success: true, message: "Unduhan berhasil ditambahkan" });

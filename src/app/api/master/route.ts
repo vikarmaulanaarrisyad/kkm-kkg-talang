@@ -1,32 +1,24 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
-export const dynamic = 'force-dynamic';
+import prisma from "@/lib/prisma";
 
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
-const MASTER_COLUMNS = ["id", "kategori", "nama_nilai", "created_at"];
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const kategori = searchParams.get("kategori");
 
-    if (!SPREADSHEET_ID) throw new Error("Missing SPREADSHEET_ID");
-    
-    const sheet = await getOrCreateGoogleSheet(SPREADSHEET_ID, "MasterData", MASTER_COLUMNS);
-    const rows = await sheet.getRows();
-    
-    let data = rows.map(r => ({
-      id: r.get("id"),
-      kategori: r.get("kategori"),
-      nama_nilai: r.get("nama_nilai"),
-      created_at: r.get("created_at"),
-    }));
-
+    let whereClause: any = {};
     if (kategori) {
-      data = data.filter(d => d.kategori === kategori);
+      whereClause.kategori = kategori;
     }
+
+    const data = await prisma.masterData.findMany({
+      where: whereClause,
+      orderBy: { created_at: "asc" }
+    });
 
     return NextResponse.json(data);
   } catch (error: any) {
@@ -46,20 +38,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Kategori dan nama_nilai wajib diisi" }, { status: 400 });
     }
 
-    if (!SPREADSHEET_ID) throw new Error("Missing SPREADSHEET_ID");
-    
-    const sheet = await getOrCreateGoogleSheet(SPREADSHEET_ID, "MasterData", MASTER_COLUMNS);
-    
-    const newRow = {
-      id: Date.now().toString(),
-      kategori,
-      nama_nilai,
-      created_at: new Date().toISOString(),
-    };
+    const newMasterData = await prisma.masterData.create({
+      data: {
+        kategori,
+        nama_nilai
+      }
+    });
 
-    await sheet.addRow(newRow);
-
-    return NextResponse.json({ message: "Berhasil menambahkan master data", data: newRow });
+    return NextResponse.json({ message: "Berhasil menambahkan master data", data: newMasterData });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

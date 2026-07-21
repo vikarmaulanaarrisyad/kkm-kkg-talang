@@ -2,7 +2,6 @@ export const revalidate = 60;
 
 import Link from "next/link";
 import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature, Brain, Heart, Lightbulb, Sparkles, Map, Languages } from "lucide-react";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
@@ -10,14 +9,12 @@ import TestimonialCarousel from "@/components/landing/TestimonialCarousel";
 import PartnerLogos from "@/components/landing/PartnerLogos";
 import FAQSection from "@/components/landing/FAQSection";
 import StatistikSection from "@/components/landing/StatistikSection";
+import prisma from "@/lib/prisma";
 
 async function getCategories() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Kategori", ['id', 'name', 'slug']);
-    const rows = await sheet.getRows();
-    return rows.map(r => ({ id: r.get('id'), name: r.get('name') }));
+    const cats = await prisma.kategori.findMany();
+    return cats.map((r: any) => ({ id: r.id, name: r.name }));
   } catch (error) {
     console.error("Gagal mengambil kategori", error);
     return [];
@@ -25,53 +22,43 @@ async function getCategories() {
 }
 
 async function getUnduhan() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Unduhan", ['id', 'title', 'url', 'icon_type', 'created_at']);
-    const rows = await sheet.getRows();
-    const data = rows.map(r => ({ 
-      id: r.get('id'), 
-      title: r.get('title'), 
-      url: r.get('url'), 
-      icon_type: r.get('icon_type') || 'FileText' 
+    const data = await prisma.unduhan.findMany({
+      orderBy: { created_at: 'desc' },
+      take: 8
+    });
+    return data.map((r: any) => ({ 
+      id: r.id, 
+      title: r.title, 
+      url: r.url, 
+      icon_type: r.icon_type || 'FileText' 
     }));
-    return data.slice(0, 8); // Batasi maksimal 8 agar tidak terlalu penuh
   } catch (error) {
     console.error("Gagal mengambil unduhan", error);
     return [];
   }
 }
 
-
 async function getPengurus() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Pengurus", ['id', 'name', 'role', 'image_url', 'order', 'created_at']);
-    const rows = await sheet.getRows();
-    const data = rows.map(row => ({
-      id: row.get('id'),
-      name: row.get('name'),
-      role: row.get('role'),
-      image_url: row.get('image_url'),
-      order: parseInt(row.get('order') || "99", 10),
+    const data = await prisma.pengurus.findMany({
+      orderBy: { order: 'asc' }
+    });
+    return data.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      role: row.role,
+      image_url: row.image_url,
+      order: row.order,
     }));
-    data.sort((a, b) => a.order - b.order);
-    return data;
   } catch (error) {
     return [];
   }
 }
 
-
 async function getTotalGuru() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return 0;
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Guru", ['id', 'nama', 'nuptk']);
-    const rows = await sheet.getRows();
-    return rows.length;
+    return await prisma.guru.count();
   } catch (error) {
     console.error("Gagal mengambil total guru", error);
     return 0;
@@ -79,28 +66,23 @@ async function getTotalGuru() {
 }
 
 async function getLatestNews() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
-  
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Berita", ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category']);
-    const rows = await sheet.getRows();
-    const data = rows
-      .map(r => ({
-        id: r.get('id'),
-        title: r.get('title'),
-        slug: r.get('slug'),
-        content: r.get('content') || '',
-        image_url: r.get('image_url'),
-        status: r.get('status'),
-        created_at: r.get('created_at'),
-        category: r.get('category')
-      }))
-      .filter(b => b.status === 'Published')
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 9); // Ambil 9 terbaru untuk ditampilkan di tab
+    const data = await prisma.berita.findMany({
+      where: { status: 'Published' },
+      orderBy: { created_at: 'desc' },
+      take: 9
+    });
 
-    return data;
+    return data.map((r: any) => ({
+      id: r.id,
+      title: r.title,
+      slug: r.slug,
+      content: r.content || '',
+      image_url: r.image_url,
+      status: r.status,
+      created_at: r.created_at.toISOString(),
+      category: r.category
+    }));
   } catch (error) {
     console.error("Gagal mengambil berita untuk landing page", error);
     return [];
@@ -108,26 +90,27 @@ async function getLatestNews() {
 }
 
 async function getUpcomingAgendas() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
-
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", [
-      "id", "title", "date", "time", "location", "description", "status"
-    ]);
-    const rows = await sheet.getRows();
-    const data = rows.map(r => ({
-      id: r.get("id"),
-      title: r.get("title"),
-      date: r.get("date"),
-      time: r.get("time"),
-      location: r.get("location"),
-      status: r.get("status")
-    }));
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    const upcoming = data.filter(a => a.status !== "Completed" && a.status !== "Selesai" && new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)));
-    upcoming.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    return upcoming.slice(0, 4); // Ambil 4 terdekat
+    const data = await prisma.agenda.findMany({
+      where: {
+        status: { notIn: ["Completed", "Selesai"] },
+      }
+    });
+
+    const upcoming = data.filter((a: any) => new Date(a.date) >= today);
+    upcoming.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    return upcoming.slice(0, 4).map((a: any) => ({
+      id: a.id,
+      title: a.title,
+      date: typeof a.date === 'string' ? a.date : a.date.toISOString(),
+      time: a.time,
+      location: a.location,
+      status: a.status
+    }));
   } catch (error) {
     console.error("Gagal mengambil agenda", error);
     return [];
@@ -135,28 +118,26 @@ async function getUpcomingAgendas() {
 }
 
 async function getTotalMadrasah() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return 0;
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Madrasah", ["id", "status"]);
-    const rows = await sheet.getRows();
-    const active = rows.filter(r => r.get("status") === "Active" || r.get("status") === "Aktif").length;
-    return active > 0 ? active : rows.length;
+    const activeCount = await prisma.madrasah.count({
+      where: { status: { in: ["Active", "Aktif"] } }
+    });
+    if (activeCount > 0) return activeCount;
+    return await prisma.madrasah.count();
   } catch (error) {
     return 0;
   }
 }
 
 async function getTotalSiswa() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return 0;
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Rombel", ["id", "siswa_laki", "siswa_perempuan"]);
-    const rows = await sheet.getRows();
+    const rombels = await prisma.rombel.findMany({
+      select: { siswa_laki: true, siswa_perempuan: true }
+    });
     let total = 0;
-    rows.forEach(r => {
-      const l = parseInt(r.get("siswa_laki") || "0", 10);
-      const p = parseInt(r.get("siswa_perempuan") || "0", 10);
+    rombels.forEach((r: any) => {
+      const l = parseInt(r.siswa_laki || "0", 10);
+      const p = parseInt(r.siswa_perempuan || "0", 10);
       total += (!isNaN(l) ? l : 0) + (!isNaN(p) ? p : 0);
     });
     return total;
@@ -166,34 +147,29 @@ async function getTotalSiswa() {
 }
 
 async function getKegiatanSelesai() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return 0;
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", ["id", "status"]);
-    const rows = await sheet.getRows();
-    return rows.filter(r => r.get("status") === "Completed" || r.get("status") === "Selesai").length;
+    return await prisma.agenda.count({
+      where: { status: { in: ["Completed", "Selesai"] } }
+    });
   } catch (error) {
     return 0;
   }
 }
 
 async function getTestimonials() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
-
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Testimoni", ["id", "name", "role", "quote", "image_url", "status", "created_at"]);
-    const rows = await sheet.getRows();
-    const data = rows.map(r => ({
-      id: r.get("id"),
-      author: r.get("name"),
-      role: r.get("role"),
-      quote: r.get("quote"),
-      image: r.get("image_url"),
-      status: r.get("status")
-    }));
+    const data = await prisma.testimoni.findMany({
+      where: { status: "Approved" }
+    });
 
-    return data.filter(t => t.status === "Approved");
+    return data.map((r: any) => ({
+      id: r.id,
+      author: r.name,
+      role: r.role,
+      quote: r.quote,
+      image: r.image_url,
+      status: r.status
+    }));
   } catch (error) {
     console.error("Gagal mengambil testimoni", error);
     return [];
@@ -220,7 +196,6 @@ export default async function Home() {
     getKegiatanSelesai(),
   ]);
 
-  // Strip HTML from content for snippet
   const stripHtml = (html: string) => {
     return html.replace(/<[^>]*>?/gm, '');
   };
@@ -233,13 +208,11 @@ export default async function Home() {
         ========================================================
       */}
       <section className="w-full relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-emerald-50/50 pt-24 pb-16 lg:pt-28 lg:pb-24 px-4 sm:px-6">
-        {/* Soft Decorative Elements */}
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-100/50 blur-3xl" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
         
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 items-center relative z-10">
           
-          {/* Left Column: Text & CTA */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 w-full">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4 min-h-[40px]">
               <TypewriterEffect text={`✨ Selamat Datang di Website Resmi ${siteName}`} className="text-sm font-bold tracking-tight" />
@@ -274,7 +247,6 @@ export default async function Home() {
               </Link>
             </div>
             
-            {/* Social Proof / Stats Cards matching reference */}
             <div className="pt-4 sm:pt-6 flex flex-col sm:flex-row items-stretch lg:items-start gap-4 sm:gap-6 w-full px-4 sm:px-0">
               <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-100 flex items-center gap-4 flex-1">
                 <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
@@ -301,13 +273,10 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Right Column: Clean Visual Image / Composition */}
           <div className="flex relative w-full justify-center items-center animate-in fade-in zoom-in-95 duration-1000 delay-200 mt-8 lg:mt-0">
             <div className="relative w-full max-w-xl lg:max-w-[600px] px-2 sm:px-0">
-              {/* Decorative Glow Behind Image */}
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-purple-400 rounded-3xl blur-2xl opacity-40 transform translate-y-4"></div>
               
-              {/* Main Image Container */}
               <div className="relative rounded-3xl transform rotate-2 overflow-hidden shadow-2xl border-4 sm:border-8 border-white group bg-emerald-50 z-0">
                 <img 
                   src="/uplods/KKG-KKM.png" 
@@ -316,7 +285,6 @@ export default async function Home() {
                 />
               </div>
 
-              {/* Floating Badge (Unggul & Berprestasi) */}
               <div className="absolute -bottom-4 right-2 sm:-bottom-8 sm:-right-8 bg-white p-3 sm:p-5 rounded-xl sm:rounded-2xl shadow-xl flex items-center gap-3 sm:gap-4 animate-[bounce_5s_infinite] z-10 scale-90 sm:scale-100 origin-bottom-right">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
                   <span className="text-xl sm:text-2xl">⭐</span>
@@ -331,15 +299,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 
-        ========================================================
-        FEATURES / PILAR UTAMA SECTION
-        ========================================================
-      */}
+      {/* FEATURES */}
       <section className="w-full -mt-10 relative z-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-            {/* Card 1 */}
             <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-emerald-100">
                 <Users className="w-7 h-7 text-emerald-600" />
@@ -349,7 +312,6 @@ export default async function Home() {
                 Membangun sinergi antar pendidik melalui forum diskusi dan pertukaran ide yang konstruktif untuk kemajuan bersama.
               </p>
             </div>
-            {/* Card 2 */}
             <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-2 lg:-translate-y-6">
               <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-blue-100">
                 <BookOpen className="w-7 h-7 text-blue-600" />
@@ -359,7 +321,6 @@ export default async function Home() {
                 Berfokus pada pengembangan kompetensi pedagogik dan profesional melalui pelatihan dan lokakarya berkelanjutan.
               </p>
             </div>
-            {/* Card 3 */}
             <div className="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-purple-200 hover:shadow-xl transition-all duration-300 group transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform group-hover:bg-purple-100">
                 <Newspaper className="w-7 h-7 text-purple-600" />
@@ -373,11 +334,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 
-        ========================================================
-        STATISTIK SECTION
-        ========================================================
-      */}
+      {/* STATISTIK SECTION */}
       <StatistikSection 
         totalGuru={totalGuru} 
         totalMadrasah={totalMadrasah}
@@ -385,11 +342,7 @@ export default async function Home() {
         totalKegiatanSelesai={totalKegiatanSelesai}
       />
 
-      {/* 
-        ========================================================
-        AI TOOLS SHOWCASE SECTION
-        ========================================================
-      */}
+      {/* AI TOOLS SHOWCASE SECTION */}
       <section className="w-full pt-20 pb-16 px-4 relative overflow-hidden bg-slate-50 border-t border-slate-100">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
         
@@ -405,7 +358,6 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Card 1 */}
             <Link href="/aplikasi/generator-modul-ajar" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-blue-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <BookOpen className="w-7 h-7 text-blue-600" />
@@ -417,7 +369,6 @@ export default async function Home() {
               </div>
             </Link>
 
-            {/* Card 2 */}
             <Link href="/aplikasi/generator-soal" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-teal-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <FileText className="w-7 h-7 text-teal-600" />
@@ -429,7 +380,6 @@ export default async function Home() {
               </div>
             </Link>
 
-            {/* Card 3 */}
             <Link href="/aplikasi/generator-kbc" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-rose-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Heart className="w-7 h-7 text-rose-500 fill-rose-500/20" />
@@ -441,7 +391,6 @@ export default async function Home() {
               </div>
             </Link>
 
-            {/* Card 4 */}
             <Link href="/aplikasi/generator-pemantik" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-violet-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-violet-50 border border-violet-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Lightbulb className="w-7 h-7 text-violet-600" />
@@ -453,7 +402,6 @@ export default async function Home() {
               </div>
             </Link>
 
-            {/* Card 5 */}
             <Link href="/aplikasi/analis-gaya-belajar" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-emerald-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Brain className="w-7 h-7 text-emerald-600" />
@@ -465,7 +413,6 @@ export default async function Home() {
               </div>
             </Link>
             
-            {/* Card 6 */}
             <Link href="/aplikasi/generator-raport" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-amber-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <FileSignature className="w-7 h-7 text-amber-600" />
@@ -477,7 +424,6 @@ export default async function Home() {
               </div>
             </Link>
 
-            {/* Card 7 */}
             <Link href="/aplikasi/asisten-arab" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-indigo-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Languages className="w-7 h-7 text-indigo-600" />
@@ -489,7 +435,6 @@ export default async function Home() {
               </div>
             </Link>
             
-            {/* Card 8 */}
             <Link href="/aplikasi/atp" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-orange-300 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-2">
               <div className="w-14 h-14 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Map className="w-7 h-7 text-orange-600" />
@@ -505,20 +450,12 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 
-        ========================================================
-        TESTIMONIAL CAROUSEL SECTION
-        ========================================================
-      */}
+      {/* TESTIMONIAL CAROUSEL SECTION */}
       {testimonialsData && testimonialsData.length > 0 && (
         <TestimonialCarousel testimonials={testimonialsData} />
       )}
 
-      {/* 
-        ========================================================
-        AGENDA MENDATANG SECTION (Sleek Timeline)
-        ========================================================
-      */}
+      {/* AGENDA MENDATANG SECTION */}
       {upcomingAgendas.length > 0 && (
         <section className="w-full pt-32 pb-16 px-4 relative overflow-hidden">
           <div className="max-w-7xl mx-auto relative z-10">
@@ -537,7 +474,7 @@ export default async function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {upcomingAgendas.map((agenda, idx) => (
+              {upcomingAgendas.map((agenda: any, idx: number) => (
                 <div key={agenda.id} className="relative group perspective-1000">
                   <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 rounded-3xl transform translate-y-4 scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                   <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 relative z-10 h-full flex flex-col">
@@ -577,11 +514,7 @@ export default async function Home() {
         </section>
       )}
 
-      {/* 
-        ========================================================
-        LATEST NEWS SECTION
-        ========================================================
-      */}
+      {/* LATEST NEWS SECTION */}
       <section id="berita" className="w-full pt-16 pb-32 px-4 relative">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16 max-w-3xl mx-auto">
@@ -602,11 +535,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 
-        ========================================================
-        POJOK UNDUHAN SECTION
-        ========================================================
-      */}
+      {/* POJOK UNDUHAN SECTION */}
       <section id="unduhan" className="w-full py-20 px-4 bg-slate-50 relative border-t border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
@@ -676,18 +605,10 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 
-        ========================================================
-        FAQ SECTION
-        ========================================================
-      */}
+      {/* FAQ SECTION */}
       <FAQSection />
 
-      {/* 
-        ========================================================
-        PARTNER LOGOS SECTION
-        ========================================================
-      */}
+      {/* PARTNER LOGOS SECTION */}
       <PartnerLogos />
     </div>
   );

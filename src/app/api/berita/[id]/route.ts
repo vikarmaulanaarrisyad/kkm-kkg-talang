@@ -1,43 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive, deleteFromDrive, extractDriveFileId } from "@/lib/google-drive";
 import { addActivityLog } from "@/lib/activity-log";
-
-const SHEET_TITLE = "Berita";
-const HEADERS = ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category'];
+import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
     
-    const row = rows.find(r => r.get('id') === id);
-    if (!row) {
+    const berita = await prisma.berita.findUnique({
+      where: { id }
+    });
+    
+    if (!berita) {
       return NextResponse.json({ error: "Berita tidak ditemukan" }, { status: 404 });
     }
 
-    const data = {
-      id: row.get('id'),
-      title: row.get('title'),
-      slug: row.get('slug'),
-      content: row.get('content'),
-      image_url: row.get('image_url'),
-      author: row.get('author'),
-      status: row.get('status'),
-      created_at: row.get('created_at'),
-      category: row.get('category'),
-    };
-
-    return NextResponse.json({ data });
+    return NextResponse.json({ data: berita });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -77,16 +58,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Judul dan konten wajib diisi" }, { status: 400 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-    
-    const row = rows.find(r => r.get('id') === id);
-    if (!row) {
+    const existing = await prisma.berita.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: "Berita tidak ditemukan" }, { status: 404 });
     }
 
@@ -98,9 +71,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       console.error("Gagal membaca pengaturan penyimpanan", e);
     }
 
-    let imageUrl = row.get('image_url') || "";
+    let imageUrl = existing.image_url || "";
 
-    // Delete existing image if replacing or removing
     if (imageUrl && (imageFile || removeImage === "true")) {
       if (imageUrl.includes("drive.google.com")) {
         const fileId = extractDriveFileId(imageUrl);
@@ -115,7 +87,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
     }
 
-    // Upload new image if provided
     if (imageFile && imageFile.size > 0) {
       const arrayBuffer = await imageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -145,18 +116,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-    row.assign({
-      title,
-      slug,
-      content,
-      image_url: imageUrl,
-      status,
-      category
+    await prisma.berita.update({
+      where: { id },
+      data: {
+        title,
+        slug,
+        content,
+        image_url: imageUrl,
+        status,
+        category
+      }
     });
-    
-    await row.save();
 
-    // Log activity
     const user = session.user?.name || "Admin";
     await addActivityLog(
       "Berita Diperbarui",
@@ -178,20 +149,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-    
-    const row = rows.find(r => r.get('id') === id);
-    if (!row) {
+    const existing = await prisma.berita.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: "Berita tidak ditemukan" }, { status: 404 });
     }
 
-    const imageUrl = row.get('image_url');
+    const imageUrl = existing.image_url;
     if (imageUrl) {
       if (imageUrl.includes("drive.google.com")) {
         const fileId = extractDriveFileId(imageUrl);
@@ -202,14 +165,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       }
     }
 
-    const deletedTitle = row.get('title');
-    await row.delete();
+    await prisma.berita.delete({ where: { id } });
 
-    // Log activity
     const user = session.user?.name || "Admin";
     await addActivityLog(
       "Berita Dihapus",
-      `"${deletedTitle}" berhasil dihapus oleh ${user}`,
+      `"${existing.title}" berhasil dihapus oleh ${user}`,
       user
     );
 

@@ -1,7 +1,4 @@
-import { getOrCreateGoogleSheet } from "./google-sheets";
-
-const SHEET_TITLE = "ActivityLog";
-const HEADERS = ["id", "action", "description", "user", "created_at"];
+import prisma from "./prisma";
 
 export type ActivityLog = {
   id: string;
@@ -13,17 +10,12 @@ export type ActivityLog = {
 
 export async function addActivityLog(action: string, description: string, user: string = "Admin") {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return;
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const id = Date.now().toString();
-    await sheet.addRow({
-      id,
-      action,
-      description,
-      user,
-      created_at: new Date().toISOString(),
+    await prisma.activityLog.create({
+      data: {
+        action,
+        description,
+        user,
+      }
     });
   } catch (e) {
     console.error("Failed to add activity log:", e);
@@ -32,23 +24,15 @@ export async function addActivityLog(action: string, description: string, user: 
 
 export async function getActivityLogs(limit = 10): Promise<ActivityLog[]> {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return [];
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
-    return rows
-      .map((r) => ({
-        id: r.get("id"),
-        action: r.get("action"),
-        description: r.get("description"),
-        user: r.get("user"),
-        created_at: r.get("created_at"),
-      }))
-      .filter((r) => r.id)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, limit);
+    const logs = await prisma.activityLog.findMany({
+      orderBy: { created_at: "desc" },
+      take: limit
+    });
+    
+    return logs.map(log => ({
+      ...log,
+      created_at: log.created_at.toISOString()
+    }));
   } catch (e) {
     console.error("Failed to get activity logs:", e);
     return [];

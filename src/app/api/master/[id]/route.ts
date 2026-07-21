@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
-
-const SPREADSHEET_ID = process.env.GOOGLE_SPREADSHEET_ID;
-const MASTER_COLUMNS = ["id", "kategori", "nama_nilai", "created_at"];
+import prisma from "@/lib/prisma";
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -15,17 +12,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params;
 
-    if (!SPREADSHEET_ID) throw new Error("Missing SPREADSHEET_ID");
-    
-    const sheet = await getOrCreateGoogleSheet(SPREADSHEET_ID, "MasterData", MASTER_COLUMNS);
-    const rows = await sheet.getRows();
-    
-    const rowIndex = rows.findIndex(r => r.get("id") === id);
-    if (rowIndex === -1) {
+    const existing = await prisma.masterData.findUnique({ where: { id } });
+    if (!existing) {
       return NextResponse.json({ error: "Data master tidak ditemukan" }, { status: 404 });
     }
 
-    await rows[rowIndex].delete();
+    await prisma.masterData.delete({ where: { id } });
 
     return NextResponse.json({ message: "Data master berhasil dihapus" });
   } catch (error: any) {

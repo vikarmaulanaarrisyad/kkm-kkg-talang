@@ -1,28 +1,25 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Share2 } from "lucide-react";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import prisma from "@/lib/prisma";
 
 async function getNewsBySlug(slug: string) {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return null;
-  
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Berita", ['id', 'title', 'slug', 'content', 'image_url', 'author', 'status', 'created_at', 'category']);
-    const rows = await sheet.getRows();
-    const row = rows.find(r => r.get('slug') === slug && r.get('status') === 'Published');
+    const news = await prisma.berita.findUnique({
+      where: { slug }
+    });
     
-    if (!row) return null;
+    if (!news || news.status !== 'Published') return null;
 
     return {
-      id: row.get('id'),
-      title: row.get('title'),
-      slug: row.get('slug'),
-      content: row.get('content') || '',
-      image_url: row.get('image_url'),
-      author: row.get('author'),
-      created_at: row.get('created_at'),
-      category: row.get('category') || 'Umum'
+      id: news.id,
+      title: news.title,
+      slug: news.slug,
+      content: news.content || '',
+      image_url: news.image_url,
+      author: news.author,
+      created_at: news.created_at.toISOString(),
+      category: news.category || 'Umum'
     };
   } catch (error) {
     console.error("Gagal mengambil berita", error);

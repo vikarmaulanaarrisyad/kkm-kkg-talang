@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -13,35 +13,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json(
-        { error: "Konfigurasi Google Spreadsheet tidak valid" },
-        { status: 500 }
-      );
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Kontak", [
-      "id",
-      "nama",
-      "email",
-      "subjek",
-      "pesan",
-      "created_at"
-    ]);
-
-    const newId = `msg-${Date.now()}`;
-    await sheet.addRow({
-      id: newId,
-      nama,
-      email,
-      subjek,
-      pesan,
-      created_at: new Date().toISOString()
+    const newKontak = await prisma.kontak.create({
+      data: {
+        nama,
+        email,
+        subjek,
+        pesan
+      }
     });
 
     return NextResponse.json(
-      { message: "Pesan berhasil dikirim", id: newId },
+      { message: "Pesan berhasil dikirim", id: newKontak.id },
       { status: 201 }
     );
   } catch (error: any) {

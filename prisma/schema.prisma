@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  username      String   @unique
+  password_hash String
+  name          String
+  role          String   @default("admin")
+  created_at    DateTime @default(now())
+
+  @@map("users")
+}
+
+model Madrasah {
+  id            String   @id @default(cuid())
+  nsm           String?
+  npsn          String?
+  nama          String
+  alamat        String?
+  kecamatan     String?
+  username      String   @unique
+  password_hash String
+  status        String   @default("active")
+  created_at    DateTime @default(now())
+
+  gurus         Guru[]
+  rombels       Rombel[]
+  suratBacas    SuratBaca[]
+  kegiatans     Kegiatan[]
+
+  @@map("madrasahs")
+}
+
+model Guru {
+  id            String   @id @default(cuid())
+  madrasah_id   String
+  madrasah      Madrasah @relation(fields: [madrasah_id], references: [id])
+  nama          String
+  nip           String?
+  peg_id        String?
+  nuptk         String?
+  password_hash String?
+  created_at    DateTime @default(now())
+
+  @@map("gurus")
+}
+
+model Pengurus {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  image_url   String?
+  order       Int?
+  created_at  DateTime @default(now())
+
+  @@map("penguruses")
+}
+
+model Kategori {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+
+  @@map("kategoris")
+}
+
+model Berita {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  image_url   String?
+  author      String
+  status      String   @default("draft")
+  category    String
+  created_at  DateTime @default(now())
+
+  @@map("beritas")
+}
+
+model Agenda {
+  id          String   @id @default(cuid())
+  title       String
+  date        String
+  time        String?
+  location    String?
+  status      String   @default("upcoming")
+
+  @@map("agendas")
+}
+
+model Rombel {
+  id              String   @id @default(cuid())
+  madrasah_id     String
+  madrasah        Madrasah @relation(fields: [madrasah_id], references: [id])
+  tahun_ajaran    String
+  nama_rombel     String
+  siswa_laki      Int      @default(0)
+  siswa_perempuan Int      @default(0)
+  wali_kelas_id   String?
+  created_at      DateTime @default(now())
+
+  @@map("rombels")
+}
+
+model Testimoni {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  quote       String
+  image_url   String?
+  status      String   @default("active")
+  created_at  DateTime @default(now())
+
+  @@map("testimonis")
+}
+
+model Surat {
+  id          String   @id @default(cuid())
+  nomor_surat String?
+  judul       String
+  jenis       String
+  isi         String?
+  file_url    String?
+  penerima    String   @default("all")
+  created_by  String?
+  created_at  DateTime @default(now())
+
+  @@map("surats")
+}
+
+model SuratBaca {
+  id          String   @id @default(cuid())
+  surat_id    String
+  madrasah_id String
+  madrasah    Madrasah @relation(fields: [madrasah_id], references: [id])
+  dibaca_at   DateTime @default(now())
+
+  @@map("surat_bacas")
+}
+
+model Kegiatan {
+  id          String   @id @default(cuid())
+  nama        String
+  jenis       String   @default("KKG")
+  tempat      String?
+  tanggal     String
+  waktu       String?
+  status      String   @default("waiting")
+  created_by  String?
+  created_at  DateTime @default(now())
+  
+  madrasah_id String?
+  madrasah    Madrasah? @relation(fields: [madrasah_id], references: [id])
+
+  @@map("kegiatans")
+}
+
+model Setting {
+  key         String   @id
+  value       String
+
+  @@map("settings")
+}
+
+model Visitor {
+  id          String   @id @default(cuid())
+  key         String
+  value       String
+
+  @@map("visitors")
+}
+
+model Unduhan {
+  id          String   @id @default(cuid())
+  title       String
+  url         String
+  icon_type   String?
+  created_at  DateTime @default(now())
+
+  @@map("unduhans")
+}
+
+model TahunAjaran {
+  id          String   @id @default(cuid())
+  nama_tahun  String
+  semester    String
+  created_at  DateTime @default(now())
+
+  @@map("tahun_ajarans")
+}
+
+model Presensi {
+  id          String   @id @default(cuid())
+  guru_id     String
+  jadwal_id   String?
+  waktu_masuk DateTime?
+  waktu_pulang DateTime?
+  status      String
+  titik_koordinat String?
+  foto_url    String?
+  created_at  DateTime @default(now())
+
+  @@map("presensis")
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String
+  description String
+  user        String
+  created_at  DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+model MasterData {
+  id          String   @id @default(cuid())
+  kategori    String
+  nama_nilai  String
+  created_at  DateTime @default(now())
+
+  @@map("master_data")
+}
+
+model PermintaanReset {
+  id          String   @id @default(cuid())
+  madrasah_id String
+  guru_id     String
+  status      String   @default("pending")
+  requested_at DateTime @default(now())
+  resolved_at DateTime?
+
+  @@map("permintaan_resets")
+}
+
+model Kontak {
+  id          String   @id @default(cuid())
+  nama        String
+  email       String
+  subjek      String
+  pesan       String
+  created_at  DateTime @default(now())
+
+  @@map("kontaks")
+}

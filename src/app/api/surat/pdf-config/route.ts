@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getCachedSiteName, getCachedSiteLogo, getCachedKontakInfo, getAllSettings } from "@/lib/settings";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import { getCachedSiteName, getCachedSiteLogo, getCachedKontakInfo } from "@/lib/settings";
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
@@ -13,23 +13,21 @@ export async function GET() {
     let ketua = "KETUA KKG";
     let sekretaris = "SEKRETARIS KKG";
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (spreadsheetId) {
-      try {
-        const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Pengurus", ['id', 'name', 'role']);
-        const rows = await sheet.getRows();
-        for (const row of rows) {
-          const role = (row.get('role') || "").toLowerCase();
-          const name = row.get('name') || "";
-          if (role.includes("ketua")) {
-            ketua = name;
-          } else if (role.includes("sekretaris")) {
-            sekretaris = name;
-          }
+    try {
+      const pengurusList = await prisma.pengurus.findMany({
+        select: { name: true, role: true }
+      });
+      for (const p of pengurusList) {
+        const role = (p.role || "").toLowerCase();
+        const name = p.name || "";
+        if (role.includes("ketua")) {
+          ketua = name;
+        } else if (role.includes("sekretaris")) {
+          sekretaris = name;
         }
-      } catch (e) {
-        console.error("Gagal mengambil data pengurus:", e);
       }
+    } catch (e) {
+      console.error("Gagal mengambil data pengurus:", e);
     }
 
     return NextResponse.json({ siteName, logo, kontak, ketua, sekretaris });

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import bcrypt from "bcryptjs";
+import prisma from "@/lib/prisma";
 
 export async function PUT(req: NextRequest) {
   try {
@@ -21,34 +21,48 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Sandi baru minimal 6 karakter" }, { status: 400 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Users");
-    const rows = await sheet.getRows();
-
-    // In auth.ts, session.user.email is set to user's username
     const username = session.user.email;
-    const userRow = rows.find(row => row.get("username") === username);
+    const userRole = (session.user as any).role;
 
-    if (!userRow) {
-      return NextResponse.json({ error: "Pengguna tidak ditemukan" }, { status: 404 });
+    if (userRole === "admin") {
+      const user = await prisma.user.findUnique({ where: { username } });
+      if (!user) return NextResponse.json({ error: "Pengguna tidak ditemukan" }, { status: 404 });
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isPasswordValid) return NextResponse.json({ error: "Sandi saat ini salah" }, { status: 401 });
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+      await prisma.user.update({
+        where: { username },
+        data: { password_hash: newHash }
+      });
+    } else if (userRole === "madrasah") {
+      const madrasah = await prisma.madrasah.findUnique({ where: { username } });
+      if (!madrasah) return NextResponse.json({ error: "Madrasah tidak ditemukan" }, { status: 404 });
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, madrasah.password_hash);
+      if (!isPasswordValid) return NextResponse.json({ error: "Sandi saat ini salah" }, { status: 401 });
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+      await prisma.madrasah.update({
+        where: { username },
+        data: { password_hash: newHash }
+      });
+    } else if (userRole === "guru") {
+      const guru = await prisma.guru.findFirst({ where: { nuptk: username } });
+      if (!guru) return NextResponse.json({ error: "Guru tidak ditemukan" }, { status: 404 });
+
+      const isPasswordValid = await bcrypt.compare(currentPassword, guru.password_hash || "");
+      if (!isPasswordValid) return NextResponse.json({ error: "Sandi saat ini salah" }, { status: 401 });
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+      await prisma.guru.update({
+        where: { id: guru.id },
+        data: { password_hash: newHash }
+      });
+    } else {
+      return NextResponse.json({ error: "Role tidak valid" }, { status: 400 });
     }
-
-    const storedHash = userRow.get("password_hash");
-    
-    // Verifikasi password lama
-    const isPasswordValid = await bcrypt.compare(currentPassword, storedHash);
-    if (!isPasswordValid) {
-      return NextResponse.json({ error: "Sandi saat ini salah" }, { status: 401 });
-    }
-
-    // Enkripsi password baru
-    const newHash = await bcrypt.hash(newPassword, 10);
-    userRow.assign({ password_hash: newHash });
-    await userRow.save();
 
     return NextResponse.json({ success: true, message: "Kata sandi berhasil diperbarui" });
   } catch (error: any) {

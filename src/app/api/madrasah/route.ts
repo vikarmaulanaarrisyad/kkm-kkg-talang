@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import bcrypt from "bcryptjs";
-
-const SHEET_TITLE = "Madrasah";
-const HEADERS = ["id", "nama", "nsm", "npsn", "alamat", "kecamatan", "username", "password_hash", "status", "created_at"];
+import prisma from "@/lib/prisma";
 
 // GET — Admin: semua madrasah. Public tidak bisa akses.
 export async function GET(req: NextRequest) {
@@ -15,27 +12,12 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
     const statusFilter = new URL(req.url).searchParams.get("status");
 
-    const data = rows
-      .map(r => ({
-        id: r.get("id"),
-        nama: r.get("nama"),
-        nsm: r.get("nsm"),
-        npsn: r.get("npsn"),
-        alamat: r.get("alamat"),
-        kecamatan: r.get("kecamatan"),
-        username: r.get("username"),
-        status: r.get("status") || "active",
-        created_at: r.get("created_at"),
-      }))
-      .filter(r => statusFilter ? r.status === statusFilter : true);
+    const data = await prisma.madrasah.findMany({
+      where: statusFilter ? { status: statusFilter } : undefined,
+      orderBy: { created_at: "desc" }
+    });
 
     return NextResponse.json(data);
   } catch (error: any) {
@@ -46,9 +28,6 @@ export async function GET(req: NextRequest) {
 // POST — PUBLIC: Madrasah mendaftar sendiri, status = "pending"
 export async function POST(req: NextRequest) {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-
     const body = await req.json();
     const { nama, nsm, npsn, alamat, kecamatan, username, password } = body;
 
@@ -59,23 +38,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Password minimal 6 karakter" }, { status: 400 });
     }
 
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
     // Cek username duplikat
-    const exists = rows.find(r => r.get("username") === username);
+    const exists = await prisma.madrasah.findUnique({ where: { username } });
     if (exists) {
       return NextResponse.json({ error: "Username sudah digunakan, coba username lain" }, { status: 400 });
     }
 
     const password_hash = await bcrypt.hash(password, 12);
-    const id = Date.now().toString();
 
-    await sheet.addRow({
-      id, nama, nsm: nsm || "", npsn: npsn || "", alamat: alamat || "",
-      kecamatan: kecamatan || "", username, password_hash,
-      status: "pending",
-      created_at: new Date().toISOString(),
+    await prisma.madrasah.create({
+      data: {
+        nama,
+        nsm: nsm || null,
+        npsn: npsn || null,
+        alamat: alamat || null,
+        kecamatan: kecamatan || null,
+        username,
+        password_hash,
+        status: "pending",
+      }
     });
 
     return NextResponse.json({ success: true, message: "Pendaftaran berhasil! Tunggu aktivasi dari Admin KKM & KKG." });

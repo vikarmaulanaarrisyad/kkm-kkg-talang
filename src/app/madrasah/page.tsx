@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Users, BookOpen, TrendingUp, Calendar, Clock, MapPin, ArrowRight, GraduationCap } from "lucide-react";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import Link from "next/link";
+import prisma from "@/lib/prisma";
 
 import { getCachedSiteName, getCachedTahunAjaran } from "@/lib/settings";
 
@@ -22,34 +22,36 @@ export default async function MadrasahDashboard() {
   let siswaP = 0;
 
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (spreadsheetId && madrasahId) {
-      const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Guru", [
-        "id", "madrasah_id", "nama", "nuptk", "peg_id", "nip", "tempat_lahir", "tanggal_lahir",
-        "jenis_kelamin", "jabatan", "status_kepegawaian", "pendidikan_terakhir", "bidang_studi", "no_hp", "email", "created_at"
-      ]);
-      const rows = await sheet.getRows();
-      const myGuru = rows.filter((r: any) => r.get("madrasah_id") === madrasahId);
-      totalGuru = myGuru.length;
-      pnsCount = myGuru.filter((r: any) => r.get("status_kepegawaian") === "PNS").length;
-      nonPnsCount = myGuru.filter((r: any) => r.get("status_kepegawaian") !== "PNS" && r.get("status_kepegawaian")).length;
+    if (madrasahId) {
+      const guruStats = await prisma.guru.groupBy({
+        by: ['status_kepegawaian'],
+        where: { madrasah_id: madrasahId },
+        _count: true
+      });
       
-      const agendaSheet = await getOrCreateGoogleSheet(spreadsheetId, "Agenda", ["id", "title", "date", "time", "location", "status"]);
-      const agendaRows = await agendaSheet.getRows();
-      const allAgendas = agendaRows.map((r: any) => ({
-        id: r.get("id"), title: r.get("title"), date: r.get("date"), time: r.get("time"), location: r.get("location"), status: r.get("status")
-      }));
-      upcomingAgendas = allAgendas
-        .filter(a => a.status !== "Completed" && new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)))
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-        .slice(0, 3);
+      totalGuru = guruStats.reduce((acc: number, curr: any) => acc + curr._count, 0);
+      pnsCount = guruStats.find((s: any) => s.status_kepegawaian === "PNS")?._count || 0;
+      nonPnsCount = guruStats.filter((s: any) => s.status_kepegawaian !== "PNS" && s.status_kepegawaian).reduce((acc: number, curr: any) => acc + curr._count, 0);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      upcomingAgendas = await prisma.agenda.findMany({
+        where: {
+          status: { notIn: ["Completed", "Selesai"] }
+        },
+        orderBy: { date: 'asc' },
+        take: 3
+      });
+      upcomingAgendas = upcomingAgendas.filter((a: any) => new Date(a.date) >= today);
         
       if (tahunAjaran) {
-        const rombelSheet = await getOrCreateGoogleSheet(spreadsheetId, "Rombel", ["id", "madrasah_id", "tahun_ajaran", "nama_rombel", "siswa_laki", "siswa_perempuan", "wali_kelas_id"]);
-        const rombelRows = await rombelSheet.getRows();
-        const myRombel = rombelRows.filter((r: any) => r.get("madrasah_id") === madrasahId && r.get("tahun_ajaran") === tahunAjaran);
-        siswaL = myRombel.reduce((acc, curr) => acc + parseInt(curr.get("siswa_laki") || "0", 10), 0);
-        siswaP = myRombel.reduce((acc, curr) => acc + parseInt(curr.get("siswa_perempuan") || "0", 10), 0);
+        const rombelRows = await prisma.rombel.findMany({
+          where: { madrasah_id: madrasahId, tahun_ajaran: tahunAjaran },
+          select: { siswa_laki: true, siswa_perempuan: true }
+        });
+        siswaL = rombelRows.reduce((acc: number, curr: any) => acc + parseInt(curr.siswa_laki || "0", 10), 0);
+        siswaP = rombelRows.reduce((acc: number, curr: any) => acc + parseInt(curr.siswa_perempuan || "0", 10), 0);
         totalSiswa = siswaL + siswaP;
       }
     }

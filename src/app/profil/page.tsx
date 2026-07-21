@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { BookOpen, Users } from "lucide-react";
+import prisma from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteName = await getCachedSiteName();
@@ -11,22 +11,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-
 async function getPengurus() {
-  const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-  if (!spreadsheetId) return [];
   try {
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, "Pengurus", ['id', 'name', 'role', 'image_url', 'order', 'created_at']);
-    const rows = await sheet.getRows();
-    const data = rows.map(row => ({
-      id: row.get('id'),
-      name: row.get('name'),
-      role: row.get('role'),
-      image_url: row.get('image_url'),
-      order: parseInt(row.get('order') || "99", 10),
+    const data = await prisma.pengurus.findMany({
+      orderBy: { order: 'asc' }
+    });
+    return data.map((row: any) => ({
+      id: row.id,
+      name: row.name,
+      role: row.role,
+      image_url: row.image_url,
+      order: row.order,
     }));
-    data.sort((a, b) => a.order - b.order);
-    return data;
   } catch (error) {
     return [];
   }

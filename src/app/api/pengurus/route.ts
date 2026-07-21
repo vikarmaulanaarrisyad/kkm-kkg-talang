@@ -1,37 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
 import cloudinary from "@/lib/cloudinary";
 import { uploadToDrive } from "@/lib/google-drive";
 import { addActivityLog } from "@/lib/activity-log";
-
-const SHEET_TITLE = "Pengurus";
-const HEADERS = ['id', 'name', 'role', 'image_url', 'order', 'created_at'];
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-
-    const data = rows.map(row => ({
-      id: row.get('id'),
-      name: row.get('name'),
-      role: row.get('role'),
-      image_url: row.get('image_url'),
-      order: parseInt(row.get('order') || "99", 10),
-      created_at: row.get('created_at'),
-    }));
-
-    // Sort by order ascending, then by created_at descending
-    data.sort((a, b) => {
-      if (a.order !== b.order) return a.order - b.order;
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    const data = await prisma.pengurus.findMany({
+      orderBy: [
+        { order: "asc" },
+        { created_at: "desc" }
+      ]
     });
 
     return NextResponse.json({ data });
@@ -51,19 +32,14 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const name = formData.get('name') as string;
     const role = formData.get('role') as string;
-    const order = formData.get('order') as string || '99';
+    const orderStr = formData.get('order') as string;
+    const order = orderStr ? parseInt(orderStr, 10) : 99;
     const imageFile = formData.get('image') as File;
 
     if (!name || !role) {
       return NextResponse.json({ error: "Nama dan jabatan wajib diisi" }, { status: 400 });
     }
 
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) {
-      return NextResponse.json({ error: "Spreadsheet ID not configured" }, { status: 500 });
-    }
-
-    // Get Storage Provider setting (use cache)
     let storageProvider = "cloudinary";
     try {
       const { getCachedStorageProvider } = await import("@/lib/settings");
@@ -74,7 +50,6 @@ export async function POST(req: NextRequest) {
 
     let image_url = "";
 
-    // Upload image if exists
     if (imageFile && imageFile.size > 0) {
       const arrayBuffer = await imageFile.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -102,18 +77,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    
-    const id = Date.now().toString();
-    const created_at = new Date().toISOString();
-
-    await sheet.addRow({
-      id,
-      name,
-      role,
-      image_url,
-      order,
-      created_at
+    await prisma.pengurus.create({
+      data: {
+        name,
+        role,
+        image_url: image_url || null,
+        order
+      }
     });
 
     await addActivityLog("Menambahkan pengurus baru: " + name, session.user?.name || "Admin");

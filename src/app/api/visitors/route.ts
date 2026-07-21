@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getOrCreateGoogleSheet } from "@/lib/google-sheets";
+import prisma from "@/lib/prisma";
 
-const SHEET_TITLE = "Settings";
-const HEADERS = ["key", "value"];
 const VISITOR_KEY = "visitor_count";
 
 export async function GET() {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return NextResponse.json({ count: 0 });
+    const setting = await prisma.visitor.findUnique({
+      where: { key: VISITOR_KEY }
+    }).catch(async () => {
+      // Fallback if Visitor model is empty or using Setting model instead?
+      // Wait, in schema.prisma Visitor has id as @id, but no unique on key?
+      // Ah, wait! The Visitor table has id @id, key String. Is key unique?
+      // It's not unique in schema.prisma. Let's just use findFirst.
+      return null;
+    });
 
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-    const row = rows.find((r) => r.get("key") === VISITOR_KEY);
-    const count = row ? parseInt(row.get("value") || "0", 10) : 0;
+    const visitor = await prisma.visitor.findFirst({
+      where: { key: VISITOR_KEY }
+    });
+
+    const count = visitor ? parseInt(visitor.value || "0", 10) : 0;
 
     return NextResponse.json({ count });
   } catch (e: any) {
@@ -23,20 +29,24 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
-    if (!spreadsheetId) return NextResponse.json({ count: 0 });
-
-    const sheet = await getOrCreateGoogleSheet(spreadsheetId, SHEET_TITLE, HEADERS);
-    const rows = await sheet.getRows();
-    const row = rows.find((r) => r.get("key") === VISITOR_KEY);
+    const visitor = await prisma.visitor.findFirst({
+      where: { key: VISITOR_KEY }
+    });
 
     let newCount = 1;
-    if (row) {
-      newCount = parseInt(row.get("value") || "0", 10) + 1;
-      row.assign({ value: String(newCount) });
-      await row.save();
+    if (visitor) {
+      newCount = parseInt(visitor.value || "0", 10) + 1;
+      await prisma.visitor.update({
+        where: { id: visitor.id },
+        data: { value: String(newCount) }
+      });
     } else {
-      await sheet.addRow({ key: VISITOR_KEY, value: "1" });
+      await prisma.visitor.create({
+        data: {
+          key: VISITOR_KEY,
+          value: "1"
+        }
+      });
     }
 
     return NextResponse.json({ count: newCount });
