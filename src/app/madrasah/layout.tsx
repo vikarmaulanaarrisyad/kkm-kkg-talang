@@ -1,12 +1,24 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { BookOpen, LayoutDashboard, Users, GraduationCap, Mail, Calendar, KeyRound } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, GraduationCap, Mail, Calendar, KeyRound, Moon } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
-import MobileSidebar from "@/components/madrasah/MobileSidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarFooter,
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { SidebarNavItem } from "@/components/dashboard/SidebarNavItem";
+
 import { getCachedSiteName, getCachedUnreadSuratCount } from "@/lib/settings";
-import { MadrasahNavItem } from "@/components/madrasah/MadrasahNavItem";
 
 export default async function MadrasahLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession(authOptions);
@@ -22,70 +34,80 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
   const unreadCount = await getCachedUnreadSuratCount(madrasahId);
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      
-      {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between bg-emerald-950 p-4 text-white shadow-md z-30 sticky top-0">
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-amber-400" />
-          <span className="font-bold text-lg tracking-tight">{siteName}</span>
-        </div>
-        <MobileSidebar madrasahName={madrasahName} siteName={siteName} />
-      </div>
-
-      {/* Desktop Sidebar - Kemenag Theme */}
-      <aside className="hidden md:flex w-64 flex-shrink-0 bg-emerald-950 text-emerald-50 flex-col shadow-xl z-20 sticky top-0 h-screen overflow-y-auto">
-        <div className="p-6 border-b border-emerald-900">
-          <Link href="/madrasah" className="flex items-center gap-3 group">
-            <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-2.5 rounded-xl shadow-lg">
-              <BookOpen className="w-5 h-5 text-emerald-950" />
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-slate-50/50">
+        <Sidebar className="border-r border-slate-200 bg-white text-slate-800 shadow-sm">
+          <SidebarHeader className="p-6 flex items-center gap-3 border-b border-slate-100">
+            <div className="bg-emerald-600 p-2 rounded-xl text-white">
+              <BookOpen className="w-5 h-5" />
             </div>
-            <div>
-              <p className="font-extrabold text-sm leading-tight text-white tracking-wide">{siteName}</p>
-              <p className="text-xs text-emerald-200 truncate max-w-[130px] font-medium">{madrasahName}</p>
-            </div>
-          </Link>
-        </div>
-
-        <nav className="flex-1 px-4 py-6 space-y-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400 px-2 mb-4">Menu Utama</p>
-          <MadrasahNavItem href="/madrasah" icon={<LayoutDashboard />} title="Dashboard" exact />
-          <MadrasahNavItem href="/madrasah/guru" icon={<Users />} title="Data Guru" />
-          <MadrasahNavItem href="/madrasah/users" icon={<KeyRound />} title="Manajemen Akun" />
-          <MadrasahNavItem href="/madrasah/rombel" icon={<GraduationCap />} title="Data Rombel & Siswa" />
-          <MadrasahNavItem 
-            href="/madrasah/surat" 
-            icon={<Mail />} 
-            title="Surat Masuk" 
-            badge={unreadCount > 0 ? (
-              <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                {unreadCount}
-              </span>
-            ) : null}
-          />
-          <MadrasahNavItem href="/madrasah/kegiatan" icon={<Calendar />} title="Kegiatan & Presensi" />
-        </nav>
-
-        <div className="p-4 border-t border-emerald-900 bg-emerald-950/50">
-          <div className="flex items-center gap-3 mb-4 px-2">
-            <div className="w-9 h-9 rounded-full bg-emerald-800 border-2 border-amber-500/50 flex items-center justify-center text-xs font-bold text-amber-400 shadow-inner">
-              {madrasahName.substring(0, 2).toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-bold text-white truncate">{madrasahName}</p>
-              <p className="text-[10px] text-emerald-300 font-medium">Administrator Madrasah</p>
-            </div>
-          </div>
-          <div className="px-2">
+            <span className="font-extrabold text-lg tracking-tight text-emerald-800 line-clamp-1">
+              Admin Madrasah
+            </span>
+          </SidebarHeader>
+          <SidebarContent className="px-3 py-6">
+            <SidebarGroup>
+              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Menu Utama</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarNavItem href="/madrasah" icon={<LayoutDashboard />} title="Dashboard" exact />
+                  <SidebarNavItem href="/madrasah/guru" icon={<Users />} title="Data Guru" />
+                  <SidebarNavItem href="/madrasah/users" icon={<KeyRound />} title="Manajemen Akun" />
+                  <SidebarNavItem href="/madrasah/rombel" icon={<GraduationCap />} title="Data Rombel & Siswa" />
+                  <SidebarNavItem 
+                    href="/madrasah/surat" 
+                    icon={<Mail />} 
+                    title="Surat Masuk" 
+                    badge={unreadCount > 0 ? (
+                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                        {unreadCount}
+                      </span>
+                    ) : null}
+                  />
+                  <SidebarNavItem href="/madrasah/kegiatan" icon={<Calendar />} title="Kegiatan & Presensi" />
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+          <SidebarFooter className="p-4 border-t border-slate-100 bg-slate-50/50">
             <LogoutButton />
+          </SidebarFooter>
+        </Sidebar>
+        
+        <main className="flex-1 flex flex-col w-full min-w-0 relative">
+          <header className="sticky top-0 z-20 flex h-20 w-full items-center justify-between bg-white border-b border-slate-200 px-4 sm:px-6">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="text-slate-500 hover:bg-slate-100 rounded-xl" />
+              <div className="hidden sm:flex flex-col ml-2">
+                <span className="text-sm font-bold text-emerald-600 uppercase tracking-wider">ADMINISTRATOR PANEL</span>
+                <span className="text-xs font-medium text-slate-500">KKM-KKG-TALANG</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <button className="text-slate-400 hover:text-slate-600 transition-colors">
+                <Moon className="w-5 h-5" />
+              </button>
+              
+              <div className="flex items-center gap-3 border-l border-slate-200 pl-6">
+                <div className="hidden md:flex flex-col text-right">
+                  <span className="text-sm font-bold text-slate-800">{madrasahName}</span>
+                  <span className="text-xs font-medium text-slate-500">Admin Sekolah</span>
+                </div>
+                <Avatar className="h-10 w-10 border-2 border-emerald-100">
+                  <AvatarFallback className="bg-emerald-600 text-white font-bold">{madrasahName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
+          </header>
+          
+          <div className="flex-1 overflow-auto bg-slate-50">
+            <div className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full h-full">
+              {children}
+            </div>
           </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 w-full overflow-x-hidden overflow-y-auto p-4 md:p-6 lg:p-8">
-        {children}
-      </main>
-    </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 }

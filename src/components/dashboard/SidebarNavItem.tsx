@@ -26,22 +26,27 @@ export function SidebarNavItem({
       <SidebarMenuButton 
         tooltip={title} 
         isActive={isActive}
-        render={
-          <Link 
-            href={href} 
-            className={`flex items-center px-4 py-3 rounded-xl text-sm transition-all duration-300 ${
-              isActive 
-                ? 'bg-emerald-50 text-emerald-700 font-bold shadow-sm' 
-                : 'font-medium hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-sm'
-            }`} 
-          />
-        }
+        className={`relative flex items-center px-4 py-3 text-sm transition-all duration-300 w-full overflow-hidden ${
+          isActive 
+            ? 'bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-50 hover:text-emerald-700' 
+            : 'font-medium hover:bg-slate-100 hover:text-slate-900 text-slate-500'
+        }`}
+        asChild
       >
-        <div className={`mr-3 flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 [&>svg]:shrink-0 transition-transform ${isActive ? 'text-emerald-600 scale-110' : 'text-sidebar-primary'}`}>
-          {icon}
-        </div>
-        <span className="flex-1">{title}</span>
-        {badge}
+        <Link href={href} className="flex items-center w-full">
+          {isActive && (
+            <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-600 rounded-r-full" />
+          )}
+          <div className={`mr-3 flex items-center justify-center [&>svg]:w-4 [&>svg]:h-4 [&>svg]:shrink-0 transition-transform ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+            {icon}
+          </div>
+          <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{title}</span>
+          {badge && (
+            <div className="ml-2">
+              {badge}
+            </div>
+          )}
+        </Link>
       </SidebarMenuButton>
     </SidebarMenuItem>
   );

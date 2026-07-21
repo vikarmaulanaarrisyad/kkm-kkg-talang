@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -11,22 +11,11 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { SidebarNavItem } from "@/components/dashboard/SidebarNavItem";
 
 import { getCachedSiteName, getCachedPendingMadrasahCount } from "@/lib/settings";
@@ -47,21 +36,19 @@ export default async function DashboardLayout({
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-mesh">
-        <Sidebar className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-[4px_0_24px_rgba(0,0,0,0.1)]">
-          <SidebarHeader className="p-6 flex items-center justify-center border-b border-sidebar-border">
-            <Link href="/" className="flex items-center gap-3 group hover-float">
-              <div className="bg-sidebar-primary p-2 rounded-xl shadow-lg shadow-black/20">
-                <BookOpen className="w-5 h-5 text-sidebar-primary-foreground" />
-              </div>
-              <span className="font-bold text-lg tracking-tight text-sidebar-foreground line-clamp-1">
-                {siteName}
-              </span>
-            </Link>
+      <div className="flex min-h-screen w-full bg-slate-50/50">
+        <Sidebar className="border-r border-slate-200 bg-white text-slate-800 shadow-sm">
+          <SidebarHeader className="p-6 flex items-center gap-3 border-b border-slate-100">
+            <div className="bg-emerald-600 p-2 rounded-xl text-white">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <span className="font-extrabold text-lg tracking-tight text-emerald-800 line-clamp-1">
+              Admin KKG
+            </span>
           </SidebarHeader>
           <SidebarContent className="px-3 py-6">
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Utama</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Menu Utama</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem href="/dashboard" icon={<LayoutDashboard />} title="Dashboard" exact />
@@ -78,14 +65,14 @@ export default async function DashboardLayout({
             </SidebarGroup>
 
             <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Madrasah</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Madrasah</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem 
                     href="/dashboard/madrasah" 
                     icon={<School />} 
                     title="Kelola Madrasah" 
-                    badge={pendingCount > 0 ? <span className="ml-auto bg-amber-500 text-white text-xs font-black w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">{pendingCount}</span> : null}
+                    badge={pendingCount > 0 ? <span className="ml-auto bg-amber-500 text-white text-xs font-black px-2 py-0.5 rounded-full">{pendingCount}</span> : null}
                   />
                   <SidebarNavItem href="/dashboard/guru" icon={<Users />} title="Data Guru" />
                   <SidebarNavItem href="/dashboard/users" icon={<KeyRound />} title="Manajemen Akun" />
@@ -94,7 +81,7 @@ export default async function DashboardLayout({
             </SidebarGroup>
 
             <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-sidebar-foreground/60 mb-3 px-4">Sistem</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Sistem</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem href="/dashboard/tahun-ajaran" icon={<Calendar />} title="Tahun Ajaran" />
@@ -104,48 +91,40 @@ export default async function DashboardLayout({
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="p-4 border-t border-sidebar-border bg-sidebar-accent/20">
-            <div className="flex items-center gap-3 mb-4 px-2">
-              <Avatar className="h-10 w-10 border-2 border-sidebar-primary/40 shadow-sm">
-                <AvatarImage src="" alt={userName} />
-                <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground font-bold">{userInitials}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-sidebar-foreground leading-none">{userName}</span>
-                <span className="text-xs font-medium text-sidebar-primary mt-1">Administrator</span>
-              </div>
-            </div>
+          <SidebarFooter className="p-4 border-t border-slate-100 bg-slate-50/50">
             <LogoutButton />
           </SidebarFooter>
         </Sidebar>
         
         <main className="flex-1 flex flex-col w-full min-w-0 relative">
-          <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-8 mt-4 shrink-0">
-            <header className="sticky top-4 z-10 flex h-16 w-full items-center gap-4 rounded-2xl glass-panel px-4 sm:px-6 transition-all">
-              <SidebarTrigger className="-ml-2 text-primary hover:bg-primary/10 rounded-xl" />
-              <Separator orientation="vertical" className="h-6 bg-border/50" />
-              <Breadcrumb className="hidden sm:flex">
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard" className="text-sm font-semibold text-muted-foreground hover:text-primary transition-colors">Admin</BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="text-sm font-bold gradient-kemenag-text">Dashboard</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
-              
-              <div className="ml-auto flex items-center gap-4">
-                <button className="relative p-2.5 text-muted-foreground hover:text-primary transition-all rounded-xl hover:bg-primary/10">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm animate-pulse"></span>
-                </button>
+          <header className="sticky top-0 z-20 flex h-20 w-full items-center justify-between bg-white border-b border-slate-200 px-4 sm:px-6">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="text-slate-500 hover:bg-slate-100 rounded-xl" />
+              <div className="hidden sm:flex flex-col ml-2">
+                <span className="text-sm font-bold text-emerald-600 uppercase tracking-wider">ADMINISTRATOR PANEL</span>
+                <span className="text-xs font-medium text-slate-500">KKM-KKG-TALANG</span>
               </div>
-            </header>
-          </div>
-          <div className="flex-1 overflow-auto">
-            <div className="p-4 sm:p-8 pt-8 max-w-[1400px] mx-auto w-full h-full">
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <button className="text-slate-400 hover:text-slate-600 transition-colors">
+                <Moon className="w-5 h-5" />
+              </button>
+              
+              <div className="flex items-center gap-3 border-l border-slate-200 pl-6">
+                <div className="hidden md:flex flex-col text-right">
+                  <span className="text-sm font-bold text-slate-800">{userName}</span>
+                  <span className="text-xs font-medium text-slate-500">Admin Utama</span>
+                </div>
+                <Avatar className="h-10 w-10 border-2 border-emerald-100">
+                  <AvatarFallback className="bg-emerald-600 text-white font-bold">{userInitials}</AvatarFallback>
+                </Avatar>
+              </div>
+            </div>
+          </header>
+          
+          <div className="flex-1 overflow-auto bg-slate-50">
+            <div className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full h-full">
               {children}
             </div>
           </div>
