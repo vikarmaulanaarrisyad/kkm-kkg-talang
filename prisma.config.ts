@@ -4,12 +4,16 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 import { defineConfig } from "prisma/config";
 
+// Use DIRECT_URL for db push, otherwise use DATABASE_URL (connection pool)
+const isPush = process.argv.includes('push');
+const dbUrl = isPush ? (process.env["DIRECT_URL"] || process.env["DATABASE_URL"]) : process.env["DATABASE_URL"];
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: dbUrl,
   },
 });
