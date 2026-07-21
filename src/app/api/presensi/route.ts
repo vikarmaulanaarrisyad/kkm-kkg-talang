@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Ambil data guru terkait untuk nama & madrasah_id
-    const guruIds = [...new Set(presensis.map(p => p.guru_id))];
+    const guruIds = [...new Set(presensis.map((p: any) => p.guru_id))];
     const gurus = await prisma.guru.findMany({
       where: { id: { in: guruIds } },
       select: { id: true, nama: true, madrasah_id: true }
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     
     const guruMap = new Map(gurus.map(g => [g.id, g]));
 
-    let data = presensis.map(p => {
+    let data = presensis.map((p: any) => {
       const guru = guruMap.get(p.guru_id);
       return {
         id: p.id,
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
 
     // Filter by madrasah_id if role is madrasah and searching by kegiatan
     if (role === "madrasah" && !guruIdParam) {
-      data = data.filter(d => d.madrasah_id === userMadrasahId);
+      data = data.filter((d: any) => d.madrasah_id === userMadrasahId);
     }
 
     return NextResponse.json(data);
