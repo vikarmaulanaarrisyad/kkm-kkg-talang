@@ -37,18 +37,20 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-slate-50/50">
-        <Sidebar className="border-r border-slate-200 bg-white text-slate-800 shadow-sm">
-          <SidebarHeader className="p-6 flex items-center gap-3 border-b border-slate-100">
-            <div className="bg-emerald-600 p-2 rounded-xl text-white">
-              <BookOpen className="w-5 h-5" />
+        <Sidebar>
+          <SidebarHeader className="p-4 border-b">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary p-2 rounded-lg text-primary-foreground">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <span className="font-bold text-lg tracking-tight">
+                Admin KKG
+              </span>
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-emerald-800 line-clamp-1">
-              Admin KKG
-            </span>
           </SidebarHeader>
-          <SidebarContent className="px-3 py-6">
+          <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Menu Utama</SidebarGroupLabel>
+              <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem href="/dashboard" icon={<LayoutDashboard />} title="Dashboard" exact />
@@ -64,15 +66,15 @@ export default async function DashboardLayout({
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Madrasah</SidebarGroupLabel>
+            <SidebarGroup>
+              <SidebarGroupLabel>Madrasah</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem 
                     href="/dashboard/madrasah" 
                     icon={<School />} 
                     title="Kelola Madrasah" 
-                    badge={pendingCount > 0 ? <span className="ml-auto bg-amber-500 text-white text-xs font-black px-2 py-0.5 rounded-full">{pendingCount}</span> : null}
+                    badge={pendingCount > 0 ? <span className="ml-auto bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5 rounded-full">{pendingCount}</span> : null}
                   />
                   <SidebarNavItem href="/dashboard/guru" icon={<Users />} title="Data Guru" />
                   <SidebarNavItem href="/dashboard/users" icon={<KeyRound />} title="Manajemen Akun" />
@@ -80,8 +82,8 @@ export default async function DashboardLayout({
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <SidebarGroup className="mt-6">
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Sistem</SidebarGroupLabel>
+            <SidebarGroup>
+              <SidebarGroupLabel>Sistem</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem href="/dashboard/tahun-ajaran" icon={<Calendar />} title="Tahun Ajaran" />
@@ -91,7 +93,7 @@ export default async function DashboardLayout({
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="p-4 border-t border-slate-100 bg-slate-50/50">
+          <SidebarFooter className="p-4 border-t">
             <LogoutButton />
           </SidebarFooter>
         </Sidebar>

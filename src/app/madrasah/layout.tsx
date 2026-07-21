@@ -36,18 +36,20 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-slate-50/50">
-        <Sidebar className="border-r border-slate-200 bg-white text-slate-800 shadow-sm">
-          <SidebarHeader className="p-6 flex items-center gap-3 border-b border-slate-100">
-            <div className="bg-emerald-600 p-2 rounded-xl text-white">
-              <BookOpen className="w-5 h-5" />
+        <Sidebar>
+          <SidebarHeader className="p-4 border-b">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary p-2 rounded-lg text-primary-foreground">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <span className="font-bold text-lg tracking-tight">
+                Admin Madrasah
+              </span>
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-emerald-800 line-clamp-1">
-              Admin Madrasah
-            </span>
           </SidebarHeader>
-          <SidebarContent className="px-3 py-6">
+          <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3 px-4">Menu Utama</SidebarGroupLabel>
+              <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
                   <SidebarNavItem href="/madrasah" icon={<LayoutDashboard />} title="Dashboard" exact />
@@ -59,7 +61,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
                     icon={<Mail />} 
                     title="Surat Masuk" 
                     badge={unreadCount > 0 ? (
-                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      <span className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full">
                         {unreadCount}
                       </span>
                     ) : null}
@@ -69,7 +71,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
               </SidebarGroupContent>
             </SidebarGroup>
           </SidebarContent>
-          <SidebarFooter className="p-4 border-t border-slate-100 bg-slate-50/50">
+          <SidebarFooter className="p-4 border-t">
             <LogoutButton />
           </SidebarFooter>
         </Sidebar>
