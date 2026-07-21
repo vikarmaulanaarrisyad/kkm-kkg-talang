@@ -14,11 +14,48 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const filterMadrasahId = url.searchParams.get("madrasah_id");
 
+    const page = parseInt(url.searchParams.get("page") || "1");
+    const limit = parseInt(url.searchParams.get("limit") || "10");
+    const search = url.searchParams.get("search") || "";
+    const isPaginated = url.searchParams.get("paginated") === "true";
+
     let whereClause: any = {};
     if (role === "madrasah") {
       whereClause.madrasah_id = madrasahId;
     } else if (role === "admin" && filterMadrasahId) {
       whereClause.madrasah_id = filterMadrasahId;
+    }
+
+    if (search) {
+      whereClause.OR = [
+        { nama: { contains: search, mode: "insensitive" } },
+        { nuptk: { contains: search, mode: "insensitive" } },
+        { nip: { contains: search, mode: "insensitive" } },
+        { peg_id: { contains: search, mode: "insensitive" } }
+      ];
+    }
+
+    if (isPaginated) {
+      const skip = (page - 1) * limit;
+      const [data, total] = await Promise.all([
+        prisma.guru.findMany({
+          where: whereClause,
+          orderBy: { created_at: "desc" },
+          skip,
+          take: limit
+        }),
+        prisma.guru.count({ where: whereClause })
+      ]);
+      
+      return NextResponse.json({
+        data,
+        metadata: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit)
+        }
+      });
     }
 
     const data = await prisma.guru.findMany({

@@ -233,43 +233,50 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
   );
 }
 
+import { DataTable, ColumnDef, DataTableMeta } from "@/components/ui/data-table";
+
 export default function MadrasahGuruPage() {
-  const [guru, setGuru] = useState<Guru[]>([]);
-  const [masterData, setMasterData] = useState<any[]>([]);
+  const [data, setData] = useState<Guru[]>([]);
+  const [meta, setMeta] = useState<DataTableMeta>({ total: 0, page: 1, limit: 10, totalPages: 1 });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const [masterData, setMasterData] = useState<any[]>([]);
   const [mode, setMode] = useState<"list" | "form">("list");
   const [selected, setSelected] = useState<Guru | null>(null);
-  const [search, setSearch] = useState("");
-
+  
   const fetchData = async () => {
     setLoading(true);
     try {
       const [resGuru, resMaster] = await Promise.all([
-        fetch("/api/guru"),
+        fetch(`/api/guru?paginated=true&page=${page}&limit=10&search=${encodeURIComponent(search)}`),
         fetch("/api/master")
       ]);
-      const dataGuru = await resGuru.json();
-      const dataMaster = await resMaster.json();
+      const jsonGuru = await resGuru.json();
+      const jsonMaster = await resMaster.json();
       
-      setGuru(Array.isArray(dataGuru) ? dataGuru : []);
-      setMasterData(Array.isArray(dataMaster) ? dataMaster : []);
+      if (jsonGuru.data) {
+        setData(jsonGuru.data);
+        setMeta(jsonGuru.metadata);
+      } else {
+        setData(Array.isArray(jsonGuru) ? jsonGuru : []);
+      }
+      setMasterData(Array.isArray(jsonMaster) ? jsonMaster : []);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [page, search]);
 
   const handleSave = async (form: any) => {
-    setSaving(true);
     Swal.fire({
       title: 'Menyimpan...',
       text: 'Mohon tunggu sebentar',
       allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
+      didOpen: () => Swal.showLoading()
     });
 
     try {
@@ -284,14 +291,14 @@ export default function MadrasahGuruPage() {
       const data = await res.json();
       if (!res.ok) { Swal.fire("Gagal", data.error, "error"); return false; }
       
-      await fetchData(); // Await fetch data so table updates before showing success
-      
       Swal.fire("Berhasil", `Data guru berhasil ${isEdit ? "diperbarui" : "ditambahkan"}`, "success");
       setMode("list");
       setSelected(null);
+      fetchData();
       return true;
-    } finally {
-      setSaving(false);
+    } catch (e: any) {
+      Swal.fire("Error", e.message, "error");
+      return false;
     }
   };
 
@@ -306,14 +313,18 @@ export default function MadrasahGuruPage() {
       confirmButtonColor: "#ef4444",
     });
     if (!result.isConfirmed) return;
-    const res = await fetch(`/api/guru/${g.id}`, { method: "DELETE" });
-    const data = await res.json();
-    if (!res.ok) { Swal.fire("Gagal", data.error, "error"); return; }
-    Swal.fire("Dihapus", "Data guru dihapus", "success");
-    fetchData();
+    
+    Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    try {
+      const res = await fetch(`/api/guru/${g.id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) { Swal.fire("Gagal", data.error, "error"); return; }
+      Swal.fire("Dihapus", "Data guru dihapus", "success");
+      fetchData();
+    } catch (e: any) {
+      Swal.fire("Error", e.message, "error");
+    }
   };
-
-  const filtered = guru.filter(g => g.nama?.toLowerCase().includes(search.toLowerCase()) || g.nuptk?.includes(search));
 
   const statusColor = (s: string) => {
     if (s === "PNS") return "bg-emerald-100 text-emerald-700 border-emerald-200";
@@ -321,34 +332,103 @@ export default function MadrasahGuruPage() {
     return "bg-yellow-100 text-yellow-700 border-yellow-200";
   };
 
+  const columns: ColumnDef<Guru>[] = [
+    {
+      header: "No",
+      className: "w-[50px] text-center",
+      cell: (_: any, index: number) => (
+        <span className="font-medium text-muted-foreground">
+          {(meta.page - 1) * meta.limit + index + 1}
+        </span>
+      )
+    },
+    {
+      header: "Nama Guru",
+      cell: (g: Guru) => (
+        <div>
+          <div className="font-bold text-gray-900 text-base">
+            {g.gelar_depan ? `${g.gelar_depan} ` : ""}{g.nama}{g.gelar_belakang ? `, ${g.gelar_belakang}` : ""}
+          </div>
+          <div className="text-xs font-medium text-gray-500 mt-0.5">
+            {g.jenis_kelamin === "L" ? "Laki-laki" : g.jenis_kelamin === "P" ? "Perempuan" : ""}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Identitas",
+      cell: (g: Guru) => (
+        <div className="flex flex-col gap-1 text-xs font-mono">
+          {g.nuptk ? <span><span className="text-gray-400 font-sans mr-1">NUPTK:</span>{g.nuptk}</span> : null}
+          {g.peg_id ? <span><span className="text-gray-400 font-sans mr-1">PegID:</span>{g.peg_id}</span> : null}
+          {g.nip ? <span><span className="text-gray-400 font-sans mr-1">NIP:</span>{g.nip}</span> : null}
+          {(!g.nuptk && !g.peg_id && !g.nip) && <span className="text-gray-400 font-sans">—</span>}
+        </div>
+      ),
+    },
+    {
+      header: "Status",
+      cell: (g: Guru) => (
+        g.status_kepegawaian ? (
+          <span className={`text-xs font-bold px-3 py-1 rounded-full border ${statusColor(g.status_kepegawaian)} shadow-sm`}>
+            {g.status_kepegawaian}
+          </span>
+        ) : <span className="text-gray-400">—</span>
+      ),
+    },
+    {
+      header: "Jabatan & Studi",
+      cell: (g: Guru) => (
+        <div>
+          <div className="text-sm font-semibold text-gray-800">{g.jabatan || "—"}</div>
+          <div className="text-xs font-medium text-emerald-600 mt-0.5 bg-emerald-50 w-max px-2 py-0.5 rounded">{g.bidang_studi || "—"}</div>
+        </div>
+      ),
+    },
+    {
+      header: "Aksi",
+      className: "text-right",
+      cell: (g: Guru) => (
+        <div className="flex items-center justify-end gap-2">
+          <Button size="sm" variant="outline" className="gap-1.5 h-8 bg-white hover:bg-gray-50 rounded-lg shadow-sm border-gray-200" onClick={() => { setSelected(g); setMode("form"); }}>
+            <Pencil className="w-3.5 h-3.5 text-blue-600" /> <span className="text-gray-700">Edit</span>
+          </Button>
+          <Button size="sm" variant="outline" className="h-8 bg-white text-red-600 hover:text-red-700 hover:bg-red-50 border-red-100 rounded-lg shadow-sm" onClick={() => handleDelete(g)}>
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   if (mode === "form") {
     const isEdit = !!selected;
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div className="flex items-start sm:items-center gap-4">
-              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm shrink-0">
-                {isEdit ? <Pencil className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-md shadow-sm shrink-0">
+                {isEdit ? <Pencil className="w-6 h-6 text-amber-300" /> : <Plus className="w-6 h-6 text-emerald-100" />}
               </div>
               <div>
-                <div className="flex flex-wrap items-center gap-2 text-emerald-200 text-xs font-semibold mb-1">
+                <div className="flex flex-wrap items-center gap-2 text-emerald-100 text-xs font-semibold mb-1 uppercase tracking-wider">
                   <span>Portal Madrasah</span>
-                  <ChevronRight className="w-3 h-3" />
+                  <ChevronRight className="w-3 h-3 text-emerald-300/50" />
                   <span>Data Guru</span>
-                  <ChevronRight className="w-3 h-3" />
-                  <span>{isEdit ? "Edit" : "Tambah"}</span>
+                  <ChevronRight className="w-3 h-3 text-emerald-300/50" />
+                  <span className="text-amber-300">{isEdit ? "Edit Data" : "Tambah Baru"}</span>
                 </div>
-                <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">
-                  {isEdit ? `Edit Data: ${selected!.nama}` : "Tambah Data Guru Baru"}
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  {isEdit ? `Edit: ${selected!.nama}` : "Tambah Guru Baru"}
                 </h1>
-                <p className="text-emerald-100 text-xs sm:text-sm mt-0.5">Isi formulir berikut dengan data yang lengkap dan akurat</p>
               </div>
             </div>
             <button
               onClick={() => { setMode("list"); setSelected(null); }}
-              className="flex items-center justify-center gap-2 text-sm font-medium text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-all w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 text-sm font-bold text-emerald-900 bg-white hover:bg-emerald-50 px-5 py-2.5 rounded-xl shadow-md transition-all w-full sm:w-auto hover:scale-105 active:scale-95"
             >
               <ArrowLeft className="w-4 h-4" /> Kembali
             </button>
@@ -356,105 +436,42 @@ export default function MadrasahGuruPage() {
         </div>
 
         {/* Form */}
-        <GuruForm
-          initial={selected || undefined}
-          onSave={handleSave}
-          onCancel={() => { setMode("list"); setSelected(null); }}
-          loading={saving}
-          masterData={masterData}
-        />
+        <div className="bg-white p-2 rounded-3xl shadow-sm border border-gray-100">
+          <GuruForm
+            initial={selected || undefined}
+            onSave={handleSave}
+            onCancel={() => { setMode("list"); setSelected(null); }}
+            loading={false}
+            masterData={masterData}
+          />
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Data Guru</h1>
-          <p className="text-sm text-muted-foreground">Kelola data guru madrasah Anda</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">Data Guru</h1>
+          <p className="text-sm font-medium text-gray-500 mt-1">Kelola data seluruh pendidik di madrasah Anda dengan mudah.</p>
         </div>
-        <Button onClick={() => { setSelected(null); setMode("form"); }} className="gap-2">
-          <Plus className="w-4 h-4" /> Tambah Guru
+        <Button onClick={() => { setSelected(null); setMode("form"); }} className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-600/20 px-6 py-5 font-bold transition-all hover:scale-105 active:scale-95">
+          <Plus className="w-5 h-5" /> Tambah Guru Baru
         </Button>
       </div>
 
-      <div className="flex gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Cari nama atau NUPTK..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <Badge variant="secondary" className="h-10 px-4 flex items-center font-bold">{filtered.length} Guru</Badge>
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <DataTable
+          columns={columns}
+          data={data}
+          meta={meta}
+          loading={loading}
+          onSearch={(s) => { setSearch(s); setPage(1); }}
+          onPageChange={(p) => setPage(p)}
+          searchPlaceholder="Cari nama, NUPTK, NIP, atau PegID..."
+        />
       </div>
-
-      {loading ? (
-        <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>
-      ) : filtered.length === 0 ? (
-        <Card><CardContent className="py-16 text-center">
-          <Users className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4" />
-          <p className="font-semibold text-muted-foreground">Belum ada data guru</p>
-          <p className="text-sm text-muted-foreground mt-1">Klik "Tambah Guru" untuk mulai mengisi data.</p>
-        </CardContent></Card>
-      ) : (
-        <div className="bg-card border rounded-2xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-muted-foreground uppercase bg-muted/50 border-b">
-                <tr>
-                  <th className="px-4 py-4 font-bold">No</th>
-                  <th className="px-4 py-4 font-bold">Nama Guru</th>
-                  <th className="px-4 py-4 font-bold">Identitas (NUPTK/PegID)</th>
-                  <th className="px-4 py-4 font-bold">Status</th>
-                  <th className="px-4 py-4 font-bold">Jabatan & Studi</th>
-                  <th className="px-4 py-4 font-bold text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filtered.map((g, i) => (
-                  <tr key={g.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-4 text-muted-foreground">{i + 1}</td>
-                    <td className="px-4 py-4">
-                      <div className="font-bold text-foreground">
-                        {g.gelar_depan ? `${g.gelar_depan} ` : ""}{g.nama}{g.gelar_belakang ? `, ${g.gelar_belakang}` : ""}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{g.jenis_kelamin === "L" ? "Laki-laki" : g.jenis_kelamin === "P" ? "Perempuan" : ""}</div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-col gap-1 text-xs font-mono">
-                        {g.nuptk ? <span><span className="text-muted-foreground mr-1">NUPTK:</span>{g.nuptk}</span> : null}
-                        {g.peg_id ? <span><span className="text-muted-foreground mr-1">PegID:</span>{g.peg_id}</span> : null}
-                        {g.nip ? <span><span className="text-muted-foreground mr-1">NIP:</span>{g.nip}</span> : null}
-                        {(!g.nuptk && !g.peg_id && !g.nip) && <span className="text-muted-foreground">—</span>}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      {g.status_kepegawaian ? (
-                        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusColor(g.status_kepegawaian)}`}>
-                          {g.status_kepegawaian}
-                        </span>
-                      ) : <span className="text-muted-foreground">—</span>}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="text-sm font-medium">{g.jabatan || "—"}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{g.bidang_studi || "—"}</div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="outline" className="gap-1.5 h-8" onClick={() => { setSelected(g); setMode("form"); }}>
-                          <Pencil className="w-3.5 h-3.5" /> Edit
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(g)}>
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
