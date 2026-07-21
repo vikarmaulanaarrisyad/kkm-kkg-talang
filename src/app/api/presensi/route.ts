@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
     const guruMap = new Map(gurus.map((g: any) => [g.id, g]));
 
     let data = presensis.map((p: any) => {
-      const guru = guruMap.get(p.guru_id);
+      const guru: any = guruMap.get(p.guru_id);
       return {
         id: p.id,
         kegiatan_id: p.jadwal_id,
