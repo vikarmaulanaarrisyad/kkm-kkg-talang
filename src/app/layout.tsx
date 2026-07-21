@@ -22,8 +22,16 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: siteName,
     description: siteDescription,
+    manifest: "/manifest.json",
+    themeColor: "#10b981",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: siteName,
+    },
     icons: {
       icon: siteLogo,
+      apple: "/icon-192x192.png",
     }
   };
 }
