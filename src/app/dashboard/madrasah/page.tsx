@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DataTable } from "@/components/ui/data-table";
 import Swal from "sweetalert2";
 
 type Madrasah = {
@@ -231,6 +232,73 @@ export default function AdminMadrasahPage() {
     fetchData();
   };
 
+  const columns = [
+    {
+      header: "No",
+      className: "w-[50px] text-center",
+      cell: (_: any, i: number) => <span className="font-medium text-muted-foreground">{(meta.page - 1) * meta.limit + i + 1}</span>
+    },
+    {
+      header: "Identitas Madrasah",
+      cell: (m: Madrasah) => (
+        <div className="flex items-start gap-3">
+          <div className={`p-2 rounded-lg shrink-0 ${m.status === "pending" ? "bg-amber-100" : m.status === "rejected" ? "bg-red-100" : "bg-emerald-100"}`}>
+            <School className={`w-4 h-4 ${m.status === "pending" ? "text-amber-600" : m.status === "rejected" ? "text-red-600" : "text-emerald-600"}`} />
+          </div>
+          <div>
+            <p className="font-semibold text-foreground">{m.nama}</p>
+            <p className="text-xs text-muted-foreground">{m.kecamatan || "Alamat tidak tersedia"}</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "NSM / NPSN",
+      cell: (m: Madrasah) => (
+        <div className="flex flex-col space-y-1">
+          <span className="text-sm font-mono">{m.nsm || "-"}</span>
+          <span className="text-xs text-muted-foreground font-mono">{m.npsn || "-"}</span>
+        </div>
+      )
+    },
+    {
+      header: "Username",
+      cell: (m: Madrasah) => (
+        <Badge variant="secondary" className="font-mono text-xs font-normal">
+          @{m.username}
+        </Badge>
+      )
+    },
+    {
+      header: "Status",
+      cell: (m: Madrasah) => <StatusBadge status={m.status || "active"} />
+    },
+    {
+      header: "Aksi",
+      className: "text-right",
+      cell: (m: Madrasah) => (
+        <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
+          {m.status === "pending" && (
+            <>
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => changeStatus(m, "active")} title="Aktifkan">
+                <CheckCircle className="h-4 w-4" />
+              </Button>
+              <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => changeStatus(m, "rejected")} title="Tolak">
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" onClick={() => openModal(m)} title="Edit">
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(m)} title="Hapus">
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -248,161 +316,38 @@ export default function AdminMadrasahPage() {
         </div>
       </div>
 
-      <Card className="shadow-sm border-border/50">
-        <CardHeader className="pb-3 border-b border-border/50">
-          <div className="flex flex-col md:flex-row justify-between gap-4">
-            <div className="flex bg-muted/50 p-1 rounded-xl w-fit">
-              {[
-                { key: "pending", label: "Menunggu" },
-                { key: "active", label: "Aktif" },
-                { key: "rejected", label: "Ditolak" },
-                { key: "all", label: "Semua" },
-              ].map(t => (
-                <button
-                  key={t.key}
-                  onClick={() => setTab(t.key as Tab)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    tab === t.key ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            <div className="relative w-full md:w-72">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Cari nama, nsm, atau username..."
-                className="pl-9 h-10 bg-muted/30 border-border/50"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </div>
+      <DataTable 
+        columns={columns}
+        data={list}
+        meta={meta}
+        loading={loading}
+        searchPlaceholder="Cari nama, nsm, atau username..."
+        initialSearch={search}
+        onSearch={setSearch}
+        onPageChange={setPage}
+        emptyMessage="Tidak ada data madrasah ditemukan."
+        emptyIcon={<School className="w-10 h-10 mb-3 opacity-20" />}
+        tabs={
+          <div className="flex bg-muted/50 p-1 rounded-xl w-fit">
+            {[
+              { key: "pending", label: "Menunggu" },
+              { key: "active", label: "Aktif" },
+              { key: "rejected", label: "Ditolak" },
+              { key: "all", label: "Semua" },
+            ].map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key as Tab)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  tab === t.key ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow>
-                <TableHead className="w-[50px] text-center">No</TableHead>
-                <TableHead>Identitas Madrasah</TableHead>
-                <TableHead>NSM / NPSN</TableHead>
-                <TableHead>Username</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell><Skeleton className="h-4 w-8 mx-auto" /></TableCell>
-                    <TableCell><Skeleton className="h-10 w-full max-w-[200px]" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
-                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                    <TableCell><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
-                  </TableRow>
-                ))
-              ) : list.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-48 text-center">
-                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <School className="w-10 h-10 mb-3 opacity-20" />
-                      <p>Tidak ada data madrasah ditemukan.</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                list.map((m, i) => (
-                  <TableRow key={m.id} className="hover:bg-muted/30 transition-colors group">
-                    <TableCell className="text-center font-medium text-muted-foreground">
-                      {(meta.page - 1) * meta.limit + i + 1}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-start gap-3">
-                        <div className={`p-2 rounded-lg shrink-0 ${m.status === "pending" ? "bg-amber-100" : m.status === "rejected" ? "bg-red-100" : "bg-emerald-100"}`}>
-                          <School className={`w-4 h-4 ${m.status === "pending" ? "text-amber-600" : m.status === "rejected" ? "text-red-600" : "text-emerald-600"}`} />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-foreground">{m.nama}</p>
-                          <p className="text-xs text-muted-foreground">{m.kecamatan || "Alamat tidak tersedia"}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col space-y-1">
-                        <span className="text-sm font-mono">{m.nsm || "-"}</span>
-                        <span className="text-xs text-muted-foreground font-mono">{m.npsn || "-"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="font-mono text-xs font-normal">
-                        @{m.username}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={m.status || "active"} />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-40 group-hover:opacity-100 transition-opacity">
-                        {m.status === "pending" && (
-                          <>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50" onClick={() => changeStatus(m, "active")} title="Aktifkan">
-                              <CheckCircle className="h-4 w-4" />
-                            </Button>
-                            <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => changeStatus(m, "rejected")} title="Tolak">
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50" onClick={() => openModal(m)} title="Edit">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(m)} title="Hapus">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-
-          {/* Pagination */}
-          {meta.totalPages > 1 && (
-            <div className="border-t border-border/50 p-4 flex items-center justify-between bg-muted/10">
-              <span className="text-sm text-muted-foreground">
-                Menampilkan {(meta.page - 1) * meta.limit + 1} - {Math.min(meta.page * meta.limit, meta.total)} dari {meta.total} data
-              </span>
-              <div className="flex gap-1">
-                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1} className="h-8 w-8 p-0">
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                {Array.from({ length: meta.totalPages }).map((_, i) => {
-                  const p = i + 1;
-                  // Show max 5 pages, hide others with ellipsis
-                  if (meta.totalPages > 5) {
-                    if (p !== 1 && p !== meta.totalPages && Math.abs(page - p) > 1) {
-                      if (p === 2 || p === meta.totalPages - 1) return <span key={p} className="px-2">...</span>;
-                      return null;
-                    }
-                  }
-                  return (
-                    <Button key={p} variant={page === p ? "default" : "outline"} size="sm" className="h-8 w-8 p-0" onClick={() => setPage(p)}>
-                      {p}
-                    </Button>
-                  );
-                })}
-                <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(p + 1, meta.totalPages))} disabled={page === meta.totalPages} className="h-8 w-8 p-0">
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        }
+      />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
