@@ -44,8 +44,19 @@ model Guru {
   nama          String
   nip           String?
   peg_id        String?
-  nuptk         String?
-  password_hash String?
+  nuptk               String?
+  gelar_depan         String?
+  gelar_belakang      String?
+  tempat_lahir        String?
+  tanggal_lahir       String?
+  jenis_kelamin       String?
+  jabatan             String?
+  status_kepegawaian  String?
+  pendidikan_terakhir String?
+  bidang_studi        String?
+  no_hp               String?
+  email               String?
+  password_hash       String?
   created_at    DateTime @default(now())
 
   @@map("gurus")
@@ -171,7 +182,7 @@ model Setting {
 
 model Visitor {
   id          String   @id @default(cuid())
-  key         String
+  key         String   @unique
   value       String
 
   @@map("visitors")
