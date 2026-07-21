@@ -130,15 +130,15 @@
   
   --radius: 0.625rem;
   
-  /* Deep Kemenag Green Sidebar */
-  --sidebar: #14532d;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: #eab308;
+  /* Clean White Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a; /* slate-900 */
+  --sidebar-primary: #10b981; /* emerald-500 */
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #166534;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #14532d;
-  --sidebar-ring: #eab308;
+  --sidebar-accent: #ecfdf5; /* emerald-50 */
+  --sidebar-accent-foreground: #047857; /* emerald-700 */
+  --sidebar-border: #e2e8f0; /* slate-200 */
+  --sidebar-ring: #10b981;
 }
 
 .dark {
