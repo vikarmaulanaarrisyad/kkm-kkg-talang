@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,6 +14,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     if (!existing) return NextResponse.json({ error: "Data unduhan tidak ditemukan" }, { status: 404 });
 
     await prisma.unduhan.delete({ where: { id } });
+
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, message: "Unduhan berhasil dihapus" });
   } catch (error: any) {
@@ -40,6 +43,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         icon_type: icon_type || existing.icon_type,
       }
     });
+
+    revalidatePath("/");
 
     return NextResponse.json({ success: true, message: "Unduhan berhasil diperbarui" });
   } catch (error: any) {
