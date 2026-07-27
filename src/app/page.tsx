@@ -635,10 +635,10 @@ export default async function Home() {
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Perkumpulan Aplikasi Operator</h2>
               <p className="mt-4 text-slate-600 text-lg">Akses cepat ke berbagai aplikasi dan sistem informasi yang sering digunakan.</p>
             </div>
-            <button className="group inline-flex items-center justify-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-700 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-100 transition-all shrink-0 shadow-sm">
+            <Link href="/aplikasi/operator" className="group inline-flex items-center justify-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-700 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-100 transition-all shrink-0 shadow-sm">
               Lihat Semua Aplikasi
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-indigo-400" />
-            </button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
