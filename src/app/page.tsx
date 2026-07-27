@@ -9,6 +9,7 @@ import TestimonialCarousel from "@/components/landing/TestimonialCarousel";
 import PartnerLogos from "@/components/landing/PartnerLogos";
 import FAQSection from "@/components/landing/FAQSection";
 import StatistikSection from "@/components/landing/StatistikSection";
+import DeadlineWidget from "@/components/DeadlineWidget";
 import prisma from "@/lib/prisma";
 
 async function getCategories() {
@@ -315,6 +316,13 @@ export default async function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* DEADLINE WIDGET */}
+      <section className="w-full relative z-30 px-4 -mt-16 sm:-mt-24 mb-16">
+        <div className="max-w-7xl mx-auto">
+          <DeadlineWidget />
         </div>
       </section>
 

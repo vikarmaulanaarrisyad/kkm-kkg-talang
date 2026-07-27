@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import DeadlineWidget from "@/components/DeadlineWidget";
 
 export default async function MadrasahDashboard() {
   const session = await getServerSession(authOptions);
@@ -101,6 +102,9 @@ export default async function MadrasahDashboard() {
         </div>
       </div>
       
+      {/* Deadline Widget */}
+      <DeadlineWidget />
+
       {/* Stat Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">

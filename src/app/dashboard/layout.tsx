@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon, Globe, MessageCircle } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon, Globe, MessageCircle, Clock } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -57,6 +57,7 @@ export default async function DashboardLayout({
                   <SidebarNavItem href="/dashboard/berita" icon={<FileText />} title="Kelola Berita" />
                   <SidebarNavItem href="/dashboard/kategori" icon={<Tag />} title="Kelola Kategori" />
                   <SidebarNavItem href="/dashboard/agenda" icon={<Calendar />} title="Kelola Agenda" />
+                  <SidebarNavItem href="/dashboard/deadline" icon={<Clock />} title="Kelola Deadline" />
                   <SidebarNavItem href="/dashboard/wiki" icon={<BookOpen />} title="Kelola Wiki & SOP" />
                   <SidebarNavItem href="/dashboard/unduhan" icon={<Download />} title="Kelola Unduhan" />
                   <SidebarNavItem href="/dashboard/link-operator" icon={<Globe />} title="Kelola Link Aplikasi" />

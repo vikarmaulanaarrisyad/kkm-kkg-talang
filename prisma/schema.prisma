@@ -315,3 +315,15 @@ model WikiSOP {
 
   @@map("wiki_sops")
 }
+
+model Deadline {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  category    String   @default("Umum")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("deadlines")
+}
