@@ -127,7 +127,7 @@ export default function PesanMasukPage() {
                       </td>
                       <td className="px-6 py-4">
                         <div className="font-medium text-slate-700">{item.subjek}</div>
-                        <div className="text-slate-500 text-xs truncate max-w-[200px]">{item.pesan}</div>
+                        <div className="text-slate-500 text-xs truncate max-w-50">{item.pesan}</div>
                       </td>
                       <td className="px-6 py-4 text-slate-500">
                         {item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : "-"}

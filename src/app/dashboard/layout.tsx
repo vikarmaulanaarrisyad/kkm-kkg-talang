@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon, Globe } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon, Globe, MessageCircle } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -63,6 +63,7 @@ export default async function DashboardLayout({
                   <SidebarNavItem href="/dashboard/kontak" icon={<MessageSquare />} title="Pesan Masuk" />
                   <SidebarNavItem href="/dashboard/surat" icon={<FileSignature />} title="Surat Menyurat" />
                   <SidebarNavItem href="/dashboard/kegiatan" icon={<Calendar />} title="Kegiatan & Presensi" />
+                  <SidebarNavItem href="/dashboard/diskusi" icon={<MessageCircle />} title="Forum Diskusi" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

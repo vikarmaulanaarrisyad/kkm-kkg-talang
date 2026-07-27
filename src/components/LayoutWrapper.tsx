@@ -18,7 +18,7 @@ export default function LayoutWrapper({ children, siteName }: { children: React.
     <>
       {isPublicRoute && <Navbar siteName={siteName} />}
       {isPublicRoute && <VisitorTracker />}
-      <main className={!isPublicRoute ? "flex-grow flex flex-col w-full" : "flex-grow flex flex-col"}>
+      <main className={!isPublicRoute ? "grow flex flex-col w-full" : "grow flex flex-col"}>
         {children}
       </main>
       {isPublicRoute && <Footer siteName={siteName} />}

@@ -271,3 +271,33 @@ model LinkOperator {
 
   @@map("link_operators")
 }
+
+model DiskusiTopic {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  author_id   String
+  author_name String
+  author_role String
+  status      String   @default("open")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  replies     DiskusiReply[]
+
+  @@map("diskusi_topics")
+}
+
+model DiskusiReply {
+  id          String   @id @default(cuid())
+  topic_id    String
+  topic       DiskusiTopic @relation(fields: [topic_id], references: [id], onDelete: Cascade)
+  content     String
+  author_id   String
+  author_name String
+  author_role String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("diskusi_replies")
+}

@@ -289,7 +289,7 @@ export default function RombelPage() {
       </Dialog>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 border-emerald-100 shadow-sm">
+        <Card className="bg-linear-to-br from-emerald-50 to-emerald-100/50 border-emerald-100 shadow-sm">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="p-3 bg-emerald-500 text-white rounded-xl"><Users className="w-6 h-6" /></div>
             <div>

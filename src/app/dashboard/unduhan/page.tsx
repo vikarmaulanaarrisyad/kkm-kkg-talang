@@ -231,7 +231,7 @@ export default function UnduhanPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-xs font-medium max-w-[200px] truncate">
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-xs font-medium max-w-50 truncate">
                             <LinkIcon className="w-3.5 h-3.5 shrink-0" />
                             <span className="truncate">{item.url}</span>
                           </a>

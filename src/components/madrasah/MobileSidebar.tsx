@@ -14,7 +14,7 @@ export default function MadrasahMobileSidebar({ madrasahName, siteName }: { madr
       <SheetContent side="left" className="w-72 bg-emerald-950 text-emerald-50 border-emerald-900 p-0 flex flex-col">
         <div className="p-6 border-b border-emerald-900">
           <Link href="/madrasah" className="flex items-center gap-3 group">
-            <div className="bg-gradient-to-br from-amber-400 to-amber-600 p-2.5 rounded-xl shadow-lg">
+            <div className="bg-linear-to-br from-amber-400 to-amber-600 p-2.5 rounded-xl shadow-lg">
               <BookOpen className="w-5 h-5 text-emerald-950" />
             </div>
             <div>

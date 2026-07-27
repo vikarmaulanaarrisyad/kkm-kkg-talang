@@ -290,12 +290,12 @@ export default function GuruDashboard() {
   return (
     <div className="space-y-6 sm:space-y-8 pb-10">
       {/* Full bleed mobile header */}
-      <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-b-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden -mt-1 pb-12">
+      <div className="bg-linear-to-br from-emerald-600 to-emerald-800 rounded-b-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden -mt-1 pb-12">
         <div className="relative z-10 flex items-center justify-between">
           <div>
             <p className="text-emerald-200 text-sm font-medium mb-1 tracking-wide">Portal Guru KKG</p>
             <h2 className="text-3xl font-black mb-2">Halo, {session?.user?.name?.split(" ")[0] || "Guru"}! 👋</h2>
-            <p className="text-emerald-100/90 text-sm max-w-[250px] leading-relaxed">
+            <p className="text-emerald-100/90 text-sm max-w-62.5 leading-relaxed">
               Selamat datang. Siap untuk kegiatan hari ini?
             </p>
           </div>
@@ -385,7 +385,7 @@ export default function GuruDashboard() {
         </div>
 
         {/* Testimoni Link */}
-        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bg-linear-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
             <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-1">
               <Quote className="w-5 h-5 text-emerald-600" /> Suara Anda (Testimoni)

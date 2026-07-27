@@ -76,7 +76,7 @@ export default function ChatbotKMA() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-20 right-4 sm:bottom-24 sm:right-8 w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full shadow-2xl flex items-center justify-center text-white z-50 hover:scale-110 active:scale-95 transition-transform"
+            className="fixed bottom-20 right-4 sm:bottom-24 sm:right-8 w-14 h-14 bg-linear-to-br from-emerald-500 to-teal-600 rounded-full shadow-2xl flex items-center justify-center text-white z-50 hover:scale-110 active:scale-95 transition-transform"
           >
             <MessageSquare className="w-6 h-6" />
             <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-red-500 border-2 border-slate-50 rounded-full animate-pulse"></span>
@@ -95,7 +95,7 @@ export default function ChatbotKMA() {
             className="fixed bottom-20 right-4 sm:bottom-24 sm:right-8 w-[calc(100vw-32px)] sm:w-96 h-[500px] max-h-[70vh] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] z-50 flex flex-col overflow-hidden border border-slate-200"
           >
             {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 flex items-center justify-between text-white shrink-0 shadow-md relative z-10">
+            <div className="bg-linear-to-r from-emerald-600 to-teal-700 p-4 flex items-center justify-between text-white shrink-0 shadow-md relative z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
                   <Bot className="w-5 h-5 text-white" />

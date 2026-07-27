@@ -34,7 +34,7 @@ export default async function LupaPasswordPage() {
         </div>
 
         {/* Content Middle */}
-        <div className="relative z-10 mt-12 md:mt-0 flex-grow flex flex-col justify-center">
+        <div className="relative z-10 mt-12 md:mt-0 grow flex flex-col justify-center">
           <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex items-center justify-center mb-8 shadow-2xl">
             <KeyRound className="w-8 h-8 text-amber-300" />
           </div>

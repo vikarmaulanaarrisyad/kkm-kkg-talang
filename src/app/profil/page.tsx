@@ -37,9 +37,9 @@ export default async function ProfilPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans">
-      <main className="flex-grow flex flex-col">
+      <main className="grow flex flex-col">
         {/* HEADER SECTION */}
-        <section className="w-full bg-gradient-to-br from-emerald-50 via-white to-emerald-100/50 pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden">
+        <section className="w-full bg-linear-to-br from-emerald-50 via-white to-emerald-100/50 pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden">
           {/* Subtle Background Pattern/Glow */}
           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-200/40 blur-3xl" />
           <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />

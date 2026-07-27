@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { LayoutDashboard, BookOpen, Users, GraduationCap, Mail, Calendar, KeyRound, Moon } from "lucide-react";
+import { LayoutDashboard, BookOpen, Users, GraduationCap, Mail, Calendar, KeyRound, Moon, MessageCircle } from "lucide-react";
 import LogoutButton from "@/app/dashboard/logout-button";
 import {
   Sidebar,
@@ -67,6 +67,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
                     ) : null}
                   />
                   <SidebarNavItem href="/madrasah/kegiatan" icon={<Calendar />} title="Kegiatan & Presensi" />
+                  <SidebarNavItem href="/madrasah/diskusi" icon={<MessageCircle />} title="Forum Diskusi" />
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>

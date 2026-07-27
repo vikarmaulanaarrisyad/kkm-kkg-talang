@@ -83,7 +83,7 @@ export default function MadrasahUsersPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
+      <div className="bg-linear-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start sm:items-center gap-4">
             <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm shrink-0">
