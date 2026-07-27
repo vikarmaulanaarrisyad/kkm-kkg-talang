@@ -79,7 +79,7 @@ export default function MadrasahSuratPage() {
   const unreadCount = data.filter(s => !s.sudah_dibaca).length;
 
   return (
-    <div className="h-[calc(100vh-8rem)] min-h-[600px] flex flex-col space-y-4 animate-in fade-in duration-500">
+    <div className="h-[calc(100vh-8rem)] min-h-150 flex flex-col space-y-4 animate-in fade-in duration-500">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shrink-0">

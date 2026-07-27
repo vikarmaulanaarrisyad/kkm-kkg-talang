@@ -126,7 +126,7 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
     }} className="space-y-6">
 
       {/* Identitas */}
-      <FormSection icon={UserCircle} title="Identitas Guru" subtitle="Data pribadi dan nomor identitas" color="bg-gradient-to-r from-emerald-600 to-emerald-500">
+      <FormSection icon={UserCircle} title="Identitas Guru" subtitle="Data pribadi dan nomor identitas" color="bg-linear-to-r from-emerald-600 to-emerald-500">
         <FormField label="Gelar Depan" hint="Misal: Drs., H.">
           <StyledInput icon={UserCircle} value={form.gelar_depan} onChange={set("gelar_depan")} placeholder="Gelar depan (opsional)" />
         </FormField>
@@ -163,7 +163,7 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
       </FormSection>
 
       {/* Kepegawaian */}
-      <FormSection icon={Briefcase} title="Data Kepegawaian" subtitle="Status jabatan dan riwayat pendidikan" color="bg-gradient-to-r from-amber-500 to-amber-400">
+      <FormSection icon={Briefcase} title="Data Kepegawaian" subtitle="Status jabatan dan riwayat pendidikan" color="bg-linear-to-r from-amber-500 to-amber-400">
         <FormField label="Status Kepegawaian">
           <Select value={form.status_kepegawaian} onValueChange={setSelect("status_kepegawaian")}>
             <SelectTrigger className={selectClass}><SelectValue placeholder="Pilih status..." /></SelectTrigger>
@@ -203,7 +203,7 @@ function GuruForm({ initial, onSave, onCancel, loading, masterData }: {
       </FormSection>
 
       {/* Kontak */}
-      <FormSection icon={Phone} title="Informasi Kontak" subtitle="Nomor HP dan alamat email aktif" color="bg-gradient-to-r from-blue-600 to-blue-500">
+      <FormSection icon={Phone} title="Informasi Kontak" subtitle="Nomor HP dan alamat email aktif" color="bg-linear-to-r from-blue-600 to-blue-500">
         <FormField label="No. HP / WhatsApp" hint="Gunakan nomor yang aktif di WhatsApp">
           <StyledInput icon={Phone} value={form.no_hp} onChange={set("no_hp")} placeholder="08xxxxxxxxxx" />
         </FormField>
@@ -337,7 +337,7 @@ export default function MadrasahGuruPage() {
       header: "No",
       className: "w-[50px] text-center",
       cell: (_: any, index: number) => (
-        <span className="font-medium text-muted-foreground">
+        <span className="font-medium text-slate-600">
           {(meta.page - 1) * meta.limit + index + 1}
         </span>
       )
@@ -406,7 +406,7 @@ export default function MadrasahGuruPage() {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Page Header */}
-        <div className="bg-gradient-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+        <div className="bg-linear-to-r from-emerald-800 to-emerald-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div className="flex items-start sm:items-center gap-4">

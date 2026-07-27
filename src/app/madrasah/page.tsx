@@ -71,7 +71,7 @@ export default async function MadrasahDashboard() {
     <div className="flex-1 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
       
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-900 p-8 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-emerald-700 to-teal-900 p-8 text-white shadow-lg">
         <div className="absolute -right-10 -top-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute right-10 bottom-0 opacity-10 pointer-events-none">
           <BookOpen className="w-48 h-48 transform translate-y-1/4" />
@@ -105,14 +105,14 @@ export default async function MadrasahDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Guru</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Total Guru</CardTitle>
             <div className="bg-blue-50 p-2.5 rounded-lg">
               <Users className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{totalGuru}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center">
+            <p className="text-xs text-slate-600 mt-2 font-medium flex items-center">
               Seluruh guru terdaftar
             </p>
           </CardContent>
@@ -120,14 +120,14 @@ export default async function MadrasahDashboard() {
         
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Guru PNS</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Guru PNS</CardTitle>
             <div className="bg-emerald-50 p-2.5 rounded-lg">
               <TrendingUp className="h-4 w-4 text-emerald-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{pnsCount}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center text-emerald-600">
+            <p className="text-xs text-slate-600 mt-2 font-medium flex items-center text-emerald-600">
               <CheckCircle2 className="w-3 h-3 mr-1" />
               Berstatus ASN/PNS
             </p>
@@ -136,14 +136,14 @@ export default async function MadrasahDashboard() {
 
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Guru Non-PNS</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Guru Non-PNS</CardTitle>
             <div className="bg-amber-50 p-2.5 rounded-lg">
               <BookOpen className="h-4 w-4 text-amber-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{nonPnsCount}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium">
+            <p className="text-xs text-slate-600 mt-2 font-medium">
               Honorer / GTT / GTY
             </p>
           </CardContent>
@@ -151,14 +151,14 @@ export default async function MadrasahDashboard() {
         
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Siswa Aktif</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Total Siswa Aktif</CardTitle>
             <div className="bg-purple-50 p-2.5 rounded-lg">
               <GraduationCap className="h-4 w-4 text-purple-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{totalSiswa.toLocaleString('id-ID')}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center gap-1.5">
+            <p className="text-xs text-slate-600 mt-2 font-medium flex items-center gap-1.5">
               <span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">T.A. {tahunAjaran || "-"}</span>
               L: {siswaL} / P: {siswaP}
             </p>
@@ -185,7 +185,7 @@ export default async function MadrasahDashboard() {
           </CardHeader>
           <CardContent className="p-6">
             {upcomingAgendas.length === 0 ? (
-              <div className="text-center text-muted-foreground p-8 flex flex-col items-center">
+              <div className="text-center text-slate-600 p-8 flex flex-col items-center">
                 <div className="bg-slate-100 p-4 rounded-full mb-3">
                   <Calendar className="w-8 h-8 text-slate-300" />
                 </div>

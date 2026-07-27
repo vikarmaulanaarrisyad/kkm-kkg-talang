@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, BookOpen, Bell, Tag, School, Users, Calendar, Download, MessageSquare, FileSignature, KeyRound, Moon, Globe } from "lucide-react";
 import LogoutButton from "./logout-button";
 import {
   Sidebar,
@@ -58,6 +58,7 @@ export default async function DashboardLayout({
                   <SidebarNavItem href="/dashboard/kategori" icon={<Tag />} title="Kelola Kategori" />
                   <SidebarNavItem href="/dashboard/agenda" icon={<Calendar />} title="Kelola Agenda" />
                   <SidebarNavItem href="/dashboard/unduhan" icon={<Download />} title="Kelola Unduhan" />
+                  <SidebarNavItem href="/dashboard/link-operator" icon={<Globe />} title="Kelola Link Aplikasi" />
                   <SidebarNavItem href="/dashboard/pengurus" icon={<Users />} title="Kelola Pengurus" />
                   <SidebarNavItem href="/dashboard/kontak" icon={<MessageSquare />} title="Pesan Masuk" />
                   <SidebarNavItem href="/dashboard/surat" icon={<FileSignature />} title="Surat Menyurat" />
@@ -126,7 +127,7 @@ export default async function DashboardLayout({
           </header>
           
           <div className="flex-1 overflow-auto bg-slate-50">
-            <div className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full h-full">
+            <div className="p-4 sm:p-8 max-w-350 mx-auto w-full h-full">
               {children}
             </div>
           </div>

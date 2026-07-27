@@ -80,7 +80,7 @@ export function DataTable<TData>({
           
           {onSearch && (
             <div className="relative w-full sm:max-w-xs">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-600" />
               <Input
                 type="text"
                 placeholder={searchPlaceholder}
@@ -118,7 +118,7 @@ export function DataTable<TData>({
                   <TableRow key={rowIndex}>
                     {columns.map((col, colIndex) => (
                       <TableCell key={colIndex} className={col.className}>
-                        <Skeleton className="h-5 w-full max-w-[200px]" />
+                        <Skeleton className="h-5 w-full max-w-50" />
                       </TableCell>
                     ))}
                   </TableRow>

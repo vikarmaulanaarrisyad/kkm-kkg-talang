@@ -1,7 +1,7 @@
 export const revalidate = 60;
 
 import Link from "next/link";
-import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature, Brain, Heart, Lightbulb, Sparkles, Map, Languages } from "lucide-react";
+import { ArrowRight, BookOpen, Users, Newspaper, Calendar, Download, FileText, FileSignature, Brain, Heart, Lightbulb, Sparkles, Map, Languages, AppWindow, Database, Globe, Smartphone, Monitor, Link as LinkIcon } from "lucide-react";
 import BeritaTabs from "@/components/landing/BeritaTabs";
 import { getCachedSiteName, getAllSettings } from "@/lib/settings";
 import { TypewriterEffect } from "@/components/ui/TypewriterEffect";
@@ -35,6 +35,24 @@ async function getUnduhan() {
     }));
   } catch (error) {
     console.error("Gagal mengambil unduhan", error);
+    return [];
+  }
+}
+
+async function getLinkOperators() {
+  try {
+    const data = await prisma.linkOperator.findMany({
+      orderBy: { created_at: 'desc' },
+      take: 8
+    });
+    return data.map((r: any) => ({
+      id: r.id,
+      title: r.title,
+      url: r.url,
+      icon_type: r.icon_type || 'Globe'
+    }));
+  } catch (error) {
+    console.error("Gagal mengambil link operator", error);
     return [];
   }
 }
@@ -180,7 +198,7 @@ export default async function Home() {
   const [
     latestNews, categories, siteName, upcomingAgendas, unduhanData, 
     profilSettings, pengurusData, totalGuru, testimonialsData,
-    totalMadrasah, totalSiswa, totalKegiatanSelesai
+    totalMadrasah, totalSiswa, totalKegiatanSelesai, linkOperators
   ] = await Promise.all([
     getLatestNews(),
     getCategories(),
@@ -194,6 +212,7 @@ export default async function Home() {
     getTotalMadrasah(),
     getTotalSiswa(),
     getKegiatanSelesai(),
+    getLinkOperators(),
   ]);
 
   const stripHtml = (html: string) => {
@@ -207,14 +226,14 @@ export default async function Home() {
         HERO SECTION (Clean & Responsive Light Theme)
         ========================================================
       */}
-      <section className="w-full relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-emerald-50/50 pt-24 pb-16 lg:pt-28 lg:pb-24 px-4 sm:px-6">
+      <section className="w-full relative overflow-hidden bg-linear-to-br from-cyan-50 via-white to-emerald-50/50 pt-24 pb-16 lg:pt-28 lg:pb-24 px-4 sm:px-6">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-emerald-100/50 blur-3xl" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 sm:w-96 sm:h-96 rounded-full bg-blue-100/40 blur-3xl" />
         
         <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-12 items-center relative z-10">
           
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700 w-full">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4 min-h-[40px]">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 text-emerald-700 shadow-sm lg:-ml-4 min-h-10">
               <TypewriterEffect text={`✨ Selamat Datang di Website Resmi ${siteName}`} className="text-sm font-bold tracking-tight" />
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.15]">
@@ -274,8 +293,8 @@ export default async function Home() {
           </div>
 
           <div className="flex relative w-full justify-center items-center animate-in fade-in zoom-in-95 duration-1000 delay-200 mt-8 lg:mt-0">
-            <div className="relative w-full max-w-xl lg:max-w-[600px] px-2 sm:px-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-purple-400 rounded-3xl blur-2xl opacity-40 transform translate-y-4"></div>
+            <div className="relative w-full max-w-xl lg:max-w-150 px-2 sm:px-0">
+              <div className="absolute inset-0 bg-linear-to-br from-emerald-400 to-purple-400 rounded-3xl blur-2xl opacity-40 transform translate-y-4"></div>
               
               <div className="relative rounded-3xl transform rotate-2 overflow-hidden shadow-2xl border-4 sm:border-8 border-white group bg-emerald-50 z-0">
                 <img 
@@ -351,7 +370,7 @@ export default async function Home() {
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 text-indigo-800 text-sm font-bold mb-4 shadow-sm">
               <Sparkles className="w-4 h-4 text-indigo-600" /> Senjata Rahasia Guru
             </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">Alat AI Cerdas <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Terintegrasi</span></h2>
+            <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">Alat AI Cerdas <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600">Terintegrasi</span></h2>
             <p className="text-lg text-slate-600 leading-relaxed">
               Tingkatkan produktivitas Anda dengan asisten kecerdasan buatan (AI) yang kami rancang khusus untuk kebutuhan kurikulum madrasah.
             </p>
@@ -363,7 +382,7 @@ export default async function Home() {
                 <BookOpen className="w-7 h-7 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-blue-600 transition-colors">Modul Ajar KMA 1503</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Susun RPP / Modul Ajar lengkap dengan Panca Cinta secara otomatis.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Susun RPP / Modul Ajar lengkap dengan Panca Cinta secara otomatis.</p>
               <div className="flex items-center text-sm font-bold text-blue-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -374,7 +393,7 @@ export default async function Home() {
                 <FileText className="w-7 h-7 text-teal-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-teal-600 transition-colors">Generator Soal MI</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Buat soal HOTS pilihan ganda, isian, dan esai dalam hitungan detik.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Buat soal HOTS pilihan ganda, isian, dan esai dalam hitungan detik.</p>
               <div className="flex items-center text-sm font-bold text-teal-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -385,7 +404,7 @@ export default async function Home() {
                 <Heart className="w-7 h-7 text-rose-500 fill-rose-500/20" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-rose-600 transition-colors">Skenario Panca Cinta</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Integrasikan 5 nilai kasih sayang (KBC) ke dalam topik materi Anda.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Integrasikan 5 nilai kasih sayang (KBC) ke dalam topik materi Anda.</p>
               <div className="flex items-center text-sm font-bold text-rose-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -396,7 +415,7 @@ export default async function Home() {
                 <Lightbulb className="w-7 h-7 text-violet-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-violet-600 transition-colors">Pemantik Deep Learning</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Hasilkan studi kasus dan pertanyaan kritis untuk diskusi kelas aktif.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Hasilkan studi kasus dan pertanyaan kritis untuk diskusi kelas aktif.</p>
               <div className="flex items-center text-sm font-bold text-violet-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -407,7 +426,7 @@ export default async function Home() {
                 <Brain className="w-7 h-7 text-emerald-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-emerald-600 transition-colors">Analis Gaya Belajar</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Identifikasi gaya belajar anak dari perilakunya dan temukan strategi mengajar.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Identifikasi gaya belajar anak dari perilakunya dan temukan strategi mengajar.</p>
               <div className="flex items-center text-sm font-bold text-emerald-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -418,7 +437,7 @@ export default async function Home() {
                 <FileSignature className="w-7 h-7 text-amber-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-amber-600 transition-colors">Narasi Raport</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Buat narasi perkembangan siswa yang menyentuh hati secara otomatis.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Buat narasi perkembangan siswa yang menyentuh hati secara otomatis.</p>
               <div className="flex items-center text-sm font-bold text-amber-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -429,7 +448,7 @@ export default async function Home() {
                 <Languages className="w-7 h-7 text-indigo-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-indigo-600 transition-colors">Asisten B. Arab</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Terjemahkan dengan Harakat dan panduan baca latin yang tepat.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Terjemahkan dengan Harakat dan panduan baca latin yang tepat.</p>
               <div className="flex items-center text-sm font-bold text-indigo-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -440,7 +459,7 @@ export default async function Home() {
                 <Map className="w-7 h-7 text-orange-600" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-orange-600 transition-colors">Generator ATP</h3>
-              <p className="text-slate-600 text-sm leading-relaxed mb-6 flex-grow">Susun Alur Tujuan Pembelajaran dengan runtut dan terstruktur.</p>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6 grow">Susun Alur Tujuan Pembelajaran dengan runtut dan terstruktur.</p>
               <div className="flex items-center text-sm font-bold text-orange-600 mt-auto">
                 Coba Sekarang <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -467,7 +486,7 @@ export default async function Home() {
                 <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">Kegiatan Terdekat</h2>
                 <p className="mt-4 text-slate-600 text-lg">Jangan lewatkan berbagai kegiatan menarik dan bermanfaat yang telah kami jadwalkan untuk Anda.</p>
               </div>
-              <Link href="/agenda" className="group inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all flex-shrink-0">
+              <Link href="/agenda" className="group inline-flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-all shrink-0">
                 Lihat Seluruh Agenda
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -476,7 +495,7 @@ export default async function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {upcomingAgendas.map((agenda: any, idx: number) => (
                 <div key={agenda.id} className="relative group perspective-1000">
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 rounded-3xl transform translate-y-4 scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                  <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-blue-500/5 rounded-3xl transform translate-y-4 scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                   <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 relative z-10 h-full flex flex-col">
                     <div className="flex items-center justify-between mb-6">
                       <div className="w-12 h-12 bg-slate-50 rounded-2xl flex flex-col items-center justify-center border border-slate-100">
@@ -546,7 +565,7 @@ export default async function Home() {
               <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Dokumen & Berkas Penting</h2>
               <p className="mt-4 text-slate-600 text-lg">Akses cepat untuk mengunduh berbagai format, pedoman, dan surat edaran resmi.</p>
             </div>
-            <button className="group inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-all flex-shrink-0 shadow-sm">
+            <button className="group inline-flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 px-6 py-3 rounded-xl font-semibold hover:bg-slate-50 transition-all shrink-0 shadow-sm">
               Lihat Semua Dokumen
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-slate-400" />
             </button>
@@ -599,6 +618,76 @@ export default async function Home() {
                 <Download className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                 <h3 className="text-lg font-bold text-slate-600">Belum Ada Dokumen</h3>
                 <p className="text-slate-500 mt-2">Daftar unduhan akan segera diperbarui oleh admin.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* KUMPULAN LINK APLIKASI OPERATOR */}
+      <section id="aplikasi-operator" className="w-full py-20 px-4 bg-white relative border-t border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-sm font-bold mb-4">
+                <Globe className="w-4 h-4" /> Aplikasi & Link
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Perkumpulan Aplikasi Operator</h2>
+              <p className="mt-4 text-slate-600 text-lg">Akses cepat ke berbagai aplikasi dan sistem informasi yang sering digunakan.</p>
+            </div>
+            <button className="group inline-flex items-center justify-center gap-2 bg-indigo-50 border border-indigo-100 text-indigo-700 px-6 py-3 rounded-xl font-semibold hover:bg-indigo-100 transition-all shrink-0 shadow-sm">
+              Lihat Semua Aplikasi
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-indigo-400" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {linkOperators.length > 0 ? (
+              linkOperators.map((link: any, idx: number) => {
+                let IconComponent = Globe;
+                let colorClass = "text-blue-600";
+                let bgClass = "bg-blue-50";
+                let borderClass = "border-blue-100";
+
+                switch(link.icon_type) {
+                  case 'AppWindow':
+                    IconComponent = AppWindow;
+                    colorClass = "text-emerald-600"; bgClass = "bg-emerald-50"; borderClass = "border-emerald-100";
+                    break;
+                  case 'Database':
+                    IconComponent = Database;
+                    colorClass = "text-purple-600"; bgClass = "bg-purple-50"; borderClass = "border-purple-100";
+                    break;
+                  case 'Smartphone':
+                    IconComponent = Smartphone;
+                    colorClass = "text-amber-600"; bgClass = "bg-amber-50"; borderClass = "border-amber-100";
+                    break;
+                  case 'Monitor':
+                    IconComponent = Monitor;
+                    colorClass = "text-slate-600"; bgClass = "bg-slate-50"; borderClass = "border-slate-200";
+                    break;
+                }
+
+                return (
+                  <a key={link.id || idx} href={link.url} target="_blank" rel="noopener noreferrer" className="group bg-white rounded-3xl p-6 border border-slate-200 hover:border-indigo-200 hover:shadow-xl shadow-sm transition-all duration-300 flex flex-col h-full transform hover:-translate-y-1">
+                    <div className={`w-14 h-14 rounded-2xl ${bgClass} ${borderClass} border flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                      <IconComponent className={`w-7 h-7 ${colorClass}`} />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-800 mb-4 leading-snug group-hover:text-indigo-600 transition-colors">{link.title}</h3>
+                    <div className="mt-auto flex items-center justify-between text-sm font-semibold text-slate-500 pt-4 border-t border-slate-100">
+                      <span>Buka Aplikasi</span>
+                      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <LinkIcon className="w-4 h-4" />
+                      </div>
+                    </div>
+                  </a>
+                );
+              })
+            ) : (
+              <div className="col-span-1 sm:col-span-2 lg:col-span-4 text-center py-12 bg-white rounded-3xl border border-slate-200 border-dashed">
+                <Globe className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <h3 className="text-lg font-bold text-slate-600">Belum Ada Aplikasi</h3>
+                <p className="text-slate-500 mt-2">Daftar aplikasi dan link akan segera diperbarui oleh admin.</p>
               </div>
             )}
           </div>

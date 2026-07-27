@@ -124,7 +124,7 @@ export default function BeritaPage() {
       header: "No",
       className: "w-[50px] text-center",
       cell: (_: any, index: number) => (
-        <span className="font-medium text-muted-foreground">
+        <span className="font-medium text-slate-600">
           {(meta.page - 1) * meta.limit + index + 1}
         </span>
       )
@@ -138,7 +138,7 @@ export default function BeritaPage() {
         </div>
       ) : (
         <div className="w-16 h-10 rounded-md bg-muted flex items-center justify-center border border-border/50 mx-auto">
-          <ImageIcon className="w-4 h-4 text-muted-foreground/50" />
+          <ImageIcon className="w-4 h-4 text-slate-600/50" />
         </div>
       )
     },
@@ -148,14 +148,14 @@ export default function BeritaPage() {
       cell: (item: Berita) => (
         <div className="flex flex-col">
           <span className="text-foreground">{item.title}</span>
-          <span className="text-xs text-muted-foreground font-normal mt-0.5 truncate max-w-[250px]">/{item.slug}</span>
+          <span className="text-xs text-slate-600 font-normal mt-0.5 truncate max-w-62.5">/{item.slug}</span>
         </div>
       )
     },
     {
       header: "Kategori",
       cell: (item: Berita) => (
-        <Badge variant="outline" className="bg-muted text-muted-foreground">{item.category || "Umum"}</Badge>
+        <Badge variant="outline" className="bg-muted text-slate-600">{item.category || "Umum"}</Badge>
       )
     },
     {
@@ -168,12 +168,12 @@ export default function BeritaPage() {
     },
     {
       header: "Penulis",
-      cell: (item: Berita) => <span className="text-muted-foreground text-sm">{item.author}</span>
+      cell: (item: Berita) => <span className="text-slate-600 text-sm">{item.author}</span>
     },
     {
       header: "Tanggal",
       cell: (item: Berita) => (
-        <span className="text-muted-foreground text-sm">
+        <span className="text-slate-600 text-sm">
           {new Date(item.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
         </span>
       )
@@ -189,7 +189,7 @@ export default function BeritaPage() {
           <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" title="Hapus" onClick={() => handleDelete(item.id)}>
             <Trash2 className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" title="Lihat Publikasi" render={<Link href={`/berita/${item.slug}`} target="_blank" />}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-600 hover:text-foreground" title="Lihat Publikasi" render={<Link href={`/berita/${item.slug}`} target="_blank" />}>
             <ExternalLink className="h-4 w-4" />
           </Button>
         </div>
@@ -202,7 +202,7 @@ export default function BeritaPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Kelola Berita</h1>
-          <p className="text-muted-foreground mt-1">Daftar semua berita dan informasi KKM.</p>
+          <p className="text-slate-600 mt-1">Daftar semua berita dan informasi KKM.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchData} className="gap-2">

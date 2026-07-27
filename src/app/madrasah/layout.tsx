@@ -104,7 +104,7 @@ export default async function MadrasahLayout({ children }: { children: React.Rea
           </header>
           
           <div className="flex-1 overflow-auto bg-slate-50">
-            <div className="p-4 sm:p-8 max-w-[1400px] mx-auto w-full h-full">
+            <div className="p-4 sm:p-8 max-w-350 mx-auto w-full h-full">
               {children}
             </div>
           </div>

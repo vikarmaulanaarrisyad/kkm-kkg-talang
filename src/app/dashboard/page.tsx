@@ -77,7 +77,7 @@ export default async function DashboardPage() {
     <div className="flex-1 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
       
       {/* Welcome Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-800 p-8 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-emerald-600 to-teal-800 p-8 text-white shadow-lg">
         <div className="absolute -right-10 -top-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
@@ -104,14 +104,14 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Berita</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Total Berita</CardTitle>
             <div className="bg-blue-50 p-2.5 rounded-lg">
               <Newspaper className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{totalBerita}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center">
+            <p className="text-xs text-slate-600 mt-2 font-medium flex items-center">
               <span className="text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded mr-1.5">{publishedBerita} Publikasi</span>
               <span className="text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">{draftBerita} Draft</span>
             </p>
@@ -120,14 +120,14 @@ export default async function DashboardPage() {
         
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Pengunjung</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Total Pengunjung</CardTitle>
             <div className="bg-amber-50 p-2.5 rounded-lg">
               <Users className="h-4 w-4 text-amber-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{totalVisitors.toLocaleString('id-ID')}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium flex items-center text-emerald-600">
+            <p className="text-xs text-slate-600 mt-2 font-medium flex items-center text-emerald-600">
               <TrendingUp className="w-3 h-3 mr-1" />
               Tumbuh secara organik
             </p>
@@ -136,14 +136,14 @@ export default async function DashboardPage() {
         
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Total Siswa Aktif</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Total Siswa Aktif</CardTitle>
             <div className="bg-emerald-50 p-2.5 rounded-lg">
               <GraduationCap className="h-4 w-4 text-emerald-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold tracking-tighter text-slate-800">{totalSiswa.toLocaleString('id-ID')}</div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium bg-slate-100 w-fit px-2 py-0.5 rounded text-slate-600">
+            <p className="text-xs text-slate-600 mt-2 font-medium bg-slate-100 w-fit px-2 py-0.5 rounded text-slate-600">
               T.A. {tahunAjaran || "-"}
             </p>
           </CardContent>
@@ -151,7 +151,7 @@ export default async function DashboardPage() {
         
         <Card className="hover:shadow-md transition-shadow duration-200 border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-muted-foreground">Status Sistem</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-600">Status Sistem</CardTitle>
             <div className="bg-purple-50 p-2.5 rounded-lg">
               <Server className="h-4 w-4 text-purple-600" />
             </div>
@@ -164,7 +164,7 @@ export default async function DashboardPage() {
               </span>
               <div className="text-2xl font-bold text-slate-800 tracking-tight">Online</div>
             </div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium">
+            <p className="text-xs text-slate-600 mt-2 font-medium">
               Layanan operasional normal
             </p>
           </CardContent>
@@ -183,7 +183,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 p-6">
-            <div className="h-[350px] w-full">
+            <div className="h-87.5 w-full">
               <OverviewChart />
             </div>
           </CardContent>
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
           <CardContent className="p-0">
             <div className="divide-y divide-slate-100">
               {activityLogs.length === 0 ? (
-                <div className="text-center text-muted-foreground p-8 flex flex-col items-center">
+                <div className="text-center text-slate-600 p-8 flex flex-col items-center">
                   <div className="bg-slate-100 p-3 rounded-full mb-3">
                     <Activity className="w-6 h-6 text-slate-400" />
                   </div>

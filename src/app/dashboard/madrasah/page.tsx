@@ -91,7 +91,7 @@ function MadrasahForm({ initial, onSave, onCancel }: {
           <Label>Password {initial?.id ? "(kosongkan jika tidak diubah)" : <span className="text-red-500">*</span>}</Label>
           <div className="relative">
             <Input type={showPwd ? "text" : "password"} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder={initial?.id ? "••••••••" : "Min. 6 karakter"} required={!initial?.id} />
-            <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground">
+            <button type="button" onClick={() => setShowPwd(!showPwd)} className="absolute right-3 top-2.5 text-slate-600 hover:text-foreground">
               {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
           </div>
@@ -236,7 +236,7 @@ export default function AdminMadrasahPage() {
     {
       header: "No",
       className: "w-[50px] text-center",
-      cell: (_: any, i: number) => <span className="font-medium text-muted-foreground">{(meta.page - 1) * meta.limit + i + 1}</span>
+      cell: (_: any, i: number) => <span className="font-medium text-slate-600">{(meta.page - 1) * meta.limit + i + 1}</span>
     },
     {
       header: "Identitas Madrasah",
@@ -247,7 +247,7 @@ export default function AdminMadrasahPage() {
           </div>
           <div>
             <p className="font-semibold text-foreground">{m.nama}</p>
-            <p className="text-xs text-muted-foreground">{m.kecamatan || "Alamat tidak tersedia"}</p>
+            <p className="text-xs text-slate-600">{m.kecamatan || "Alamat tidak tersedia"}</p>
           </div>
         </div>
       )
@@ -257,7 +257,7 @@ export default function AdminMadrasahPage() {
       cell: (m: Madrasah) => (
         <div className="flex flex-col space-y-1">
           <span className="text-sm font-mono">{m.nsm || "-"}</span>
-          <span className="text-xs text-muted-foreground font-mono">{m.npsn || "-"}</span>
+          <span className="text-xs text-slate-600 font-mono">{m.npsn || "-"}</span>
         </div>
       )
     },
@@ -304,7 +304,7 @@ export default function AdminMadrasahPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Kelola Madrasah</h1>
-          <p className="text-muted-foreground mt-1">Aktivasi pendaftaran & manajemen akun madrasah anggota.</p>
+          <p className="text-slate-600 mt-1">Aktivasi pendaftaran & manajemen akun madrasah anggota.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={fetchData} className="gap-2">
@@ -339,7 +339,7 @@ export default function AdminMadrasahPage() {
                 key={t.key}
                 onClick={() => setTab(t.key as Tab)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  tab === t.key ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                  tab === t.key ? "bg-white shadow-sm text-foreground" : "text-slate-600 hover:text-foreground"
                 }`}
               >
                 {t.label}
@@ -350,7 +350,7 @@ export default function AdminMadrasahPage() {
       />
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-150 p-0 overflow-hidden">
           <DialogHeader className="p-6 pb-0">
             <DialogTitle className="text-2xl font-bold flex items-center gap-2">
               <School className="w-5 h-5 text-emerald-600" />

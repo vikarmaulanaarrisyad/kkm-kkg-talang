@@ -261,3 +261,13 @@ model Kontak {
 
   @@map("kontaks")
 }
+
+model LinkOperator {
+  id          String   @id @default(cuid())
+  title       String
+  url         String
+  icon_type   String?
+  created_at  DateTime @default(now())
+
+  @@map("link_operators")
+}

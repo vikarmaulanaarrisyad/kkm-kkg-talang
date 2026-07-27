@@ -183,11 +183,11 @@
 
 @layer utilities {
   .gradient-kemenag {
-    @apply bg-gradient-to-br from-[#16a34a] via-[#15803d] to-[#14532d];
+    @apply bg-linear-to-br from-madrasah-600 via-madrasah-700 to-madrasah-900;
   }
   
   .gradient-kemenag-text {
-    @apply bg-gradient-to-r from-[#16a34a] to-[#ca8a04] bg-clip-text text-transparent;
+    @apply bg-linear-to-r from-madrasah-600 to-gold-600 bg-clip-text text-transparent;
   }
   
   .bg-mesh {
