@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 function generateSlug(title: string) {
   return title
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    revalidateTag('wiki');
+    revalidatePath('/wiki');
 
     return NextResponse.json({ success: true, data: newSop });
   } catch (error) {
