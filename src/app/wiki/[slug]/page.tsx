@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const sop = await (prisma as any).wikiSOP.findUnique({
     where: { slug: params.slug }
   });
@@ -17,7 +18,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function WikiDetailPage({ params }: { params: { slug: string } }) {
+export default async function WikiDetailPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const sop = await (prisma as any).wikiSOP.findUnique({
     where: { slug: params.slug }
   });

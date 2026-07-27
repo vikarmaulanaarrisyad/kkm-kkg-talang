@@ -4,8 +4,9 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
-export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
+    const params = await props.params;
     const slug = params.slug;
     const sop = await (prisma as any).wikiSOP.findUnique({
       where: { slug }
@@ -22,8 +23,9 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
+    const params = await props.params;
     const session = await getServerSession(authOptions);
     if (!session || !session.user || (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -55,8 +57,9 @@ export async function PUT(request: NextRequest, { params }: { params: { slug: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function DELETE(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
+    const params = await props.params;
     const session = await getServerSession(authOptions);
     if (!session || !session.user || (session.user as any).role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
