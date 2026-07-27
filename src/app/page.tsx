@@ -475,9 +475,8 @@ export default async function Home() {
       )}
 
       {/* AGENDA MENDATANG SECTION */}
-      {upcomingAgendas.length > 0 && (
-        <section className="w-full pt-32 pb-16 px-4 relative overflow-hidden">
-          <div className="max-w-7xl mx-auto relative z-10">
+      <section className="w-full pt-32 pb-16 px-4 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto relative z-10">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
               <div className="max-w-2xl">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-sm font-bold mb-4">
@@ -492,8 +491,9 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {upcomingAgendas.map((agenda: any, idx: number) => (
+            {upcomingAgendas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {upcomingAgendas.map((agenda: any, idx: number) => (
                 <div key={agenda.id} className="relative group perspective-1000">
                   <div className="absolute inset-0 bg-linear-to-br from-emerald-500/5 to-blue-500/5 rounded-3xl transform translate-y-4 scale-95 opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                   <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 hover:border-emerald-200 hover:shadow-xl transition-all duration-300 relative z-10 h-full flex flex-col">
@@ -529,9 +529,15 @@ export default async function Home() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="text-center py-12 bg-slate-50 rounded-3xl border border-slate-100">
+              <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-slate-700">Belum Ada Agenda Mendatang</h3>
+              <p className="text-slate-500 mt-2">Nantikan informasi kegiatan selanjutnya.</p>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* LATEST NEWS SECTION */}
       <section id="berita" className="w-full pt-16 pb-32 px-4 relative">
