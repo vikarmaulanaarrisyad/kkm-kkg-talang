@@ -20,7 +20,7 @@ const getCachedAgendas = unstable_cache(
       return data.map((a: any) => ({
         id: a.id,
         title: a.title,
-        date: typeof a.date === 'string' ? a.date : a.date.toISOString(),
+        date: typeof a.date === 'string' ? a.date.split('T')[0] : a.date.toISOString().split('T')[0],
         time: a.time,
         location: a.location,
         description: a.description,
