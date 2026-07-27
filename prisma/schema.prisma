@@ -301,3 +301,17 @@ model DiskusiReply {
 
   @@map("diskusi_replies")
 }
+
+model WikiSOP {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  category    String   @default("Umum")
+  author_id   String
+  author_name String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@map("wiki_sops")
+}

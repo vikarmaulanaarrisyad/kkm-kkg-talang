@@ -57,6 +57,7 @@ export default async function DashboardLayout({
                   <SidebarNavItem href="/dashboard/berita" icon={<FileText />} title="Kelola Berita" />
                   <SidebarNavItem href="/dashboard/kategori" icon={<Tag />} title="Kelola Kategori" />
                   <SidebarNavItem href="/dashboard/agenda" icon={<Calendar />} title="Kelola Agenda" />
+                  <SidebarNavItem href="/dashboard/wiki" icon={<BookOpen />} title="Kelola Wiki & SOP" />
                   <SidebarNavItem href="/dashboard/unduhan" icon={<Download />} title="Kelola Unduhan" />
                   <SidebarNavItem href="/dashboard/link-operator" icon={<Globe />} title="Kelola Link Aplikasi" />
                   <SidebarNavItem href="/dashboard/pengurus" icon={<Users />} title="Kelola Pengurus" />

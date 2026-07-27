@@ -61,6 +61,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
             <Link href="/agenda" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Agenda
             </Link>
+            <Link href="/wiki" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
+              Wiki & SOP
+            </Link>
             <Link href="/#unduhan" className="text-slate-600 hover:text-emerald-600 font-semibold transition-colors">
               Unduhan
             </Link>
@@ -134,6 +137,9 @@ export default function Navbar({ siteName = "KKM & KKG MI TALANG" }: { siteName?
           </Link>
           <Link href="/agenda" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Agenda
+          </Link>
+          <Link href="/wiki" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
+            Wiki & SOP
           </Link>
           <Link href="/#unduhan" onClick={() => setIsOpen(false)} className="block px-3 py-2.5 rounded-lg text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-600">
             Unduhan
